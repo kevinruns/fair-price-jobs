@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Welcome
+{% endblock %}
+
+{% block main %}
+    <h1>Welcome, {{ username }}!</h1>
+    <p>Thank you for registering with our service.</p>
+    <p>You can now <a href="{{ url_for('login') }}">log in</a> to access your account.</p>
+{% endblock %}

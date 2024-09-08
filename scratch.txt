@@ -1,0 +1,42 @@
+
+
+app/: Contains the main application code.
+
+        __init__.py: Initializes the Flask app and other components. Typically contains app = Flask(__name__) and configuration settings.
+
+        routes.py: Defines the routes and views of your application.
+
+        models.py: Contains your data models (if using a database).
+
+        templates/: Holds HTML templates for rendering views.
+
+venv/: The virtual environment where your dependencies are installed.
+
+config.py: Configuration settings for the Flask app.
+
+run.py: The script to run the Flask application. It usually contains from app import app and app.run().
+
+requirements.txt: Lists the Python packages required for the app. You can generate this with pip freeze > requirements.txt.
+
+
+
+
+* cursor  
+
+highlight code then ctrl + k
+ctrl - L    chat window
+
+
+Activate composer in settings to refactor code. but still work in process
+
+
+Can copy paste images into chat
+
+
+
+
+
+
+
+
+
