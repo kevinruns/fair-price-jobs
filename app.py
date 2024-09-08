@@ -237,6 +237,62 @@ def create_group():
 
 
 
+@app.route("/search_groups", methods=["GET", "POST"])
+@login_required
+def search_groups():
+    groups = []
+    postcode = ""
+    if request.method == "POST":
+        postcode = request.form.get("postcode")
+        db = get_db()
+        groups = db.execute("SELECT * FROM groups WHERE postcode = ?", (postcode,)).fetchall()
+    return render_template("search_groups.html", groups=groups, postcode=postcode)
+
+
+
+
+@app.route("/view_group/<int:group_id>")
+@login_required
+def view_group(group_id):
+    try:
+        db = get_db()
+        cursor = db.cursor()
+
+        # Fetch group details including member count
+        cursor.execute("""
+            SELECT g.*, COUNT(ug.user_id) as member_count
+            FROM groups g
+            LEFT JOIN user_groups ug ON g.id = ug.group_id
+            WHERE g.id = ?
+            GROUP BY g.id
+        """, (group_id,))
+        group = cursor.fetchone()
+
+        if group is None:
+            flash("Group not found", "error")
+            return redirect(url_for("search_groups"))
+
+        # Check if the current user is a member of this group
+        cursor.execute("""
+            SELECT 1 FROM user_groups
+            WHERE user_id = ? AND group_id = ?
+        """, (session["user_id"], group_id))
+        is_member = cursor.fetchone() is not None
+
+        # Print debug information
+        print(f"Group: {group}")
+        print(f"Is member: {is_member}")
+
+        return render_template("view_group.html", group=group, is_member=is_member)
+    except Exception as e:
+        print(f"Error in view_group: {str(e)}")
+        return f"An error occurred: {str(e)}", 500
+
+
+
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
 

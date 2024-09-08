@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>{{ group['name'] }}</h1>
+
+<h2>Group Details</h2>
+<p>Postcode: {{ group['postcode'] }}</p>
+<p>Number of Members: {{ group['member_count'] }}</p>
+
+{% if is_member %}
+<p>You are a member of this group.</p>
+{% else %}
+<p>You are not a member of this group.</p>
+{% endif %}
+
+<a href="{{ url_for('search_groups') }}">Back to Search</a>
+{% endblock %}
