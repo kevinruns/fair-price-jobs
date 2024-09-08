@@ -1,17 +1,14 @@
-
 {% extends "layout.html" %}
 
 {% block title %}
-Index
+    Welcome
 {% endblock %}
-
 
 {% block main %}
-
-<div class="container text-center">
-
-    <p>Index</p>
-
-</div>
-
+    <h1>Welcome, {{ username }}!</h1>
+    
+    <div class="mt-4">
+        <a href="{{ url_for('create_group') }}" class="btn btn-primary">Create a New Group</a>
+    </div>
 {% endblock %}
+

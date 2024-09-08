@@ -50,11 +50,13 @@ def login():
     if request.method == "POST":
         # Ensure username was submitted
         if not request.form.get("username"):
-            return apology("must provide username", 403)
+            apology("must provide username", 403)
+            return render_template("login.html"), 403
 
         # Ensure password was submitted
         elif not request.form.get("password"):
-            return apology("must provide password", 403)
+            apology("must provide password", 403)
+            return render_template("login.html"), 403
 
         # Query database for username
         db = get_db()
@@ -64,7 +66,8 @@ def login():
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
-            return apology("invalid username and/or password", 403)
+            apology("invalid username and/or password", 403)
+            return render_template("login.html"), 403
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
@@ -183,6 +186,31 @@ def initialize_db():
     return 'Database initialized.'
 
 
+
+@app.route("/create_group", methods=["GET", "POST"])
+@login_required
+def create_group():
+    print("Create group route accessed")  # Add this line
+    if request.method == "POST":
+        group_name = request.form.get("group_name")
+        group_postcode = request.form.get("group_postcode")
+        
+        if not group_name or not group_postcode:
+            flash("Please provide both group name and postcode", "error")
+            return render_template("create_group.html")
+        
+        db = get_db()
+        try:
+            db.execute("INSERT INTO groups (name, postcode) VALUES (?, ?)", 
+                       (group_name, group_postcode))
+            db.commit()
+            flash("Group created successfully!", "success")
+            return redirect(url_for("index"))
+        except sqlite3.Error as e:
+            flash(f"An error occurred: {e}", "error")
+            return render_template("create_group.html")
+    
+    return render_template("create_group.html")
 
 if __name__ == '__main__':
     app.run(debug=True)
