@@ -1,8 +1,8 @@
-
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS groups;
 DROP TABLE IF EXISTS tradesmen;
 DROP TABLE IF EXISTS jobs;
+DROP TABLE IF EXISTS user_groups;
 
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,6 +18,15 @@ CREATE TABLE groups (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     postcode TEXT NOT NULL
+);
+
+-- New junction table for user-group relationship
+CREATE TABLE user_groups (
+    user_id INTEGER,
+    group_id INTEGER,
+    PRIMARY KEY (user_id, group_id),
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (group_id) REFERENCES groups (id) ON DELETE CASCADE
 );
 
 CREATE TABLE tradesmen (

@@ -30,13 +30,27 @@ DATABASE = 'application.db'  # This is your database name
 def index():
     """Show index"""
 
-    if (session["user_id"]):
-
-
-        return render_template("index.html")
-    
-
-    
+    if session.get("user_id"):
+        db = get_db()
+        cursor = db.cursor()
+        
+        # Fetch the username
+        cursor.execute("SELECT username FROM users WHERE id = ?", (session["user_id"],))
+        user = cursor.fetchone()
+        username = user["username"] if user else "Unknown"
+        
+        # Fetch the groups the user is in
+        cursor.execute("""
+            SELECT g.id, g.name, g.postcode 
+            FROM groups g
+            JOIN user_groups ug ON g.id = ug.group_id
+            WHERE ug.user_id = ?
+        """, (session["user_id"],))
+        groups = cursor.fetchall()
+        
+        return render_template("index.html", username=username, groups=groups)
+    else:
+        return redirect("/login")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -163,7 +177,7 @@ def welcome(username):
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
+        db = g._database = sqlite3.connect(DATABASE, isolation_level=None)
         db.row_factory = sqlite3.Row
     return db
 
@@ -190,7 +204,7 @@ def initialize_db():
 @app.route("/create_group", methods=["GET", "POST"])
 @login_required
 def create_group():
-    print("Create group route accessed")  # Add this line
+    print("Create group route accessed")
     if request.method == "POST":
         group_name = request.form.get("group_name")
         group_postcode = request.form.get("group_postcode")
@@ -201,16 +215,27 @@ def create_group():
         
         db = get_db()
         try:
-            db.execute("INSERT INTO groups (name, postcode) VALUES (?, ?)", 
-                       (group_name, group_postcode))
-            db.commit()
-            flash("Group created successfully!", "success")
+            # Start a transaction
+            with db:
+                # Insert the new group
+                cursor = db.execute("INSERT INTO groups (name, postcode) VALUES (?, ?)", 
+                                    (group_name, group_postcode))
+                group_id = cursor.lastrowid  # Get the ID of the newly created group
+                
+                # Add the current user to the group
+                user_id = session.get("user_id")
+                db.execute("INSERT INTO user_groups (user_id, group_id) VALUES (?, ?)",
+                           (user_id, group_id))
+            
+            flash("Group created successfully and you've been added to it!", "success")
             return redirect(url_for("index"))
         except sqlite3.Error as e:
             flash(f"An error occurred: {e}", "error")
             return render_template("create_group.html")
     
     return render_template("create_group.html")
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
