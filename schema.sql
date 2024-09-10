@@ -20,7 +20,7 @@ CREATE TABLE groups (
     postcode TEXT NOT NULL
 );
 
--- New junction table for user-group relationship
+-- Junction table for user-group relationship
 CREATE TABLE user_groups (
     user_id INTEGER,
     group_id INTEGER,
@@ -39,16 +39,21 @@ CREATE TABLE tradesmen (
     email TEXT
 );
 
+-- New junction table for group-tradesman relationship
+CREATE TABLE group_tradesmen (
+    group_id INTEGER,
+    tradesman_id INTEGER,
+    PRIMARY KEY (group_id, tradesman_id),
+    FOREIGN KEY (group_id) REFERENCES groups (id) ON DELETE CASCADE,
+    FOREIGN KEY (tradesman_id) REFERENCES tradesmen (id) ON DELETE CASCADE
+);
+
+-- New table for jobs
 CREATE TABLE jobs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     tradesman_id INTEGER NOT NULL,
     date TEXT NOT NULL,
-    call_out_fee INTEGER,
-    hourly_rate INTEGER,
-    time_spent_hours INTEGER,
-    time_spent_days INTEGER,
-    materials_cost INTEGER,
-    total_cost INTEGER NOT NULL,
-    rating INTEGER NOT NULL,
-    comment TEXT NOT NULL
+    description TEXT NOT NULL,
+    status TEXT NOT NULL,
+    FOREIGN KEY (tradesman_id) REFERENCES tradesmen (id) ON DELETE CASCADE
 );

@@ -7,3 +7,6 @@ env/
 venv/
 *.db
 *.sqlite3
+init_db.py
+load_db.py
+load.sql

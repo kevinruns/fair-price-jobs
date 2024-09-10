@@ -11,6 +11,25 @@
     {% if is_member %}
     <p>You are a member of this group.</p>
     <a href="{{ url_for('add_tradesman', group_id=group['id']) }}" class="btn btn-primary">Add Tradesman</a>
+    
+    {% if tradesmen %}
+        <h3 class="mt-4">Tradesmen in this group:</h3>
+        <ul class="list-group">
+        {% for trade, trade_group in tradesmen|groupby('trade') %}
+            <li class="list-group-item">
+                <h4>{{ trade }}</h4>
+                <ul>
+                {% for tradesman in trade_group %}
+                    <li>{{ tradesman.name }} - {{ tradesman.phone_number }}</li>
+                {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No tradesmen in this group yet.</p>
+    {% endif %}
+
     {% else %}
     <p>You are not a member of this group.</p>
     <form action="{{ url_for('join_group', group_id=group['id']) }}" method="post">

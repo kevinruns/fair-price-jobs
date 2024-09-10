@@ -255,40 +255,44 @@ def search_groups():
 @app.route("/view_group/<int:group_id>")
 @login_required
 def view_group(group_id):
-    try:
-        db = get_db()
-        cursor = db.cursor()
+    db = get_db()
+    cursor = db.cursor()
 
-        # Fetch group details including member count
-        cursor.execute("""
-            SELECT g.*, COUNT(ug.user_id) as member_count
-            FROM groups g
-            LEFT JOIN user_groups ug ON g.id = ug.group_id
-            WHERE g.id = ?
-            GROUP BY g.id
-        """, (group_id,))
-        group = cursor.fetchone()
+    # Fetch group information
+    cursor.execute("SELECT * FROM groups WHERE id = ?", (group_id,))
+    group = cursor.fetchone()
 
-        if group is None:
-            flash("Group not found", "error")
-            return redirect(url_for("search_groups"))
-
-        # Check if the current user is a member of this group
-        cursor.execute("""
-            SELECT 1 FROM user_groups
-            WHERE user_id = ? AND group_id = ?
-        """, (session["user_id"], group_id))
+    if group:
+        # Check if the user is a member of the group
+        cursor.execute("SELECT 1 FROM user_groups WHERE user_id = ? AND group_id = ?", 
+                       (session["user_id"], group_id))
         is_member = cursor.fetchone() is not None
 
-        # Print debug information
-        print(f"Group type: {type(group)}")
-        print(f"Group contents: {dict(group)}")
-        print(f"Is member: {is_member}")
+        # Fetch member count
+        cursor.execute("SELECT COUNT(*) FROM user_groups WHERE group_id = ?", (group_id,))
+        member_count = cursor.fetchone()[0]
 
-        return render_template("view_group.html", group=group, is_member=is_member)
-    except Exception as e:
-        print(f"Error in view_group: {str(e)}")
-        return f"An error occurred: {str(e)}", 500
+        # Fetch tradesmen for this group, sorted by trade
+        cursor.execute("""
+            SELECT t.* 
+            FROM tradesmen t
+            JOIN group_tradesmen gt ON t.id = gt.tradesman_id
+            WHERE gt.group_id = ?
+            ORDER BY t.trade, t.name
+        """, (group_id,))
+        tradesmen = cursor.fetchall()
+
+        # Convert tradesmen to a list of dictionaries for easier handling in the template
+        tradesmen = [dict(zip([column[0] for column in cursor.description], row)) for row in tradesmen]
+
+        return render_template("view_group.html", 
+                               group=group, 
+                               is_member=is_member, 
+                               member_count=member_count,
+                               tradesmen=tradesmen)
+    else:
+        flash("Group not found.", "error")
+        return redirect(url_for("search_groups"))
 
 
 
@@ -325,6 +329,15 @@ def add_tradesman(group_id):
                 INSERT INTO tradesmen (trade, name, address, postcode, phone_number, email)
                 VALUES (?, ?, ?, ?, ?, ?)
             """, (trade, name, address, postcode, phone_number, email))
+            
+            tradesman_id = cursor.lastrowid  # Get the ID of the newly inserted tradesman
+            
+            # Add the relationship to group_tradesmen table
+            cursor.execute("""
+                INSERT INTO group_tradesmen (group_id, tradesman_id)
+                VALUES (?, ?)
+            """, (group_id, tradesman_id))
+            
             db.commit()
             flash("Tradesman added successfully!", "success")
         except Exception as e:
