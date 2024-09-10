@@ -5,7 +5,6 @@
 {% endblock %}
 
 {% block main %}
-    <h1>Welcome, {{ username }}!</h1>
     
     <div class="mt-4">
         <h2>Your Groups</h2>
@@ -13,7 +12,7 @@
             <ul class="list-group">
                 {% for group in groups %}
                     <li class="list-group-item">
-                        {{ group['name'] }} (Postcode: {{ group['postcode'] }})
+                        <a href="{{ url_for('view_group', group_id=group['id']) }}">{{ group['name'] }}</a> (Postcode: {{ group['postcode'] }})
                     </li>
                 {% endfor %}
             </ul>
@@ -22,9 +21,9 @@
         {% endif %}
     </div>
     
-    <div class="mt-4">
-        <a href="{{ url_for('search_groups') }}" class="btn btn-secondary">Join a Group</a>
-        <a href="{{ url_for('create_group') }}" class="btn btn-primary">Create a New Group</a>
+    <div class="d-flex justify-content-center mt-4">
+        <a href="{{ url_for('search_groups') }}" class="btn btn-secondary w-100 mx-2">Join a Group</a>
+        <a href="{{ url_for('create_group') }}" class="btn btn-primary w-100 mx-2">Create a New Group</a>
     </div>
 {% endblock %}
 

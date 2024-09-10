@@ -85,6 +85,7 @@ def login():
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
+        session["username"] = rows[0]["username"]  # Store username in session
 
         # Redirect user to home page
         return redirect("/")
@@ -280,7 +281,8 @@ def view_group(group_id):
         is_member = cursor.fetchone() is not None
 
         # Print debug information
-        print(f"Group: {group}")
+        print(f"Group type: {type(group)}")
+        print(f"Group contents: {dict(group)}")
         print(f"Is member: {is_member}")
 
         return render_template("view_group.html", group=group, is_member=is_member)
@@ -290,6 +292,49 @@ def view_group(group_id):
 
 
 
+
+
+
+@app.route("/add_tradesman/<int:group_id>", methods=["GET", "POST"])
+@login_required
+def add_tradesman(group_id):
+    db = get_db()
+    cursor = db.cursor()
+
+    # Check if the user is a member of the group
+    cursor.execute("SELECT 1 FROM user_groups WHERE user_id = ? AND group_id = ?", 
+                   (session["user_id"], group_id))
+    is_member = cursor.fetchone() is not None
+
+    if not is_member:
+        flash("You must be a member of the group to add a tradesman.", "error")
+        return redirect(url_for("view_group", group_id=group_id))
+
+    if request.method == "POST":
+        # Get form data
+        trade = request.form.get("trade")
+        name = request.form.get("name")
+        address = request.form.get("address")
+        postcode = request.form.get("postcode")
+        phone_number = request.form.get("phone_number")
+        email = request.form.get("email")
+
+        # Insert the tradesman into the database
+        try:
+            cursor.execute("""
+                INSERT INTO tradesmen (trade, name, address, postcode, phone_number, email)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (trade, name, address, postcode, phone_number, email))
+            db.commit()
+            flash("Tradesman added successfully!", "success")
+        except Exception as e:
+            db.rollback()
+            flash(f"An error occurred: {str(e)}", "error")
+        
+        return redirect(url_for("view_group", group_id=group_id))
+
+    # If it's a GET request, just render the form
+    return render_template("add_tradesman.html", group_id=group_id)
 
 
 

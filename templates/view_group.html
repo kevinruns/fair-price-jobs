@@ -1,17 +1,26 @@
 {% extends "layout.html" %}
 
-{% block content %}
-<h1>{{ group['name'] }}</h1>
+{% block main %}
+<h1>Group Details</h1>
 
-<h2>Group Details</h2>
-<p>Postcode: {{ group['postcode'] }}</p>
-<p>Number of Members: {{ group['member_count'] }}</p>
+{% if group %}
+    <h2>{{ group['name'] }}</h2>
+    <p>Postcode: {{ group['postcode'] }}</p>
+    <p>Number of Members: {{ group['member_count'] }}</p>
 
-{% if is_member %}
-<p>You are a member of this group.</p>
+    {% if is_member %}
+    <p>You are a member of this group.</p>
+    <a href="{{ url_for('add_tradesman', group_id=group['id']) }}" class="btn btn-primary">Add Tradesman</a>
+    {% else %}
+    <p>You are not a member of this group.</p>
+    <form action="{{ url_for('join_group', group_id=group['id']) }}" method="post">
+        <input type="submit" value="Join Group" class="btn btn-primary">
+    </form>
+    {% endif %}
 {% else %}
-<p>You are not a member of this group.</p>
+    <p>Error: Group information not available.</p>
 {% endif %}
 
-<a href="{{ url_for('search_groups') }}">Back to Search</a>
+<a href="{{ url_for('search_groups') }}" class="btn btn-secondary mt-3">Back to Search</a>
+
 {% endblock %}

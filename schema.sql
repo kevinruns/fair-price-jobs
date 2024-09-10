@@ -36,8 +36,7 @@ CREATE TABLE tradesmen (
     address TEXT NOT NULL,
     postcode TEXT NOT NULL,
     phone_number TEXT NOT NULL,
-    call_out_fee INTEGER,
-    hourly_rate INTEGER
+    email TEXT
 );
 
 CREATE TABLE jobs (
