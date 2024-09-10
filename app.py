@@ -351,6 +351,48 @@ def add_tradesman(group_id):
 
 
 
+@app.route("/tradesman/<int:tradesman_id>")
+@login_required
+def view_tradesman(tradesman_id):
+    try:
+        db = get_db()
+        cursor = db.cursor()
+
+        # Fetch tradesman details
+        cursor.execute("SELECT * FROM tradesmen WHERE id = ?", (tradesman_id,))
+        tradesman = cursor.fetchone()
+
+        print(f"Debug: Fetched tradesman data: {tradesman}")  # Add this line
+
+        if not tradesman:
+            flash("Tradesman not found.", "error")
+            return redirect(url_for("search_groups"))
+
+        # Convert tradesman to a dictionary
+        tradesman = dict(zip([column[0] for column in cursor.description], tradesman))
+
+        print(f"Debug: Tradesman dictionary: {tradesman}")  # Add this line
+
+        # Fetch jobs for this tradesman
+        cursor.execute("""
+            SELECT * FROM jobs
+            WHERE tradesman_id = ?
+            ORDER BY date DESC
+        """, (tradesman_id,))
+        jobs = cursor.fetchall()
+
+        # Convert tradesman and jobs to dictionaries for easier handling in the template
+        tradesman = dict(zip([column[0] for column in cursor.description], tradesman))
+        jobs = [dict(zip([column[0] for column in cursor.description], row)) for row in jobs]
+
+        return render_template("view_tradesman.html", tradesman=tradesman, jobs=jobs)
+    except Exception as e:
+        print(f"Error in view_tradesman: {str(e)}")
+        flash("An error occurred while fetching tradesman data.", "error")
+        return redirect(url_for("search_groups"))
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
 

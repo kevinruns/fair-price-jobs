@@ -14,18 +14,25 @@
     
     {% if tradesmen %}
         <h3 class="mt-4">Tradesmen in this group:</h3>
-        <ul class="list-group">
-        {% for trade, trade_group in tradesmen|groupby('trade') %}
-            <li class="list-group-item">
-                <h4>{{ trade }}</h4>
-                <ul>
-                {% for tradesman in trade_group %}
-                    <li>{{ tradesman.name }} - {{ tradesman.phone_number }}</li>
-                {% endfor %}
-                </ul>
-            </li>
-        {% endfor %}
-        </ul>
+        <div class="list-group">
+            {% for trade, trade_group in tradesmen|groupby('trade') %}
+                <div class="list-group-item">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <strong>{{ trade }}</strong>
+                        </div>
+                        <div class="col-md-9">
+                            {% for tradesman in trade_group %}
+                                <span class="me-3">
+                                    <a href="{{ url_for('view_tradesman', tradesman_id=tradesman.id) }}">{{ tradesman.name }}</a>
+                                    {{ tradesman.phone_number }} {{ tradesman.postcode }} {{ tradesman.email }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     {% else %}
         <p>No tradesmen in this group yet.</p>
     {% endif %}

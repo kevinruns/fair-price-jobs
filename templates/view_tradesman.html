@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+
+{% block main %}
+<h1>Tradesman Details</h1>
+
+{% if tradesman %}
+    <h2>{{ tradesman.name }}</h2>
+    <p><strong>Trade:</strong> {{ tradesman.trade }}</p>
+    <p><strong>Address:</strong> {{ tradesman.address }}</p>
+    <p><strong>Postcode:</strong> {{ tradesman.postcode }}</p>
+    <p><strong>Phone Number:</strong> {{ tradesman.phone_number }}</p>
+    <p><strong>Email:</strong> {{ tradesman.email }}</p>
+
+    <h3 class="mt-4">Job History</h3>
+    {% if jobs %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                    <tr>
+                        <td>{{ job.date }}</td>
+                        <td>{{ job.description }}</td>
+                        <td>{{ job.status }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No job history available for this tradesman.</p>
+    {% endif %}
+{% else %}
+    <p>Error: Tradesman information not available.</p>
+{% endif %}
+
+<a href="{{ url_for('view_group', group_id=request.referrer.split('/')[-1]) }}" class="btn btn-secondary mt-3">Back to Group</a>
+
+{% endblock %}
