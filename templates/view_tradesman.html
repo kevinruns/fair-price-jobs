@@ -3,13 +3,14 @@
 {% block main %}
 <h1>Tradesman Details</h1>
 
+
 {% if tradesman %}
-    <h2>{{ tradesman.name }}</h2>
-    <p><strong>Trade:</strong> {{ tradesman.trade }}</p>
-    <p><strong>Address:</strong> {{ tradesman.address }}</p>
-    <p><strong>Postcode:</strong> {{ tradesman.postcode }}</p>
-    <p><strong>Phone Number:</strong> {{ tradesman.phone_number }}</p>
-    <p><strong>Email:</strong> {{ tradesman.email }}</p>
+    <h2>{{ tradesman.name if tradesman.name else 'No Name' }}</h2>
+    <p><strong>Trade:</strong> {{ tradesman.trade if tradesman.trade else 'N/A' }}</p>
+    <p><strong>Address:</strong> {{ tradesman.address if tradesman.address else 'N/A' }}</p>
+    <p><strong>Postcode:</strong> {{ tradesman.postcode if tradesman.postcode else 'N/A' }}</p>
+    <p><strong>Phone Number:</strong> {{ tradesman.phone_number if tradesman.phone_number else 'N/A' }}</p>
+    <p><strong>Email:</strong> {{ tradesman.email if tradesman.email else 'N/A' }}</p>
 
     <h3 class="mt-4">Job History</h3>
     {% if jobs %}

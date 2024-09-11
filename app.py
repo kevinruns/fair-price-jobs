@@ -362,7 +362,7 @@ def view_tradesman(tradesman_id):
         cursor.execute("SELECT * FROM tradesmen WHERE id = ?", (tradesman_id,))
         tradesman = cursor.fetchone()
 
-        print(f"Debug: Fetched tradesman data: {tradesman}")  # Add this line
+        print(f"Debug: Raw tradesman data: {tradesman}")  # Add this line
 
         if not tradesman:
             flash("Tradesman not found.", "error")
@@ -382,7 +382,6 @@ def view_tradesman(tradesman_id):
         jobs = cursor.fetchall()
 
         # Convert tradesman and jobs to dictionaries for easier handling in the template
-        tradesman = dict(zip([column[0] for column in cursor.description], tradesman))
         jobs = [dict(zip([column[0] for column in cursor.description], row)) for row in jobs]
 
         return render_template("view_tradesman.html", tradesman=tradesman, jobs=jobs)
