@@ -1,5 +1,5 @@
 # Configure application
-from flask import Flask, g, flash, redirect, render_template, request, session, url_for
+from flask import Flask, g, flash, redirect, render_template, request, session, url_for, jsonify
 from flask_session import Session
 
 
@@ -13,11 +13,10 @@ from helpers import apology, login_required
 
 
 app = Flask(__name__)
-
-
 # Configure session
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
+
 Session(app)
 
 
@@ -225,8 +224,8 @@ def create_group():
                 
                 # Add the current user to the group
                 user_id = session.get("user_id")
-                db.execute("INSERT INTO user_groups (user_id, group_id) VALUES (?, ?)",
-                           (user_id, group_id))
+                db.execute("INSERT INTO user_groups (user_id, group_id, status) VALUES (?, ?, ?)",
+                           (user_id, group_id, "creator"))
             
             flash("Group created successfully and you've been added to it!", "success")
             return redirect(url_for("index"))
@@ -251,26 +250,51 @@ def search_groups():
 
 
 
-
-@app.route("/view_group/<int:group_id>")
+# do I need POST?
+@app.route("/view_group/<int:group_id>", methods=['GET', 'POST'])
 @login_required
 def view_group(group_id):
     db = get_db()
     cursor = db.cursor()
+    user_id = session["user_id"]
+
+    # Handle POST request (button submission)
+    if request.method == 'POST':
+        try:
+            cursor.execute("INSERT INTO join_requests (user_id, group_id) VALUES (?, ?)", 
+                         (user_id, group_id))
+            db.commit()
+            flash("Join request sent successfully!", "success")
+        except sqlite3.IntegrityError:
+            flash("You have already requested to join this group.", "warning")
+        except Exception as e:
+            db.rollback()
+            flash(f"An error occurred: {str(e)}", "error")
+        return redirect(url_for('view_group', group_id=group_id))
 
     # Fetch group information
     cursor.execute("SELECT * FROM groups WHERE id = ?", (group_id,))
     group = cursor.fetchone()
 
     if group:
+        group = dict(zip([column[0] for column in cursor.description], group))
+        
         # Check if the user is a member of the group
-        cursor.execute("SELECT 1 FROM user_groups WHERE user_id = ? AND group_id = ?", 
-                       (session["user_id"], group_id))
+        cursor.execute("SELECT 1 FROM user_groups WHERE user_id = ? AND group_id = ?", (user_id, group_id))
         is_member = cursor.fetchone() is not None
+
+        # Check for pending join request
+        cursor.execute("""
+            SELECT 1 FROM join_requests 
+            WHERE user_id = ? AND group_id = ?
+        """, (user_id, group_id))
+        pending_request = cursor.fetchone() is not None
 
         # Fetch member count
         cursor.execute("SELECT COUNT(*) FROM user_groups WHERE group_id = ?", (group_id,))
         member_count = cursor.fetchone()[0]
+
+        group['member_count'] = member_count
 
         # Fetch tradesmen for this group, sorted by trade
         cursor.execute("""
@@ -286,14 +310,13 @@ def view_group(group_id):
         tradesmen = [dict(zip([column[0] for column in cursor.description], row)) for row in tradesmen]
 
         return render_template("view_group.html", 
-                               group=group, 
-                               is_member=is_member, 
-                               member_count=member_count,
-                               tradesmen=tradesmen)
+                            group=group, 
+                            is_member=is_member,
+                            pending_request=pending_request,
+                            tradesmen=tradesmen)
     else:
         flash("Group not found.", "error")
         return redirect(url_for("search_groups"))
-
 
 
 
@@ -375,13 +398,14 @@ def view_tradesman(tradesman_id):
 
         # Fetch jobs for this tradesman
         cursor.execute("""
-            SELECT * FROM jobs
+            SELECT date, description, call_out_fee, hourly_rate, daily_rate, total_cost, rating
+            FROM jobs
             WHERE tradesman_id = ?
             ORDER BY date DESC
         """, (tradesman_id,))
         jobs = cursor.fetchall()
 
-        # Convert tradesman and jobs to dictionaries for easier handling in the template
+        # Convert jobs to dictionaries for easier handling in the template
         jobs = [dict(zip([column[0] for column in cursor.description], row)) for row in jobs]
 
         return render_template("view_tradesman.html", tradesman=tradesman, jobs=jobs)
@@ -392,7 +416,42 @@ def view_tradesman(tradesman_id):
 
 
 
+@app.route("/add_job/<int:tradesman_id>", methods=["GET", "POST"])
+@login_required
+def add_job(tradesman_id):
+    if request.method == "POST":
+        user_id = session["user_id"]  # Assuming you store user_id in session
+        date = request.form.get("date")
+        description = request.form.get("description")
+        call_out_fee = request.form.get("call_out_fee")
+        hourly_rate = request.form.get("hourly_rate")
+        daily_rate = request.form.get("daily_rate")
+        total_cost = request.form.get("total_cost")
+        rating = request.form.get("rating")
+
+        db = get_db()
+        cursor = db.cursor()
+
+        try:
+            cursor.execute("""
+                INSERT INTO jobs (user_id, tradesman_id, date, description, call_out_fee, hourly_rate, daily_rate, total_cost, rating)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (user_id, tradesman_id, date, description, call_out_fee, hourly_rate, daily_rate, total_cost, rating))
+            db.commit()
+            flash("Job added successfully!", "success")
+        except Exception as e:
+            db.rollback()
+            flash(f"An error occurred: {str(e)}", "error")
+
+        return redirect(url_for("view_tradesman", tradesman_id=tradesman_id))
+
+    return render_template("add_job.html", tradesman_id=tradesman_id)
+
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 

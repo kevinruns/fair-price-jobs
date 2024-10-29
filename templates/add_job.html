@@ -1,0 +1,97 @@
+{% extends "layout.html" %}
+
+{% block main %}
+<div class="container-fluid p-4 bg-info bg-opacity-10 rounded">
+    <form action="{{ url_for('add_job', tradesman_id=tradesman_id) }}" method="post">
+        <!-- Date and Rating and Total Cost Row -->
+        <div class="row align-items-center mb-4">
+            <div class="col-sm-4">
+                <div class="row align-items-center">
+                    <label for="date" class="col-sm-6 col-form-label">Date</label>
+                    <div class="col-sm-6">
+                        <div class="input-container-sm">
+                            <input type="date" class="form-control" id="date" name="date" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row align-items-center">
+                    <label for="rating" class="col-sm-6 col-form-label">Rating (1-5)</label>
+                    <div class="col-sm-6">
+                        <div class="input-container-sm">
+                            <input type="number" min="1" max="5" class="form-control" id="rating" name="rating" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row align-items-center">
+                    <label for="total_cost" class="col-sm-6 col-form-label">Total Cost</label>
+                    <div class="col-sm-6">
+                        <div class="input-container-sm">
+                            <input type="number" step="0.01" class="form-control" id="total_cost" name="total_cost">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <!-- Rates Row -->
+        <div class="row align-items-center mb-4">
+            <div class="col-sm-4">
+                <div class="row align-items-center">
+                    <label for="call_out_fee" class="col-sm-6 col-form-label">Call Out Fee</label>
+                    <div class="col-sm-6">
+                        <div class="input-container-sm">
+                            <input type="number" step="0.01" class="form-control" id="call_out_fee" name="call_out_fee">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row align-items-center">
+                    <label for="hourly_rate" class="col-sm-6 col-form-label">Hourly Rate</label>
+                    <div class="col-sm-6">
+                        <div class="input-container-sm">
+                            <input type="number" step="0.01" class="form-control" id="hourly_rate" name="hourly_rate">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row align-items-center">
+                    <label for="daily_rate" class="col-sm-6 col-form-label">Daily Rate</label>
+                    <div class="col-sm-6">
+                        <div class="input-container-sm">
+                            <input type="number" step="0.01" class="form-control" id="daily_rate" name="daily_rate">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description Row -->
+        <div class="row align-items-center mb-4">
+            <label for="description" class="col-sm-2 col-form-label">Description</label>
+            <div class="col-sm-10">
+                <div class="input-container">
+                    <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons Row -->
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-center gap-3">
+                    <button type="submit" class="btn btn-primary" style="width: 200px;">Add Job</button>
+                    <a href="{{ url_for('view_tradesman', tradesman_id=tradesman_id) }}" class="btn btn-secondary" style="width: 200px;">Back to Tradesman</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

@@ -1,44 +1,65 @@
 {% extends "layout.html" %}
 
 {% block main %}
-<h1>Tradesman Details</h1>
+
+<div class="row align-items-center">
+    <div class="col-md-6 d-flex flex-column justify-content-center">
+        <h2>{{ tradesman.name }}</h2>
+        <h3 class="mb-4">{{ tradesman.trade }}</h3>
+    </div>
+    <div class="col-md-6 d-flex justify-content-end">
+        <div class="card w-75 bg-info  me-5">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Contact Details</h5>
+                <p class="card-text mb-1"><strong>Address:</strong> {{ tradesman.address }}</p>
+                <p class="card-text mb-1"><strong>Postcode:</strong> {{ tradesman.postcode }}</p>
+                <p class="card-text mb-1"><strong>Phone Number:</strong> {{ tradesman.phone_number }}</p>
+                <p class="card-text mb-1"><strong>Email:</strong> {{ tradesman.email }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Added spacing -->
+<div class="mb-5"></div>
 
 
-{% if tradesman %}
-    <h2>{{ tradesman.name if tradesman.name else 'No Name' }}</h2>
-    <p><strong>Trade:</strong> {{ tradesman.trade if tradesman.trade else 'N/A' }}</p>
-    <p><strong>Address:</strong> {{ tradesman.address if tradesman.address else 'N/A' }}</p>
-    <p><strong>Postcode:</strong> {{ tradesman.postcode if tradesman.postcode else 'N/A' }}</p>
-    <p><strong>Phone Number:</strong> {{ tradesman.phone_number if tradesman.phone_number else 'N/A' }}</p>
-    <p><strong>Email:</strong> {{ tradesman.email if tradesman.email else 'N/A' }}</p>
 
-    <h3 class="mt-4">Job History</h3>
-    {% if jobs %}
-        <table class="table table-striped">
-            <thead>
+<h4 class="mt-5 mb-2">Job History</h4>
+{% if jobs %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Call Out Fee</th>
+                <th>Hourly Rate</th>
+                <th>Daily Rate</th>
+                <th>Total Cost</th>
+                <th>Rating</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in jobs %}
                 <tr>
-                    <th>Date</th>
-                    <th>Description</th>
-                    <th>Status</th>
+                    <td>{{ job.date }}</td>
+                    <td>{{ job.description }}</td>
+                    <td>£{{ job.call_out_fee if job.call_out_fee else 'N/A' }}</td>
+                    <td>£{{ job.hourly_rate if job.hourly_rate else 'N/A' }}/hr</td>
+                    <td>£{{ job.daily_rate if job.daily_rate else 'N/A' }}/day</td>
+                    <td>£{{ job.total_cost if job.total_cost else 'N/A' }}</td>
+                    <td>{{ job.rating }}/5</td>
                 </tr>
-            </thead>
-            <tbody>
-                {% for job in jobs %}
-                    <tr>
-                        <td>{{ job.date }}</td>
-                        <td>{{ job.description }}</td>
-                        <td>{{ job.status }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>No job history available for this tradesman.</p>
-    {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
 {% else %}
-    <p>Error: Tradesman information not available.</p>
+    <p>No jobs entered yet for this tradesman.</p>
 {% endif %}
 
-<a href="{{ url_for('view_group', group_id=request.referrer.split('/')[-1]) }}" class="btn btn-secondary mt-3">Back to Group</a>
+<div class="d-flex justify-content-center align-items-center mt-5 mb-4">
+    <a href="{{ url_for('add_job', tradesman_id=tradesman.id) }}" class="btn btn-primary me-2">Add New Job</a>
+    <a href="{{ url_for('view_group', group_id=request.referrer.split('/')[-1]) }}" class="btn btn-secondary">Back to Group</a>
+</div>
 
 {% endblock %}

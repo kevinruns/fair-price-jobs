@@ -4,9 +4,9 @@ __pycache__/
 *.pyd
 .Python
 env/
-venv/
+.venv/
 *.db
 *.sqlite3
-init_db.py
-load_db.py
-load.sql
+sql/read*
+sql/load*
+flask_session*

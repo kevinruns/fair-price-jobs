@@ -1,52 +1,71 @@
 {% extends "layout.html" %}
 
 {% block main %}
-<h1>Group Details</h1>
-
 {% if group %}
-    <h2>{{ group['name'] }}</h2>
-    <p>Postcode: {{ group['postcode'] }}</p>
-    <p>Number of Members: {{ group['member_count'] }}</p>
+
+    <div class="d-flex align-items-center my-3">
+        <div class="flex-grow-1 d-flex justify-content-start">
+            <span class="fw-bold fs-4 ms-5 me-auto">Group: {{ group['name'] }}</span>
+        </div>
+        <div>
+            <span class="badge bg-secondary me-2">{{ group['postcode'] }}</span>
+            <span class="badge bg-primary">{{ group['member_count'] }} Members</span>
+        </div>
+    </div>
 
     {% if is_member %}
-    <p>You are a member of this group.</p>
-    <a href="{{ url_for('add_tradesman', group_id=group['id']) }}" class="btn btn-primary">Add Tradesman</a>
-    
-    {% if tradesmen %}
-        <h3 class="mt-4">Tradesmen in this group:</h3>
-        <div class="list-group">
-            {% for trade, trade_group in tradesmen|groupby('trade') %}
-                <div class="list-group-item">
-                    <div class="row align-items-center">
-                        <div class="col-md-3">
-                            <strong>{{ trade }}</strong>
-                        </div>
-                        <div class="col-md-9">
-                            {% for tradesman in trade_group %}
-                                <span class="me-3">
-                                    <a href="{{ url_for('view_tradesman', tradesman_id=tradesman.id) }}">{{ tradesman.name }}</a>
-                                    {{ tradesman.phone_number }} {{ tradesman.postcode }} {{ tradesman.email }}
-                                </span>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>No tradesmen in this group yet.</p>
-    {% endif %}
+        
+        {% if tradesmen %}
+            <h4 class="mt-5 mb-4">Tradesmen in this group:</h4>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Trade</th>
+                        <th>Name</th>
+                        <th>Phone Number</th>
+                        <th>Postcode</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trade, trade_group in tradesmen|groupby('trade') %}
+                        {% for tradesman in trade_group %}
+                            <tr>
+                                <td><strong>{{ trade }}</strong></td>
+                                <td><a href="{{ url_for('view_tradesman', tradesman_id=tradesman.id) }}">{{ tradesman.name }}</a></td>
+                                <td>{{ tradesman.phone_number }}</td>
+                                <td>{{ tradesman.postcode }}</td>
+                                <td>{{ tradesman.email }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No tradesmen in this group yet.</p>
+        {% endif %}
+
+        <a href="{{ url_for('add_tradesman', group_id=group['id']) }}" class="btn btn-primary">Add Tradesman</a>
 
     {% else %}
-    <p>You are not a member of this group.</p>
-    <form action="{{ url_for('join_group', group_id=group['id']) }}" method="post">
-        <input type="submit" value="Join Group" class="btn btn-primary">
-    </form>
+
+        <p>You are not a member of this group.</p>
+        {% if pending_request %}
+            <span class="badge bg-warning text-dark">Request Pending</span>
+        {% else %}
+            <form action="{{ url_for('view_group', group_id=group['id']) }}" method="post">
+                <input type="submit" value="Join Group" class="btn btn-primary">
+            </form>
+        {% endif %}
+
     {% endif %}
+
 {% else %}
+
     <p>Error: Group information not available.</p>
+
 {% endif %}
 
-<a href="{{ url_for('search_groups') }}" class="btn btn-secondary mt-3">Back to Search</a>
+
 
 {% endblock %}

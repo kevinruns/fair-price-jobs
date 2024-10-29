@@ -3,17 +3,21 @@
 {% block title %}Search Groups{% endblock %}
 
 {% block main %}
-    <h2>Search for Groups</h2>
+    <h2 class="mb-4">Search for Groups</h2>
     <form action="{{ url_for('search_groups') }}" method="post">
-        <div class="mb-3">
-            <input type="text" class="form-control" name="postcode" placeholder="Enter Postcode" required value="{{ postcode }}">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="d-flex justify-content-center gap-2">
+                    <input type="text" class="form-control input-postcode" name="postcode" placeholder="Enter Postcode" required value="{{ postcode }}">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </div>
         </div>
-        <button type="submit" class="btn btn-primary">Search</button>
     </form>
 
     {% if postcode %}
-        <h3 class="mt-4">Groups in {{ postcode }}</h3>
         {% if groups %}
+        <h3 class="mt-4">Groups in {{ postcode }}</h3>
             <ul class="list-group mt-3">
                 {% for group in groups %}
                     <li class="list-group-item">
