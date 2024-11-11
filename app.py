@@ -398,7 +398,7 @@ def view_tradesman(tradesman_id):
 
         # Fetch jobs for this tradesman
         cursor.execute("""
-            SELECT date, description, call_out_fee, hourly_rate, daily_rate, total_cost, rating
+            SELECT id, date, title, description, total_cost, rating
             FROM jobs
             WHERE tradesman_id = ?
             ORDER BY date DESC
@@ -422,6 +422,7 @@ def add_job(tradesman_id):
     if request.method == "POST":
         user_id = session["user_id"]  # Assuming you store user_id in session
         date = request.form.get("date")
+        title = request.form.get("title")
         description = request.form.get("description")
         call_out_fee = request.form.get("call_out_fee")
         hourly_rate = request.form.get("hourly_rate")
@@ -434,9 +435,9 @@ def add_job(tradesman_id):
 
         try:
             cursor.execute("""
-                INSERT INTO jobs (user_id, tradesman_id, date, description, call_out_fee, hourly_rate, daily_rate, total_cost, rating)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (user_id, tradesman_id, date, description, call_out_fee, hourly_rate, daily_rate, total_cost, rating))
+                INSERT INTO jobs (user_id, tradesman_id, date, title, description, call_out_fee, hourly_rate, daily_rate, total_cost, rating)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (user_id, tradesman_id, date, title, description, call_out_fee, hourly_rate, daily_rate, total_cost, rating))
             db.commit()
             flash("Job added successfully!", "success")
         except Exception as e:
@@ -447,6 +448,31 @@ def add_job(tradesman_id):
 
     return render_template("add_job.html", tradesman_id=tradesman_id)
 
+
+
+@app.route('/view_job/<int:job_id>')
+@login_required
+def view_job(job_id):
+    db = get_db()
+    cursor = db.cursor()
+    
+    cursor.execute("""
+        SELECT * FROM jobs 
+        WHERE id = ?
+    """, (job_id,))
+    job = cursor.fetchone()
+    
+    if job:
+        # Convert row to dictionary using column names
+        job_dict = dict(zip([column[0] for column in cursor.description], job))
+        
+        # Debug print to see what data we're getting
+        print("Job data:", job_dict)
+        
+        return render_template('view_job.html', job=job_dict)
+    else:
+        flash('Job not found.', 'error')
+        return redirect(url_for('index'))
 
 
 

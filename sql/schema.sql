@@ -61,11 +61,12 @@ CREATE TABLE jobs (
     user_id INTEGER NOT NULL,
     tradesman_id INTEGER NOT NULL,
     date TEXT NOT NULL,
+    title TEXT NOT NULL,
     description TEXT NOT NULL,
-    call_out_fee DECIMAL(10, 2),
-    hourly_rate DECIMAL(10, 2),
-    daily_rate DECIMAL(10, 2),
-    total_cost DECIMAL(10, 2),
+    call_out_fee INTEGER NULL,
+    hourly_rate INTEGER NULL,
+    daily_rate INTEGER NULL,
+    total_cost INTEGER NOT NULL CHECK (total_cost >= 0),
     rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
     FOREIGN KEY (tradesman_id) REFERENCES tradesmen (id) ON DELETE CASCADE
 );

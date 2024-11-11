@@ -7,15 +7,29 @@
 {% block main %}
     
     <div class="mt-4">
-        <h2>Your Groups</h2>
         {% if groups %}
-            <ul class="list-group">
-                {% for group in groups %}
-                    <li class="list-group-item">
-                        <a href="{{ url_for('view_group', group_id=group['id']) }}">{{ group['name'] }}</a> (Postcode: {{ group['postcode'] }})
-                    </li>
-                {% endfor %}
-            </ul>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-8 col-lg-8">
+                        <table class="table table-hover table-striped align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">Group Name</th>
+                                    <th scope="col">Postcode</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for group in groups %}
+                                    <tr class="cursor-pointer" onclick="window.location='{{ url_for('view_group', group_id=group['id']) }}'">
+                                        <td class="fw-semibold text-primary">{{ group['name'] }}</td>
+                                        <td>{{ group['postcode'] }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         {% else %}
             <p>You are not a member of any groups yet.</p>
         {% endif %}

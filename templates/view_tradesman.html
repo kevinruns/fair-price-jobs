@@ -4,11 +4,11 @@
 
 <div class="row align-items-center">
     <div class="col-md-6 d-flex flex-column justify-content-center">
-        <h2>{{ tradesman.name }}</h2>
+        <h2 class="text-primary fw-bold mb-3">{{ tradesman.name }}</h2>
         <h3 class="mb-4">{{ tradesman.trade }}</h3>
     </div>
     <div class="col-md-6 d-flex justify-content-end">
-        <div class="card w-75 bg-info  me-5">
+        <div class="card w-75 me-5">
             <div class="card-body">
                 <h5 class="card-title mb-3">Contact Details</h5>
                 <p class="card-text mb-1"><strong>Address:</strong> {{ tradesman.address }}</p>
@@ -24,17 +24,12 @@
 <div class="mb-5"></div>
 
 
-
-<h4 class="mt-5 mb-2">Job History</h4>
 {% if jobs %}
     <table class="table table-striped">
         <thead>
             <tr>
+                <th>Job</th>
                 <th>Date</th>
-                <th>Description</th>
-                <th>Call Out Fee</th>
-                <th>Hourly Rate</th>
-                <th>Daily Rate</th>
                 <th>Total Cost</th>
                 <th>Rating</th>
             </tr>
@@ -42,12 +37,13 @@
         <tbody>
             {% for job in jobs %}
                 <tr>
+                    <td>
+                        <a href="{{ url_for('view_job', job_id=job.id) }}" class="text-decoration-none">
+                            {{ job.title }}
+                        </a>
+                    </td>
                     <td>{{ job.date }}</td>
-                    <td>{{ job.description }}</td>
-                    <td>£{{ job.call_out_fee if job.call_out_fee else 'N/A' }}</td>
-                    <td>£{{ job.hourly_rate if job.hourly_rate else 'N/A' }}/hr</td>
-                    <td>£{{ job.daily_rate if job.daily_rate else 'N/A' }}/day</td>
-                    <td>£{{ job.total_cost if job.total_cost else 'N/A' }}</td>
+                    <td>€{{ job.total_cost if job.total_cost else 'N/A' }}</td>
                     <td>{{ job.rating }}/5</td>
                 </tr>
             {% endfor %}
