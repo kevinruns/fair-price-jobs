@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+
+{% block main %}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Job:</div>
+                        <div class="col-md-6 text-start">{{ job.title }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Description:</div>
+                        <div class="col-md-6 text-start">{{ job.description }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Date:</div>
+                        <div class="col-md-6 text-start">{{ job.date }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Rating:</div>
+                        <div class="col-md-6 text-start">
+                            {% if job.rating %}
+                                {{ "⭐" * job.rating }}
+                            {% else %}
+                                No rating
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Total Cost:</div>
+                        <div class="col-md-6 text-start">€{{ job.total_cost|int }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3">Call Out Fee:</div>
+                        <div class="col-md-6 text-start">
+                            {% if job.call_out_fee %}€{{ job.call_out_fee|int }}{% else %}N/A{% endif %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3">Hourly Rate:</div>
+                        <div class="col-md-6 text-start">
+                            {% if job.hourly_rate %}€{{ job.hourly_rate|int }}{% else %}N/A{% endif %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3">Daily Rate:</div>
+                        <div class="col-md-6 text-start">
+                            {% if job.daily_rate %}€{{ job.daily_rate|int }}{% else %}N/A{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<a href="{{ url_for('view_tradesman', tradesman_id=job.tradesman_id) }}" class="btn btn-secondary mt-3">Back to Tradesman</a>
+{% endblock %}
