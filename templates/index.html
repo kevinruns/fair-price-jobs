@@ -8,27 +8,58 @@
     
     <div class="mt-4">
         {% if groups %}
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-md-8 col-lg-8">
-                        <table class="table table-hover table-striped align-middle">
-                            <thead class="table-light">
+            <div class="container mb-4">
+                <div class="table-responsive mt-3">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Group Name</th>
+                                <th scope="col">Postcode</th>
+                                <th scope="col">Members</th>
+                                <th scope="col" style="min-width: 140px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for group in groups %}
                                 <tr>
-                                    <th scope="col">Group Name</th>
-                                    <th scope="col">Postcode</th>
+                                    <td>
+                                        <a href="{{ url_for('view_group', group_id=group['id']) }}" class="text-decoration-none">
+                                            <span class="fw-semibold text-primary">{{ group['name'] }}</span>
+                                        </a>
+                                    </td>
+                                    <td>{{ group['postcode'] }}</td>
+                                    <td>{{ group['member_count'] }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center justify-content-center gap-2">
+                                            {% if group['status'] == 'member' %}
+                                                <span class="badge bg-success" style="min-width: 70px;">Member</span>
+                                            {% elif group['status'] == 'admin' %}
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <span class="badge bg-primary" style="min-width: 70px;">Admin</span>
+                                                    {% if group['pending_requests'] > 0 %}
+                                                        <a href="{{ url_for('view_requests', group_id=group['id']) }}" class="text-decoration-none  d-flex align-items-center">
+                                                            <span class="badge bg-danger" style="min-width: 70px;">{{ group['pending_requests'] }} Request{% if group['pending_requests'] != 1 %}s{% endif %}</span>
+                                                        </a>
+                                                    {% endif %}
+                                                </div>
+                                            {% elif group['status'] == 'creator' %}
+                                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                                    <span class="badge bg-primary" style="min-width: 70px;">Creator</span>
+                                                    {% if group['pending_requests'] > 0 %}
+                                                        <a href="{{ url_for('view_requests', group_id=group['id']) }}" class="text-decoration-none d-flex align-items-center">
+                                                            <span class="badge bg-danger" style="min-width: 70px;">{{ group['pending_requests'] }} Request{% if group['pending_requests'] != 1 %}s{% endif %}</span>
+                                                        </a>
+                                                    {% endif %}
+                                                </div>
+                                            {% elif group['status'] == 'pending' %}
+                                                <span class="badge bg-warning text-dark" style="min-width: 70px;">Pending</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {% for group in groups %}
-                                    <tr class="cursor-pointer" onclick="window.location='{{ url_for('view_group', group_id=group['id']) }}'">
-                                        <td class="fw-semibold text-primary">{{ group['name'] }}</td>
-                                        <td>{{ group['postcode'] }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                            </tbody>
-                        </table>
-                    </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         {% else %}
@@ -37,8 +68,8 @@
     </div>
     
     <div class="d-flex justify-content-center mt-4">
-        <a href="{{ url_for('search_groups') }}" class="btn btn-secondary mx-2 btn-custom-width">Join a Group</a>
-        <a href="{{ url_for('create_group') }}" class="btn btn-primary mx-2 btn-custom-width">Create a New Group</a>
+        <a href="{{ url_for('search_groups') }}" class="btn btn-secondary mx-2 btn-custom-width btn-sm">Join a Group</a>
+        <a href="{{ url_for('create_group') }}" class="btn btn-primary mx-2 btn-custom-width btn-sm">Create a New Group</a>
     </div>
 {% endblock %}
 

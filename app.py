@@ -37,16 +37,22 @@ def index():
         cursor.execute("SELECT username FROM users WHERE id = ?", (session["user_id"],))
         user = cursor.fetchone()
         username = user["username"] if user else "Unknown"
+        user_id = session["user_id"]
         
-        # Fetch the groups the user is in
-        cursor.execute("""
-            SELECT g.id, g.name, g.postcode 
-            FROM groups g
-            JOIN user_groups ug ON g.id = ug.group_id
-            WHERE ug.user_id = ?
-        """, (session["user_id"],))
-        groups = cursor.fetchall()
+        # Modified query to include user's status in groups
+        groups = db.execute("""
+            SELECT g.*, 
+                   (SELECT COUNT(*) FROM user_groups WHERE group_id = g.id) as member_count,
+                   (SELECT COUNT(*) FROM join_requests WHERE group_id = g.id) as pending_requests,
+                   ug.status
+            FROM groups g 
+            LEFT JOIN user_groups ug ON g.id = ug.group_id AND ug.user_id = ?
+            WHERE ug.user_id = ? 
+        """, (user_id, user_id)).fetchall()
         
+        # Add this debug print
+        print("Groups data:", [dict(row) for row in groups])
+
         return render_template("index.html", username=username, groups=groups)
     else:
         return redirect("/login")
@@ -244,23 +250,21 @@ def search_groups():
     postcode = ""
     if request.method == "POST":
         postcode = request.form.get("postcode")
-        user_id = session["user_id"]
+        user_id = session.get("user_id")  # Assuming user_id is stored in session
         db = get_db()
         
-        # Modified query to include user's status in groups
+        # Modified query to include matching postcode and status logic
         groups = db.execute("""
             SELECT g.*, 
                    (SELECT COUNT(*) FROM user_groups WHERE group_id = g.id) as member_count,
                    CASE 
-                       WHEN ug.status IS NOT NULL THEN ug.status
-                       WHEN jr.user_id IS NOT NULL THEN 'pending'
+                       WHEN jr.user_id IS NOT NULL THEN 'pending' 
                        ELSE NULL 
                    END as status
             FROM groups g 
-            LEFT JOIN user_groups ug ON g.id = ug.group_id AND ug.user_id = ?
             LEFT JOIN join_requests jr ON g.id = jr.group_id AND jr.user_id = ?
-            WHERE g.postcode = ?
-        """, (user_id, user_id, postcode)).fetchall()
+            WHERE g.postcode = ?  -- Ensure matching postcode
+        """, (user_id, postcode)).fetchall()  # Pass user_id and postcode as parameters
         
         # Add this debug print
         print("Groups data:", [dict(row) for row in groups])
@@ -492,6 +496,52 @@ def view_job(job_id):
     else:
         flash('Job not found.', 'error')
         return redirect(url_for('index'))
+
+
+@app.route("/view_requests/<int:group_id>")
+@login_required
+def view_requests(group_id):
+    db = get_db()
+    requests = db.execute("""
+        SELECT jr.id, u.username, u.email
+        FROM join_requests jr
+        JOIN users u ON jr.user_id = u.id
+        WHERE jr.group_id = ?
+    """, (group_id,)).fetchall()
+    return render_template("view_requests.html", requests=requests)
+
+
+@app.route('/handle_request/<int:request_id>/<action>', methods=['POST'])
+@login_required
+def handle_request(request_id, action):
+    db = get_db()
+    
+    if action == 'accept':
+        # Get the request details
+        request_data = db.execute("SELECT user_id, group_id FROM join_requests WHERE id = ?", (request_id,)).fetchone()
+        
+        if request_data:
+            user_id = request_data['user_id']
+            group_id = request_data['group_id']
+            
+            # Add user to user_groups table
+            db.execute("INSERT INTO user_groups (user_id, group_id, status) VALUES (?, ?, 'member')", (user_id, group_id))
+            
+            # Remove the request from join_requests table
+            db.execute("DELETE FROM join_requests WHERE id = ?", (request_id,))
+            
+            db.commit()
+            flash('Request accepted and user added to the group.', 'success')
+        else:
+            flash('Request not found.', 'danger')
+    
+    elif action == 'reject':
+        # Remove the request from join_requests table
+        db.execute("DELETE FROM join_requests WHERE id = ?", (request_id,))
+        db.commit()
+        flash('Request rejected.', 'info')
+    
+    return redirect(url_for('view_requests', group_id=request_data['group_id']))
 
 
 

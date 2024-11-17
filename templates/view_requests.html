@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block main %}
+    <div class="container">
+        <h4 class="mt-4 mb-4">Pending Join Requests</h4>        
+
+        <script>
+            window.onload = function() {
+                window.handleRequest = function(requestId, action) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/handle_request/${requestId}/${action}`; // Adjust the URL as needed
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            };
+        </script>
+
+        {% if requests %}
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">User Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in requests %}
+                            <tr>
+                                <td class="fw-semibold">{{ request.username }}</td>
+                                <td>{{ request.email }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center justify-content-center gap-4">
+                                        <button type="button" class="btn btn-success btn-sm" onclick="handleRequest('{{ request.id }}', 'accept')">Accept</button>
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="handleRequest('{{ request.id }}', 'reject')">Reject</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>No pending join requests.</p>
+        {% endif %}
+    </div>
+{% endblock %}
+
+
