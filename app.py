@@ -244,8 +244,27 @@ def search_groups():
     postcode = ""
     if request.method == "POST":
         postcode = request.form.get("postcode")
+        user_id = session["user_id"]
         db = get_db()
-        groups = db.execute("SELECT * FROM groups WHERE postcode = ?", (postcode,)).fetchall()
+        
+        # Modified query to include user's status in groups
+        groups = db.execute("""
+            SELECT g.*, 
+                   (SELECT COUNT(*) FROM user_groups WHERE group_id = g.id) as member_count,
+                   CASE 
+                       WHEN ug.status IS NOT NULL THEN ug.status
+                       WHEN jr.user_id IS NOT NULL THEN 'pending'
+                       ELSE NULL 
+                   END as status
+            FROM groups g 
+            LEFT JOIN user_groups ug ON g.id = ug.group_id AND ug.user_id = ?
+            LEFT JOIN join_requests jr ON g.id = jr.group_id AND jr.user_id = ?
+            WHERE g.postcode = ?
+        """, (user_id, user_id, postcode)).fetchall()
+        
+        # Add this debug print
+        print("Groups data:", [dict(row) for row in groups])
+        
     return render_template("search_groups.html", groups=groups, postcode=postcode)
 
 
