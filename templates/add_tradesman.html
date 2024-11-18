@@ -68,8 +68,9 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-sm-9 offset-sm-3">
-                        <button type="submit" class="btn btn-primary">Add Tradesman</button>
+                    <div class="col-sm-9 offset-sm-3 ">
+                        <button type="submit" class="btn btn-primary me-4">Add Tradesman</button>
+                        <a href="{{ url_for('view_group', group_id=group_id) }}" class="btn btn-secondary">Back to Group</a>
                     </div>
                 </div>
             </form>
@@ -77,6 +78,6 @@
     </div>
 </div>
 
-<a href="{{ url_for('view_group', group_id=group_id) }}" class="btn btn-secondary mt-3">Back to Group</a>
+
 
 {% endblock %}

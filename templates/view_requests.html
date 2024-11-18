@@ -2,7 +2,7 @@
 
 {% block main %}
     <div class="container">
-        <h4 class="mt-4 mb-4">Pending Join Requests</h4>        
+        <h4 class="mt-4 mb-4">{{ group_name }} pending join requests</h4>        
 
         <script>
             window.onload = function() {
@@ -43,7 +43,7 @@
                 </table>
             </div>
         {% else %}
-            <p>No pending join requests.</p>
+            <h5 class="mt-4 mb-4 text-primary">No further requests</h5>
         {% endif %}
     </div>
 {% endblock %}

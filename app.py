@@ -502,13 +502,21 @@ def view_job(job_id):
 @login_required
 def view_requests(group_id):
     db = get_db()
+    
+    # Fetch the group name separately
+    group = db.execute("""
+        SELECT name FROM groups WHERE id = ?
+    """, (group_id,)).fetchone()
+    
+    # Fetch the requests
     requests = db.execute("""
         SELECT jr.id, u.username, u.email
         FROM join_requests jr
         JOIN users u ON jr.user_id = u.id
         WHERE jr.group_id = ?
     """, (group_id,)).fetchall()
-    return render_template("view_requests.html", requests=requests)
+    
+    return render_template("view_requests.html", requests=requests, group_name=group['name'])
 
 
 @app.route('/handle_request/<int:request_id>/<action>', methods=['POST'])
@@ -516,9 +524,10 @@ def view_requests(group_id):
 def handle_request(request_id, action):
     db = get_db()
     
+    # Get the request details
+    request_data = db.execute("SELECT user_id, group_id FROM join_requests WHERE id = ?", (request_id,)).fetchone()
+    
     if action == 'accept':
-        # Get the request details
-        request_data = db.execute("SELECT user_id, group_id FROM join_requests WHERE id = ?", (request_id,)).fetchone()
         
         if request_data:
             user_id = request_data['user_id']
