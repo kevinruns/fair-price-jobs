@@ -1,40 +1,22 @@
-# YOUR PROJECT TITLE
+# Fair Price Jobs
 #### Video Demo:  <URL HERE>
 #### Description:
 
+This project was developed to address a real life headache faced by anyone who wants to renovate a property in the South of France (where I live).
 
-User ttable provide:
-username
-firstname
-lastname
-email
-postcode
-password
+Finding a reasonably priced tradesman to lay tiles, do the electrics, check the roof etc. is very difficult.
 
+The idea is to build a platform
 
-Group table should have:
-Group ID
-Group name
-Postcode
+This website is designed to share information 
 
 
-Tradesman Table
-ID
-Trade
-Name
-Address
-Postcode
-Phone Number
+# YOUR PROJECT TITLE
+#### Video Demo:  <URL HERE>
+#### Description:
+TODO
 
 
-Job Table
-Tradesman ID
-Date
-Call out fee
-Hourly rate
-Total cost
-Rating (1 to 5)
-Comment
 
 
 User can be:

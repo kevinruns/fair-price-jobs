@@ -43,11 +43,15 @@ def index():
         groups = db.execute("""
             SELECT g.*, 
                    (SELECT COUNT(*) FROM user_groups WHERE group_id = g.id) as member_count,
-                   (SELECT COUNT(*) FROM join_requests WHERE group_id = g.id) as pending_requests,
-                   ug.status
+                   (SELECT COUNT(*) FROM join_requests WHERE group_id = g.id) as pending_requests,                            
+                   CASE 
+                       WHEN jr.user_id IS NOT NULL THEN 'pending' 
+                       WHEN ug.status IS NOT NULL THEN ug.status 
+                       ELSE NULL 
+                   END as status  -- Use CASE to determine status for the logged-in user
             FROM groups g 
-            LEFT JOIN user_groups ug ON g.id = ug.group_id AND ug.user_id = ?
-            WHERE ug.user_id = ? 
+            LEFT JOIN user_groups ug ON g.id = ug.group_id AND ug.user_id = ?  -- Join with user_groups for the logged-in user
+            LEFT JOIN join_requests jr ON g.id = jr.group_id AND jr.user_id = ?  -- Check for pending requests for the logged-in user
         """, (user_id, user_id)).fetchall()
         
         # Add this debug print
@@ -252,24 +256,26 @@ def search_groups():
         postcode = request.form.get("postcode")
         user_id = session.get("user_id")  # Assuming user_id is stored in session
         db = get_db()
-        
-        # Modified query to include matching postcode and status logic
         groups = db.execute("""
             SELECT g.*, 
                    (SELECT COUNT(*) FROM user_groups WHERE group_id = g.id) as member_count,
                    CASE 
                        WHEN jr.user_id IS NOT NULL THEN 'pending' 
+                       WHEN ug.status IS NOT NULL THEN ug.status 
                        ELSE NULL 
-                   END as status
+                   END as status  -- Use CASE to determine status for the logged-in user
             FROM groups g 
-            LEFT JOIN join_requests jr ON g.id = jr.group_id AND jr.user_id = ?
-            WHERE g.postcode = ?  -- Ensure matching postcode
-        """, (user_id, postcode)).fetchall()  # Pass user_id and postcode as parameters
+            LEFT JOIN user_groups ug ON g.id = ug.group_id AND ug.user_id = ?  -- Join with user_groups for the logged-in user
+            LEFT JOIN join_requests jr ON g.id = jr.group_id AND jr.user_id = ?  -- Check for pending requests for the logged-in user
+            WHERE g.postcode = ? OR g.postcode LIKE ? || '%'  -- Search by postcode
+            GROUP BY g.id  -- Group by group ID to ensure each group is returned once
+        """, (user_id, user_id, postcode, postcode)).fetchall()  # Pass user_id and postcode as parameters
         
         # Add this debug print
         print("Groups data:", [dict(row) for row in groups])
         
     return render_template("search_groups.html", groups=groups, postcode=postcode)
+
 
 
 
@@ -340,6 +346,8 @@ def view_group(group_id):
     else:
         flash("Group not found.", "error")
         return redirect(url_for("search_groups"))
+
+
 
 
 
