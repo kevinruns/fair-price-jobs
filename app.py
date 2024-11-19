@@ -42,17 +42,12 @@ def index():
         # Modified query to include user's status in groups
         groups = db.execute("""
             SELECT g.*, 
-                   (SELECT COUNT(*) FROM user_groups WHERE group_id = g.id) as member_count,
-                   (SELECT COUNT(*) FROM join_requests WHERE group_id = g.id) as pending_requests,                            
-                   CASE 
-                       WHEN jr.user_id IS NOT NULL THEN 'pending' 
-                       WHEN ug.status IS NOT NULL THEN ug.status 
-                       ELSE NULL 
-                   END as status  -- Use CASE to determine status for the logged-in user
+                   (SELECT COUNT(*) FROM user_groups WHERE group_id = g.id AND status != 'pending') as member_count,
+                   (SELECT COUNT(*) FROM user_groups WHERE group_id = g.id AND status = 'pending') as pending_requests,                            
+                    ug.status as status  -- Use CASE to determine status for the logged-in user
             FROM groups g 
-            LEFT JOIN user_groups ug ON g.id = ug.group_id AND ug.user_id = ?  -- Join with user_groups for the logged-in user
-            LEFT JOIN join_requests jr ON g.id = jr.group_id AND jr.user_id = ?  -- Check for pending requests for the logged-in user
-        """, (user_id, user_id)).fetchall()
+            INNER JOIN user_groups ug ON g.id = ug.group_id AND ug.user_id = ?  -- Join with user_groups for the logged-in user
+        """, (user_id,)).fetchall()
         
         # Add this debug print
         print("Groups data:", [dict(row) for row in groups])
@@ -260,16 +255,14 @@ def search_groups():
             SELECT g.*, 
                    (SELECT COUNT(*) FROM user_groups WHERE group_id = g.id) as member_count,
                    CASE 
-                       WHEN jr.user_id IS NOT NULL THEN 'pending' 
                        WHEN ug.status IS NOT NULL THEN ug.status 
                        ELSE NULL 
                    END as status  -- Use CASE to determine status for the logged-in user
             FROM groups g 
             LEFT JOIN user_groups ug ON g.id = ug.group_id AND ug.user_id = ?  -- Join with user_groups for the logged-in user
-            LEFT JOIN join_requests jr ON g.id = jr.group_id AND jr.user_id = ?  -- Check for pending requests for the logged-in user
             WHERE g.postcode = ? OR g.postcode LIKE ? || '%'  -- Search by postcode
             GROUP BY g.id  -- Group by group ID to ensure each group is returned once
-        """, (user_id, user_id, postcode, postcode)).fetchall()  # Pass user_id and postcode as parameters
+        """, (user_id, postcode, postcode)).fetchall()  # Pass user_id and postcode as parameters
         
         # Add this debug print
         print("Groups data:", [dict(row) for row in groups])
@@ -290,8 +283,9 @@ def view_group(group_id):
     # Handle POST request (button submission)
     if request.method == 'POST':
         try:
-            cursor.execute("INSERT INTO join_requests (user_id, group_id) VALUES (?, ?)", 
-                         (user_id, group_id))
+            # Instead of join_requests, directly update user_groups
+            cursor.execute("INSERT INTO user_groups (user_id, group_id, status) VALUES (?, ?, 'pending')", 
+                           (user_id, group_id))
             db.commit()
             flash("Join request sent successfully!", "success")
         except sqlite3.IntegrityError:
@@ -309,18 +303,16 @@ def view_group(group_id):
         group = dict(zip([column[0] for column in cursor.description], group))
         
         # Check if the user is a member of the group
-        cursor.execute("SELECT 1 FROM user_groups WHERE user_id = ? AND group_id = ?", (user_id, group_id))
+        cursor.execute("SELECT 1 FROM user_groups WHERE user_id = ? AND group_id = ? AND status != 'pending'", (user_id, group_id))
         is_member = cursor.fetchone() is not None
 
         # Check for pending join request
-        cursor.execute("""
-            SELECT 1 FROM join_requests 
-            WHERE user_id = ? AND group_id = ?
-        """, (user_id, group_id))
-        pending_request = cursor.fetchone() is not None
+        cursor.execute("SELECT status FROM user_groups WHERE user_id = ? AND group_id = ?", (user_id, group_id))
+        user_group_status = cursor.fetchone()
+        pending_request = user_group_status is not None and user_group_status['status'] == 'pending'
 
         # Fetch member count
-        cursor.execute("SELECT COUNT(*) FROM user_groups WHERE group_id = ?", (group_id,))
+        cursor.execute("SELECT COUNT(*) FROM user_groups WHERE group_id = ? AND status != 'pending'", (group_id,))
         member_count = cursor.fetchone()[0]
 
         group['member_count'] = member_count
@@ -518,10 +510,10 @@ def view_requests(group_id):
     
     # Fetch the requests
     requests = db.execute("""
-        SELECT jr.id, u.username, u.email
-        FROM join_requests jr
-        JOIN users u ON jr.user_id = u.id
-        WHERE jr.group_id = ?
+        SELECT u.username, u.email
+        FROM user_groups ug
+        JOIN users u ON ug.user_id = u.id
+        WHERE ug.group_id = ? AND ug.status = 'pending'
     """, (group_id,)).fetchall()
     
     return render_template("view_requests.html", requests=requests, group_name=group['name'])
@@ -533,28 +525,23 @@ def handle_request(request_id, action):
     db = get_db()
     
     # Get the request details
-    request_data = db.execute("SELECT user_id, group_id FROM join_requests WHERE id = ?", (request_id,)).fetchone()
+    request_data = db.execute("SELECT user_id, group_id FROM user_groups WHERE id = ?", (request_id,)).fetchone()
     
     if action == 'accept':
-        
         if request_data:
             user_id = request_data['user_id']
             group_id = request_data['group_id']
             
-            # Add user to user_groups table
-            db.execute("INSERT INTO user_groups (user_id, group_id, status) VALUES (?, ?, 'member')", (user_id, group_id))
+            # Update user_groups table to set status to 'member'
+            db.execute("UPDATE user_groups SET status = 'member' WHERE user_id = ? AND group_id = ?", (user_id, group_id))
             
-            # Remove the request from join_requests table
-            db.execute("DELETE FROM join_requests WHERE id = ?", (request_id,))
-            
-            db.commit()
             flash('Request accepted and user added to the group.', 'success')
         else:
             flash('Request not found.', 'danger')
     
     elif action == 'reject':
-        # Remove the request from join_requests table
-        db.execute("DELETE FROM join_requests WHERE id = ?", (request_id,))
+        # Remove the request from user_groups table
+        db.execute("DELETE FROM user_groups WHERE id = ?", (request_id,))
         db.commit()
         flash('Request rejected.', 'info')
     

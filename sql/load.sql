@@ -122,12 +122,12 @@ INSERT INTO jobs (user_id, tradesman_id, date, title, description, call_out_fee,
 (2, 10, '2023-11-14', 'Home Security Installation', 'Installing a home security system.', 25, 65, NULL, 90, 5);
 
 
--- Insert dummy data into join_requests
-INSERT INTO join_requests (user_id, group_id) VALUES 
-(6, 1),  -- John Doe requests to join Group A
-(6, 3),  -- John Doe requests to join Group B
-(8, 1),  -- Frank requests to join Group A
-(7, 3),  -- Alice Smith requests to join Group C
-(7, 1),  -- Bob Johnson requests to join Group B
-(9, 1);  -- Bob Johnson requests to join Group B
+-- -- Insert dummy data into join_requests
+-- INSERT INTO join_requests (user_id, group_id) VALUES 
+-- (6, 1),  -- John Doe requests to join Group A
+-- (6, 3),  -- John Doe requests to join Group B
+-- (8, 1),  -- Frank requests to join Group A
+-- (7, 3),  -- Alice Smith requests to join Group C
+-- (7, 1),  -- Bob Johnson requests to join Group B
+-- (9, 1);  -- Bob Johnson requests to join Group B
 

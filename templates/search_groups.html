@@ -46,9 +46,11 @@
                                     {% elif group['status'] == 'pending' %}
                                         <span class="badge bg-warning text-dark">Pending</span>
                                     {% elif group['status'] is none %}
-                                        <form action="{{ url_for('view_group', group_id=group['id']) }}" method="post" class="ms-4 mb-0">
-                                            <button type="submit" class="btn btn-primary btn-sm">Join Group</button>
-                                        </form>
+                                        <span>
+                                            <form action="{{ url_for('view_group', group_id=group['id']) }}" method="post">
+                                                <button type="submit" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.4rem; font-size: 0.65rem; font-weight: bold;">Join Group</button>
+                                            </form>
+                                        </span>
                                     {% endif %}
                                 </td>
                             </tr>
