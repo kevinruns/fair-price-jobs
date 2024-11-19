@@ -585,7 +585,7 @@ def group_members(group_id):
     print("Groups data:", [dict(row) for row in members])
 
 
-    return render_template("group_members.html", members=members, group_name=group_name)
+    return render_template("group_members.html", members=members, group_id=group_id, group_name=group_name)
 
 
 

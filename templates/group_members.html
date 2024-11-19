@@ -5,7 +5,7 @@
 {% block main %}
 
     <div class="container mt-3">
-        <h1 class="text-center">Members of {{ group_name }}</h1>
+        <h4 class="text-center">Members of {{ group_name }}</h4>
         <table class="table table-striped table-bordered table-sm mt-5 mb-5">
             <thead class="thead-dark">
                 <tr>
@@ -26,7 +26,7 @@
                 {% endfor %}
             </tbody>
         </table>
-        <a class="btn btn-primary" href="{{ url_for('index') }}">Back to Groups</a>
+        <a class="btn btn-primary" href="{{ url_for('view_group', group_id=group_id) }}">Group information</a>
     </div>
 
 

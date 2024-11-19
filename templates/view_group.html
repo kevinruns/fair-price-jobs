@@ -7,9 +7,15 @@
             <div class="flex-grow-1 d-flex justify-content-start">
                 <span class="fw-bold fs-4 ms-5 me-auto">Group: {{ group['name'] }}</span>
             </div>
-            <div>
-                <span class="badge bg-secondary me-2">{{ group['postcode'] }}</span>
-                <span class="badge bg-primary">{{ group['member_count'] }} Members</span>
+            <div class="d-flex align-items-center">
+                <span class="badge bg-secondary me-2" style="padding: 0.25rem 0.5rem; line-height: 1.5;">{{ group['postcode'] }}</span>
+                <div>
+                    {% if pending_request    %}
+                        <span class="badge bg-primary" style="padding: 0.25rem 0.5rem; line-height: 1.5;">{{ group['member_count'] }} Members</span>  <!-- Show as badge if there is a pending request -->
+                    {% else %}
+                        <a href="{{ url_for('group_members', group_id=group['id']) }}" class="badge bg-primary" style="padding: 0.25rem 0.5rem; line-height: 1.5;">{{ group['member_count'] }} Members</a>  <!-- Make it a link if no pending request -->
+                    {% endif %}
+                </div>
             </div>
         </div>
 
