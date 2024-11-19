@@ -7,6 +7,4 @@ env/
 .venv/
 *.db
 *.sqlite3
-sql/read*
-sql/load*
 flask_session*

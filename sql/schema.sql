@@ -29,7 +29,7 @@ CREATE TABLE groups (
 CREATE TABLE user_groups (
     user_id INTEGER,
     group_id INTEGER,
-    status TEXT NOT NULL CHECK(status IN ('creator', 'admin', 'member')) DEFAULT 'member',
+    status TEXT NOT NULL CHECK(status IN ('creator', 'admin', 'member', 'pending')) DEFAULT 'pending',
     PRIMARY KEY (user_id, group_id),
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     FOREIGN KEY (group_id) REFERENCES groups (id) ON DELETE CASCADE
@@ -72,16 +72,16 @@ CREATE TABLE jobs (
 );
 
 
--- New table for requests to join a table; for now keep simple; don't store old requests
-CREATE TABLE join_requests (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    group_id INTEGER NOT NULL,
---    status TEXT NOT NULL CHECK(status IN ('pending', 'approved', 'declined')) DEFAULT 'pending',
---    request_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-    FOREIGN KEY (group_id) REFERENCES groups (id) ON DELETE CASCADE,
-    UNIQUE (user_id, group_id)
-);
+-- -- New table for requests to join a table; for now keep simple; don't store old requests
+-- CREATE TABLE join_requests (
+--     id INTEGER PRIMARY KEY AUTOINCREMENT,
+--     user_id INTEGER NOT NULL,
+--     group_id INTEGER NOT NULL,
+-- --    status TEXT NOT NULL CHECK(status IN ('pending', 'approved', 'declined')) DEFAULT 'pending',
+-- --    request_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+--     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+--     FOREIGN KEY (group_id) REFERENCES groups (id) ON DELETE CASCADE,
+--     UNIQUE (user_id, group_id)
+-- );
 
 
