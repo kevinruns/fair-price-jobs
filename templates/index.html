@@ -28,7 +28,13 @@
                                         </a>
                                     </td>
                                     <td>{{ group['postcode'] }}</td>
-                                    <td>{{ group['member_count'] }}</td>
+                                    <td>
+                                        {% if group['status'] == 'pending' %}
+                                            {{ group['member_count'] }}  <!-- Show just the number if status is pending -->
+                                        {% else %}
+                                            <a href="{{ url_for('group_members', group_id=group['id']) }}">{{ group['member_count'] }}</a>  <!-- Show link if status is not pending -->
+                                        {% endif %}
+                                    </td>
                                     <td>
                                         <div class="d-flex align-items-center justify-content-center gap-2">
                                             {% if group['status'] == 'member' %}

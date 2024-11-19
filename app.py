@@ -562,6 +562,34 @@ def handle_request(request_id, action):
 
 
 
+@app.route("/group_members/<int:group_id>")
+@login_required
+def group_members(group_id):
+    db = get_db()
+    members = db.execute("""
+        SELECT u.username, u.firstname, u.lastname, u.email 
+        FROM user_groups ug
+        JOIN users u ON ug.user_id = u.id
+        WHERE ug.group_id = ?
+    """, (group_id,)).fetchall()
+    
+
+    group_name_result = db.execute("""
+        SELECT name 
+        FROM groups 
+        WHERE id = ?
+    """, (group_id,)).fetchone()
+
+    group_name = group_name_result['name'] if group_name_result else "Unknown Group"  # Default if not found
+
+    print("Groups data:", [dict(row) for row in members])
+
+
+    return render_template("group_members.html", members=members, group_name=group_name)
+
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
 
