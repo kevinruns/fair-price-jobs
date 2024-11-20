@@ -279,6 +279,7 @@ def view_group(group_id):
     db = get_db()
     cursor = db.cursor()
     user_id = session["user_id"]
+    session['group_id'] = group_id
 
     # Handle POST request (button submission)
     if request.method == 'POST':
@@ -431,7 +432,11 @@ def view_tradesman(tradesman_id):
         # Convert jobs to dictionaries for easier handling in the template
         jobs = [dict(zip([column[0] for column in cursor.description], row)) for row in jobs]
 
-        return render_template("view_tradesman.html", tradesman=tradesman, jobs=jobs)
+
+        group_id = session['group_id']
+
+        return render_template("view_tradesman.html", tradesman=tradesman, jobs=jobs, group_id=group_id)
+    
     except Exception as e:
         print(f"Error in view_tradesman: {str(e)}")
         flash("An error occurred while fetching tradesman data.", "error")
@@ -510,7 +515,7 @@ def view_requests(group_id):
     
     # Fetch the requests
     requests = db.execute("""
-        SELECT u.username, u.email
+        SELECT u.username, u.email, ug.id  -- Include request ID in the selection
         FROM user_groups ug
         JOIN users u ON ug.user_id = u.id
         WHERE ug.group_id = ? AND ug.status = 'pending'
@@ -573,7 +578,6 @@ def group_members(group_id):
 
 
     return render_template("group_members.html", members=members, group_id=group_id, group_name=group_name)
-
 
 
 

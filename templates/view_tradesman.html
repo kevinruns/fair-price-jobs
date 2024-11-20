@@ -53,9 +53,10 @@
     <p>No jobs entered yet for this tradesman.</p>
 {% endif %}
 
+
 <div class="d-flex justify-content-center align-items-center mt-5 mb-4">
     <a href="{{ url_for('add_job', tradesman_id=tradesman.id) }}" class="btn btn-primary me-2">Add New Job</a>
-    <a href="{{ url_for('view_group', group_id=request.referrer.split('/')[-1]) }}" class="btn btn-secondary">Back to Group</a>
+    <a href="{{ url_for('view_group', group_id=group_id) }}" class="btn btn-secondary">Back to Group</a>
 </div>
 
 {% endblock %}

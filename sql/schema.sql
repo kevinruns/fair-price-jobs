@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS tradesmen;
 DROP TABLE IF EXISTS jobs;
 DROP TABLE IF EXISTS user_groups;
 DROP TABLE IF EXISTS group_tradesmen;
-DROP TABLE IF EXISTS  join_requests;
+-- DROP TABLE IF EXISTS  join_requests;
 
 
 -- users
@@ -27,10 +27,10 @@ CREATE TABLE groups (
 
 -- Junction table for user-group relationship
 CREATE TABLE user_groups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER,
     group_id INTEGER,
     status TEXT NOT NULL CHECK(status IN ('creator', 'admin', 'member', 'pending')) DEFAULT 'pending',
-    PRIMARY KEY (user_id, group_id),
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     FOREIGN KEY (group_id) REFERENCES groups (id) ON DELETE CASCADE
 );

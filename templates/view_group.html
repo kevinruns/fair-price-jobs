@@ -10,10 +10,10 @@
             <div class="d-flex align-items-center">
                 <span class="badge bg-secondary me-2" style="padding: 0.25rem 0.5rem; line-height: 1.5;">{{ group['postcode'] }}</span>
                 <div>
-                    {% if pending_request    %}
-                        <span class="badge bg-primary" style="padding: 0.25rem 0.5rem; line-height: 1.5;">{{ group['member_count'] }} Members</span>  <!-- Show as badge if there is a pending request -->
-                    {% else %}
+                    {% if is_member %}
                         <a href="{{ url_for('group_members', group_id=group['id']) }}" class="badge bg-primary" style="padding: 0.25rem 0.5rem; line-height: 1.5;">{{ group['member_count'] }} Members</a>  <!-- Make it a link if no pending request -->
+                    {% else %}
+                        <span class="badge bg-primary" style="padding: 0.25rem 0.5rem; line-height: 1.5;">{{ group['member_count'] }} Members</span>  <!-- Show as badge if there is a pending request -->
                     {% endif %}
                 </div>
             </div>
