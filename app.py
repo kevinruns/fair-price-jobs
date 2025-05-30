@@ -1,28 +1,55 @@
 # Configure application
 from flask import Flask, g, flash, redirect, render_template, request, session, url_for, jsonify
 from flask_session import Session
-
-
+from flask_wtf.csrf import CSRFProtect
 from werkzeug.security import check_password_hash, generate_password_hash
-from datetime import datetime
+from datetime import datetime, timedelta
 import sqlite3
 import os
-
+import logging
+from logging.handlers import RotatingFileHandler
+from functools import wraps
 
 from helpers import apology, login_required
 
-
 app = Flask(__name__)
+
+# Configure logging
+if not os.path.exists('logs'):
+    os.mkdir('logs')
+file_handler = RotatingFileHandler('logs/app.log', maxBytes=10240, backupCount=10)
+file_handler.setFormatter(logging.Formatter(
+    '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+))
+file_handler.setLevel(logging.INFO)
+app.logger.addHandler(file_handler)
+app.logger.setLevel(logging.INFO)
+app.logger.info('Application startup')
+
 # Configure session
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
+app.config["SECRET_KEY"] = os.urandom(24)  # Generate a random secret key
+
+# Initialize CSRF protection
+csrf = CSRFProtect(app)
 
 Session(app)
-
 
 # Database configuration
 DATABASE = 'application.db'  # This is your database name
 
+# Custom error handlers
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.rollback()
+    return render_template('500.html'), 500
 
 @app.route("/")
 @login_required
@@ -57,7 +84,30 @@ def index():
         return redirect("/login")
 
 
+# Rate limiting decorator
+def rate_limit(limit=5, window=300):  # 5 attempts per 5 minutes
+    def decorator(f):
+        attempts = {}
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            now = datetime.now()
+            ip = request.remote_addr
+            
+            # Clean old attempts
+            attempts[ip] = [t for t in attempts.get(ip, []) if now - t < timedelta(seconds=window)]
+            
+            if len(attempts.get(ip, [])) >= limit:
+                app.logger.warning(f"Rate limit exceeded for IP: {ip}")
+                flash("Too many login attempts. Please try again later.", "error")
+                return render_template("login.html"), 429
+            
+            attempts[ip] = attempts.get(ip, []) + [now]
+            return f(*args, **kwargs)
+        return wrapped
+    return decorator
+
 @app.route("/login", methods=["GET", "POST"])
+@rate_limit()
 def login():
     """Log user in"""
 
@@ -126,30 +176,60 @@ def register():
         password = request.form.get("password")
         confirmation = request.form.get("confirmation")
 
-        # Validate form inputs
+        # Input validation
+        errors = []
+        
+        # Username validation
         if not username:
-            flash("Must provide username", "error")
-            return render_template("register.html")
-        elif not firstname:
-            flash("Must provide first name", "error")
-            return render_template("register.html")
-        elif not lastname:
-            flash("Must provide last name", "error")
-            return render_template("register.html")
-        elif not email:
-            flash("Must provide email address", "error")
-            return render_template("register.html")
-        elif not postcode:
-            flash("Must provide postcode", "error")
-            return render_template("register.html")
-        elif not password:
-            flash("Must provide password", "error")
-            return render_template("register.html")
-        elif not confirmation:
-            flash("Must confirm password", "error")
-            return render_template("register.html")
+            errors.append("Must provide username")
+        elif len(username) < 3:
+            errors.append("Username must be at least 3 characters long")
+        elif not username.isalnum():
+            errors.append("Username must contain only letters and numbers")
+
+        # Name validation
+        if not firstname:
+            errors.append("Must provide first name")
+        elif not firstname.replace(" ", "").isalpha():
+            errors.append("First name must contain only letters")
+            
+        if not lastname:
+            errors.append("Must provide last name")
+        elif not lastname.replace(" ", "").isalpha():
+            errors.append("Last name must contain only letters")
+
+        # Email validation
+        if not email:
+            errors.append("Must provide email address")
+        elif not "@" in email or not "." in email:
+            errors.append("Invalid email format")
+
+        # Postcode validation (basic format check)
+        if not postcode:
+            errors.append("Must provide postcode")
+        elif not postcode.replace(" ", "").isalnum():
+            errors.append("Postcode must contain only letters and numbers")
+
+        # Password validation
+        if not password:
+            errors.append("Must provide password")
+        elif len(password) < 8:
+            errors.append("Password must be at least 8 characters long")
+        elif not any(c.isupper() for c in password):
+            errors.append("Password must contain at least one uppercase letter")
+        elif not any(c.islower() for c in password):
+            errors.append("Password must contain at least one lowercase letter")
+        elif not any(c.isdigit() for c in password):
+            errors.append("Password must contain at least one number")
+
+        if not confirmation:
+            errors.append("Must confirm password")
         elif password != confirmation:
-            flash("Passwords do not match", "error")
+            errors.append("Passwords do not match")
+
+        if errors:
+            for error in errors:
+                flash(error, "error")
             return render_template("register.html")
 
         # Hash the password
@@ -158,18 +238,21 @@ def register():
         # Insert new user into database
         db = get_db()
         try:
-            db.execute("INSERT INTO users (username, firstname, lastname, email, postcode, hash) VALUES (?, ?, ?, ?, ?, ?)", 
-                       (username, firstname, lastname, email, postcode, hash))
-            db.commit()
+            with db:
+                db.execute("INSERT INTO users (username, firstname, lastname, email, postcode, hash) VALUES (?, ?, ?, ?, ?, ?)", 
+                           (username, firstname, lastname, email, postcode, hash))
+            app.logger.info(f"New user registered: {username}")
+            flash("Registration successful.", "success")
+            return redirect(url_for("welcome", username=username))
         except sqlite3.IntegrityError:
             flash("Username or email already taken", "error")
+            app.logger.warning(f"Registration failed - duplicate username/email: {username}")
+            return render_template("register.html")
+        except Exception as e:
+            app.logger.error(f"Registration error: {str(e)}")
+            flash("An error occurred during registration. Please try again.", "error")
             return render_template("register.html")
 
-        # Redirect user to welcome page
-        flash("Registration successful.", "success")
-        return redirect(url_for("welcome", username=username))
-
-    # User reached route via GET (as by clicking a link or via redirect)
     return render_template("register.html")
 
 
