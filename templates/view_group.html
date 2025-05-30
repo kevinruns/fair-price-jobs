@@ -62,6 +62,7 @@
                 <span class="badge bg-warning text-dark">Request Pending</span>
             {% else %}
                 <form action="{{ url_for('view_group', group_id=group['id']) }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="submit" value="Join Group" class="btn btn-primary">
                 </form>
             {% endif %}

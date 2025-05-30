@@ -9,6 +9,7 @@ import os
 import logging
 from logging.handlers import RotatingFileHandler
 from functools import wraps
+from math import ceil
 
 from helpers import apology, login_required
 
@@ -51,14 +52,24 @@ def internal_error(error):
         db.rollback()
     return render_template('500.html'), 500
 
+def paginate(query, page, per_page=10):
+    """Helper function to paginate database queries"""
+    total = len(query)
+    pages = ceil(total / per_page)
+    offset = (page - 1) * per_page
+    return query[offset:offset + per_page], pages
+
 @app.route("/")
 @login_required
 def index():
     """Show index"""
-
     if session.get("user_id"):
         db = get_db()
         cursor = db.cursor()
+        
+        # Get page number from query parameters, default to 1
+        page = request.args.get('page', 1, type=int)
+        per_page = 10  # Number of items per page
         
         # Fetch the username
         cursor.execute("SELECT username FROM users WHERE id = ?", (session["user_id"],))
@@ -71,15 +82,23 @@ def index():
             SELECT g.*, 
                    (SELECT COUNT(*) FROM user_groups WHERE group_id = g.id AND status != 'pending') as member_count,
                    (SELECT COUNT(*) FROM user_groups WHERE group_id = g.id AND status = 'pending') as pending_requests,                            
-                    ug.status as status  -- Use CASE to determine status for the logged-in user
+                   ug.status as status
             FROM groups g 
-            INNER JOIN user_groups ug ON g.id = ug.group_id AND ug.user_id = ?  -- Join with user_groups for the logged-in user
+            INNER JOIN user_groups ug ON g.id = ug.group_id AND ug.user_id = ?
+            ORDER BY g.name
         """, (user_id,)).fetchall()
         
-        # Add this debug print
-        print("Groups data:", [dict(row) for row in groups])
-
-        return render_template("index.html", username=username, groups=groups)
+        # Convert to list of dicts for easier pagination
+        groups_list = [dict(row) for row in groups]
+        
+        # Paginate the results
+        paginated_groups, total_pages = paginate(groups_list, page, per_page)
+        
+        return render_template("index.html", 
+                             username=username, 
+                             groups=paginated_groups,
+                             page=page,
+                             total_pages=total_pages)
     else:
         return redirect("/login")
 
@@ -662,6 +681,62 @@ def group_members(group_id):
 
     return render_template("group_members.html", members=members, group_id=group_id, group_name=group_name)
 
+
+@app.route("/search_tradesmen", methods=["GET", "POST"])
+@login_required
+def search_tradesmen():
+    """Search for tradesmen"""
+    if request.method == "POST":
+        search_term = request.form.get("search_term", "").strip()
+        trade = request.form.get("trade", "")
+        postcode = request.form.get("postcode", "").strip()
+        
+        db = get_db()
+        query = """
+            SELECT DISTINCT t.*, 
+                   COUNT(j.id) as job_count,
+                   AVG(j.rating) as avg_rating
+            FROM tradesmen t
+            LEFT JOIN jobs j ON t.id = j.tradesman_id
+            WHERE 1=1
+        """
+        params = []
+        
+        if search_term:
+            query += " AND (t.name LIKE ? OR t.email LIKE ? OR t.phone_number LIKE ?)"
+            search_pattern = f"%{search_term}%"
+            params.extend([search_pattern, search_pattern, search_pattern])
+            
+        if trade:
+            query += " AND t.trade = ?"
+            params.append(trade)
+            
+        if postcode:
+            query += " AND t.postcode LIKE ?"
+            params.append(f"{postcode}%")
+            
+        query += " GROUP BY t.id ORDER BY avg_rating DESC NULLS LAST"
+        
+        tradesmen = db.execute(query, params).fetchall()
+        tradesmen = [dict(row) for row in tradesmen]
+        
+        # Get unique trades for the filter dropdown
+        trades = db.execute("SELECT DISTINCT trade FROM tradesmen ORDER BY trade").fetchall()
+        trades = [row['trade'] for row in trades]
+        
+        return render_template("search_tradesmen.html", 
+                             tradesmen=tradesmen,
+                             trades=trades,
+                             search_term=search_term,
+                             selected_trade=trade,
+                             postcode=postcode)
+    
+    # GET request - show empty search form
+    db = get_db()
+    trades = db.execute("SELECT DISTINCT trade FROM tradesmen ORDER BY trade").fetchall()
+    trades = [row['trade'] for row in trades]
+    
+    return render_template("search_tradesmen.html", trades=trades)
 
 
 if __name__ == '__main__':

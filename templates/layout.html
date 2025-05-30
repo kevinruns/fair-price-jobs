@@ -18,11 +18,16 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     {% if session.user_id %}
-                        <ul class="navbar-nav me-auto mt-1 align-items-center">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                             <li class="nav-item">
-                                <a class="nav-link" href="/">Home</a>
+                                <a class="nav-link" href="{{ url_for('index') }}">Home</a>
                             </li>
-                            <!-- Add other navigation items for logged-in users -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('search_groups') }}">Groups</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('search_tradesmen') }}">Tradesmen</a>
+                            </li>
                         </ul>
                         <ul class="navbar-nav ms-auto mt-1 align-items-center">
                             <li class="nav-item me-3">

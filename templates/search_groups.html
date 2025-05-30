@@ -4,6 +4,7 @@
 
 {% block main %}
     <form action="{{ url_for('search_groups') }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="row justify-content-center mb-4">
             <div class="col-md-6">
                 <div class="d-flex justify-content-center gap-2">

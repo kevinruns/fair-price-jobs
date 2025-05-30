@@ -3,6 +3,7 @@
 {% block main %}
 <div class="container-fluid p-4 bg-info bg-opacity-10 rounded">
     <form action="{{ url_for('add_job', tradesman_id=tradesman_id) }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <!-- Date and Rating and Total Cost Row -->
         <div class="row align-items-center mb-4">
             <div class="col-sm-4">

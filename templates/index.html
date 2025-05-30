@@ -1,81 +1,85 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Welcome
+    Home
 {% endblock %}
 
 {% block main %}
-    
-    <div class="mt-4">
-        {% if groups %}
-            <div class="container mb-4">
-                <div class="table-responsive mt-3">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="col">Group Name</th>
-                                <th scope="col">Postcode</th>
-                                <th scope="col">Members</th>
-                                <th scope="col" style="min-width: 140px;">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for group in groups %}
-                                <tr>
-                                    <td>
-                                        <a href="{{ url_for('view_group', group_id=group['id']) }}" class="text-decoration-none">
-                                            <span class="fw-semibold text-primary">{{ group['name'] }}</span>
-                                        </a>
-                                    </td>
-                                    <td>{{ group['postcode'] }}</td>
-                                    <td>
-                                        {% if group['status'] == 'pending' %}
-                                            {{ group['member_count'] }}  <!-- Show just the number if status is pending -->
-                                        {% else %}
-                                            <a href="{{ url_for('group_members', group_id=group['id']) }}">{{ group['member_count'] }}</a>  <!-- Show link if status is not pending -->
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center justify-content-center gap-2">
-                                            {% if group['status'] == 'member' %}
-                                                <span class="badge bg-success" style="min-width: 70px;">Member</span>
-                                            {% elif group['status'] == 'admin' %}
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <span class="badge bg-primary" style="min-width: 70px;">Admin</span>
-                                                    {% if group['pending_requests'] > 0 %}
-                                                        <a href="{{ url_for('view_requests', group_id=group['id']) }}" class="text-decoration-none  d-flex align-items-center">
-                                                            <span class="badge bg-danger" style="min-width: 70px;">{{ group['pending_requests'] }} Request{% if group['pending_requests'] != 1 %}s{% endif %}</span>
-                                                        </a>
-                                                    {% endif %}
-                                                </div>
-                                            {% elif group['status'] == 'creator' %}
-                                                <div class="d-flex align-items-center justify-content-center gap-2">
-                                                    <span class="badge bg-primary" style="min-width: 70px;">Creator</span>
-                                                    {% if group['pending_requests'] > 0 %}
-                                                        <a href="{{ url_for('view_requests', group_id=group['id']) }}" class="text-decoration-none d-flex align-items-center">
-                                                            <span class="badge bg-danger" style="min-width: 70px;">{{ group['pending_requests'] }} Request{% if group['pending_requests'] != 1 %}s{% endif %}</span>
-                                                        </a>
-                                                    {% endif %}
-                                                </div>
-                                            {% elif group['status'] == 'pending' %}
-                                                <span class="badge bg-warning text-dark" style="min-width: 70px;">Pending</span>
-                                            {% endif %}
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+    <div class="container">
+        <h1 class="mb-4">Welcome, {{ username }}!</h1>
+        
+        <div class="row mb-4">
+            <div class="col">
+                <a href="{{ url_for('create_group') }}" class="btn btn-primary">Create New Group</a>
+                <a href="{{ url_for('search_groups') }}" class="btn btn-secondary">Search Groups</a>
             </div>
+        </div>
+
+        <h2>Your Groups</h2>
+        {% if groups %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Group Name</th>
+                            <th>Postcode</th>
+                            <th>Members</th>
+                            <th>Pending Requests</th>
+                            <th>Your Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for group in groups %}
+                            <tr>
+                                <td>{{ group.name }}</td>
+                                <td>{{ group.postcode }}</td>
+                                <td>{{ group.member_count }}</td>
+                                <td>{{ group.pending_requests }}</td>
+                                <td>{{ group.status }}</td>
+                                <td>
+                                    <a href="{{ url_for('view_group', group_id=group.id) }}" class="btn btn-sm btn-info">View</a>
+                                    {% if group.status == 'creator' or group.status == 'admin' %}
+                                        <a href="{{ url_for('view_requests', group_id=group.id) }}" class="btn btn-sm btn-warning">Requests</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if total_pages > 1 %}
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        {% if page > 1 %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('index', page=page-1) }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for p in range(1, total_pages + 1) %}
+                            <li class="page-item {% if p == page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('index', page=p) }}">{{ p }}</a>
+                            </li>
+                        {% endfor %}
+                        
+                        {% if page < total_pages %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('index', page=page+1) }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
         {% else %}
-            <p>You are not a member of any groups yet.</p>
+            <p>You haven't joined any groups yet.</p>
         {% endif %}
-    </div>
-    
-    <div class="d-flex justify-content-center mt-4">
-        <a href="{{ url_for('search_groups') }}" class="btn btn-secondary mx-2 btn-custom-width btn-sm">Find a Group</a>
-        <a href="{{ url_for('create_group') }}" class="btn btn-primary mx-2 btn-custom-width btn-sm">Create a New Group</a>
     </div>
 {% endblock %}
 

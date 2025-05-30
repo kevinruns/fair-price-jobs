@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Search Tradesmen
+{% endblock %}
+
+{% block main %}
+    <div class="container">
+        <h1 class="mb-4">Search Tradesmen</h1>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="post" class="row g-3">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="col-md-4">
+                        <label for="search_term" class="form-label">Search</label>
+                        <input type="text" class="form-control" id="search_term" name="search_term" 
+                               value="{{ search_term }}" placeholder="Name, email, or phone">
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <label for="trade" class="form-label">Trade</label>
+                        <select class="form-select" id="trade" name="trade">
+                            <option value="">All Trades</option>
+                            {% for trade in trades %}
+                                <option value="{{ trade }}" {% if trade == selected_trade %}selected{% endif %}>
+                                    {{ trade }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <label for="postcode" class="form-label">Postcode</label>
+                        <input type="text" class="form-control" id="postcode" name="postcode" 
+                               value="{{ postcode }}" placeholder="Enter postcode">
+                    </div>
+                    
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                        <a href="{{ url_for('search_tradesmen') }}" class="btn btn-secondary">Clear</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if tradesmen %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Trade</th>
+                            <th>Location</th>
+                            <th>Contact</th>
+                            <th>Jobs</th>
+                            <th>Rating</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tradesman in tradesmen %}
+                            <tr>
+                                <td>{{ tradesman.name }}</td>
+                                <td>{{ tradesman.trade }}</td>
+                                <td>{{ tradesman.postcode }}</td>
+                                <td>
+                                    <div>📞 {{ tradesman.phone_number }}</div>
+                                    {% if tradesman.email %}
+                                        <div>✉️ {{ tradesman.email }}</div>
+                                    {% endif %}
+                                </td>
+                                <td>{{ tradesman.job_count }}</td>
+                                <td>
+                                    {% if tradesman.avg_rating %}
+                                        {{ "%.1f"|format(tradesman.avg_rating) }} ⭐
+                                    {% else %}
+                                        No ratings
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('view_tradesman', tradesman_id=tradesman.id) }}" 
+                                       class="btn btn-sm btn-info">View Details</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% elif request.method == "POST" %}
+            <div class="alert alert-info">
+                No tradesmen found matching your search criteria.
+            </div>
+        {% endif %}
+    </div>
+{% endblock %} 
