@@ -1,12 +1,23 @@
 {% extends "layout.html" %}
 
 {% block main %}
-
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-9">
             <div class="card">
                 <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Tradesman:</div>
+                        <div class="col-md-6 text-start">
+                            <a href="{{ url_for('view_tradesman', tradesman_id=job.tradesman_id) }}" class="text-decoration-none">
+                                <span class="fw-semibold text-primary">{{ job.tradesman_name }}</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Trade:</div>
+                        <div class="col-md-6 text-start">{{ job.trade }}</div>
+                    </div>
                     <div class="row mb-3">
                         <div class="col-md-3 fw-bold">Job:</div>
                         <div class="col-md-6 text-start">{{ job.title }}</div>

@@ -1,7 +1,12 @@
 {% extends "layout.html" %}
 
 {% block main %}
-<div class="container-fluid p-4 bg-info bg-opacity-10 rounded">
+<div class="container-fluid p-4 bg-light rounded">
+    <div class="row mb-4">
+        <div class="col">
+            <h4 class="mb-0">{{ tradesman.name }} - {{ tradesman.trade }}</h4>
+        </div>
+    </div>
     <form action="{{ url_for('add_job', tradesman_id=tradesman_id) }}" method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <!-- Date and Rating and Total Cost Row -->

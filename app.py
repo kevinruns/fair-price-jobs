@@ -350,21 +350,32 @@ def search_groups():
     groups = []
     postcode = ""
     if request.method == "POST":
-        postcode = request.form.get("postcode")
-        user_id = session.get("user_id")  # Assuming user_id is stored in session
+        postcode = request.form.get("postcode", "").strip()
+        user_id = session.get("user_id")
         db = get_db()
-        groups = db.execute("""
+        
+        # Base query
+        query = """
             SELECT g.*, 
                    (SELECT COUNT(*) FROM user_groups WHERE group_id = g.id) as member_count,
                    CASE 
                        WHEN ug.status IS NOT NULL THEN ug.status 
                        ELSE NULL 
-                   END as status  -- Use CASE to determine status for the logged-in user
+                   END as status
             FROM groups g 
-            LEFT JOIN user_groups ug ON g.id = ug.group_id AND ug.user_id = ?  -- Join with user_groups for the logged-in user
-            WHERE g.postcode = ? OR g.postcode LIKE ? || '%'  -- Search by postcode
-            GROUP BY g.id  -- Group by group ID to ensure each group is returned once
-        """, (user_id, postcode, postcode)).fetchall()  # Pass user_id and postcode as parameters
+            LEFT JOIN user_groups ug ON g.id = ug.group_id AND ug.user_id = ?
+        """
+        
+        # Add WHERE clause only if postcode is provided
+        if postcode:
+            query += " WHERE g.postcode LIKE ?"
+            params = (user_id, f"%{postcode}%")
+        else:
+            params = (user_id,)
+            
+        query += " GROUP BY g.id"
+        
+        groups = db.execute(query, params).fetchall()
         
         # Add this debug print
         print("Groups data:", [dict(row) for row in groups])
@@ -549,8 +560,19 @@ def view_tradesman(tradesman_id):
 @app.route("/add_job/<int:tradesman_id>", methods=["GET", "POST"])
 @login_required
 def add_job(tradesman_id):
+    db = get_db()
+    cursor = db.cursor()
+
+    # Get tradesman information
+    cursor.execute("SELECT name, trade FROM tradesmen WHERE id = ?", (tradesman_id,))
+    tradesman = cursor.fetchone()
+    
+    if not tradesman:
+        flash("Tradesman not found.", "error")
+        return redirect(url_for("search_tradesmen"))
+
     if request.method == "POST":
-        user_id = session["user_id"]  # Assuming you store user_id in session
+        user_id = session["user_id"]
         date = request.form.get("date")
         title = request.form.get("title")
         description = request.form.get("description")
@@ -559,9 +581,6 @@ def add_job(tradesman_id):
         daily_rate = request.form.get("daily_rate")
         total_cost = request.form.get("total_cost")
         rating = request.form.get("rating")
-
-        db = get_db()
-        cursor = db.cursor()
 
         try:
             cursor.execute("""
@@ -576,7 +595,7 @@ def add_job(tradesman_id):
 
         return redirect(url_for("view_tradesman", tradesman_id=tradesman_id))
 
-    return render_template("add_job.html", tradesman_id=tradesman_id)
+    return render_template("add_job.html", tradesman_id=tradesman_id, tradesman=tradesman)
 
 
 
@@ -587,8 +606,10 @@ def view_job(job_id):
     cursor = db.cursor()
     
     cursor.execute("""
-        SELECT * FROM jobs 
-        WHERE id = ?
+        SELECT j.*, t.name as tradesman_name, t.trade
+        FROM jobs j
+        JOIN tradesmen t ON j.tradesman_id = t.id
+        WHERE j.id = ?
     """, (job_id,))
     job = cursor.fetchone()
     

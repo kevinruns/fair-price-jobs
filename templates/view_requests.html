@@ -9,7 +9,15 @@
                 window.handleRequest = function(requestId, action) {
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = `/handle_request/${requestId}/${action}`; // Adjust the URL as needed
+                    form.action = `/handle_request/${requestId}/${action}`;
+                    
+                    // Add CSRF token
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = 'csrf_token';
+                    csrfInput.value = '{{ csrf_token() }}';
+                    form.appendChild(csrfInput);
+                    
                     document.body.appendChild(form);
                     form.submit();
                 }
