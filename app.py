@@ -522,16 +522,12 @@ def view_tradesman(tradesman_id):
         cursor.execute("SELECT * FROM tradesmen WHERE id = ?", (tradesman_id,))
         tradesman = cursor.fetchone()
 
-        print(f"Debug: Raw tradesman data: {tradesman}")  # Add this line
-
         if not tradesman:
             flash("Tradesman not found.", "error")
             return redirect(url_for("search_groups"))
 
         # Convert tradesman to a dictionary
         tradesman = dict(zip([column[0] for column in cursor.description], tradesman))
-
-        print(f"Debug: Tradesman dictionary: {tradesman}")  # Add this line
 
         # Fetch jobs for this tradesman
         cursor.execute("""
@@ -545,13 +541,15 @@ def view_tradesman(tradesman_id):
         # Convert jobs to dictionaries for easier handling in the template
         jobs = [dict(zip([column[0] for column in cursor.description], row)) for row in jobs]
 
+        group_id = session.get('group_id')
 
-        group_id = session['group_id']
-
-        return render_template("view_tradesman.html", tradesman=tradesman, jobs=jobs, group_id=group_id)
+        return render_template("view_tradesman.html", 
+                             tradesman=tradesman, 
+                             jobs=jobs, 
+                             group_id=group_id)
     
     except Exception as e:
-        print(f"Error in view_tradesman: {str(e)}")
+        app.logger.error(f"Error in view_tradesman: {str(e)}")
         flash("An error occurred while fetching tradesman data.", "error")
         return redirect(url_for("search_groups"))
 
