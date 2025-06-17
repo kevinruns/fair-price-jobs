@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS tradesmen;
 DROP TABLE IF EXISTS jobs;
 DROP TABLE IF EXISTS user_groups;
 DROP TABLE IF EXISTS group_tradesmen;
+DROP TABLE IF EXISTS user_tradesmen;
 -- DROP TABLE IF EXISTS  join_requests;
 
 
@@ -39,7 +40,9 @@ CREATE TABLE user_groups (
 CREATE TABLE tradesmen (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     trade TEXT NOT NULL,
-    name TEXT NOT NULL,
+    first_name TEXT,
+    family_name TEXT NOT NULL,
+    company_name TEXT,
     address TEXT NOT NULL,
     postcode TEXT NOT NULL,
     phone_number TEXT NOT NULL,
@@ -52,6 +55,16 @@ CREATE TABLE group_tradesmen (
     tradesman_id INTEGER,
     PRIMARY KEY (group_id, tradesman_id),
     FOREIGN KEY (group_id) REFERENCES groups (id) ON DELETE CASCADE,
+    FOREIGN KEY (tradesman_id) REFERENCES tradesmen (id) ON DELETE CASCADE
+);
+
+-- New junction table for user-tradesman relationship
+CREATE TABLE user_tradesmen (
+    user_id INTEGER,
+    tradesman_id INTEGER,
+    date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, tradesman_id),
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     FOREIGN KEY (tradesman_id) REFERENCES tradesmen (id) ON DELETE CASCADE
 );
 

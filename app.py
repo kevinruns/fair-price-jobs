@@ -93,10 +93,27 @@ def index():
         
         # Paginate the results
         paginated_groups, total_pages = paginate(groups_list, page, per_page)
+
+        # Fetch tradesmen added by the current user
+        tradesmen = db.execute("""
+            SELECT t.*, 
+                   COUNT(j.id) as job_count,
+                   AVG(j.rating) as avg_rating
+            FROM tradesmen t
+            JOIN user_tradesmen ut ON t.id = ut.tradesman_id
+            LEFT JOIN jobs j ON t.id = j.tradesman_id
+            WHERE ut.user_id = ?
+            GROUP BY t.id
+            ORDER BY t.family_name, t.first_name, t.company_name
+        """, (user_id,)).fetchall()
+        
+        # Convert tradesmen to list of dicts
+        tradesmen_list = [dict(row) for row in tradesmen]
         
         return render_template("index.html", 
                              username=username, 
                              groups=paginated_groups,
+                             tradesmen=tradesmen_list,
                              page=page,
                              total_pages=total_pages)
     else:
@@ -297,7 +314,7 @@ def close_connection(exception):
 def init_db():
     with app.app_context():
         db = get_db()
-        with app.open_resource('schema.sql', mode='r') as f:
+        with app.open_resource('sql/schema.sql', mode='r') as f:
             db.cursor().executescript(f.read())
         db.commit()
 
@@ -459,55 +476,54 @@ def view_group(group_id):
 
 
 
-@app.route("/add_tradesman/<int:group_id>", methods=["GET", "POST"])
+@app.route("/add_tradesman", methods=["GET", "POST"])
 @login_required
-def add_tradesman(group_id):
-    db = get_db()
-    cursor = db.cursor()
-
-    # Check if the user is a member of the group
-    cursor.execute("SELECT 1 FROM user_groups WHERE user_id = ? AND group_id = ?", 
-                   (session["user_id"], group_id))
-    is_member = cursor.fetchone() is not None
-
-    if not is_member:
-        flash("You must be a member of the group to add a tradesman.", "error")
-        return redirect(url_for("view_group", group_id=group_id))
-
+def add_tradesman():
     if request.method == "POST":
         # Get form data
         trade = request.form.get("trade")
-        name = request.form.get("name")
+        first_name = request.form.get("first_name")
+        family_name = request.form.get("family_name")
+        company_name = request.form.get("company_name")
         address = request.form.get("address")
         postcode = request.form.get("postcode")
         phone_number = request.form.get("phone_number")
         email = request.form.get("email")
 
+        db = get_db()
+        cursor = db.cursor()
+
         # Insert the tradesman into the database
         try:
             cursor.execute("""
-                INSERT INTO tradesmen (trade, name, address, postcode, phone_number, email)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, (trade, name, address, postcode, phone_number, email))
+                INSERT INTO tradesmen (
+                    trade, first_name, family_name, company_name, 
+                    address, postcode, phone_number, email
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                trade, first_name, family_name, company_name,
+                address, postcode, phone_number, email
+            ))
             
             tradesman_id = cursor.lastrowid  # Get the ID of the newly inserted tradesman
             
-            # Add the relationship to group_tradesmen table
+            # Create the user-tradesman relationship
             cursor.execute("""
-                INSERT INTO group_tradesmen (group_id, tradesman_id)
+                INSERT INTO user_tradesmen (user_id, tradesman_id)
                 VALUES (?, ?)
-            """, (group_id, tradesman_id))
+            """, (session["user_id"], tradesman_id))
             
             db.commit()
             flash("Tradesman added successfully!", "success")
+            return redirect(url_for("index"))
         except Exception as e:
             db.rollback()
             flash(f"An error occurred: {str(e)}", "error")
-        
-        return redirect(url_for("view_group", group_id=group_id))
+            return redirect(url_for("add_tradesman"))
 
     # If it's a GET request, just render the form
-    return render_template("add_tradesman.html", group_id=group_id)
+    return render_template("add_tradesman.html")
 
 
 
@@ -756,6 +772,92 @@ def search_tradesmen():
     trades = [row['trade'] for row in trades]
     
     return render_template("search_tradesmen.html", trades=trades)
+
+
+@app.route("/user_tradesmen/<int:user_id>")
+@login_required
+def user_tradesmen(user_id):
+    """Show tradesmen associated with a specific user"""
+    db = get_db()
+    cursor = db.cursor()
+
+    # Get user information
+    cursor.execute("SELECT username, firstname, lastname FROM users WHERE id = ?", (user_id,))
+    user = cursor.fetchone()
+    
+    if not user:
+        flash("User not found.", "error")
+        return redirect(url_for("index"))
+
+    # Get tradesmen associated with this user
+    cursor.execute("""
+        SELECT t.*, 
+               COUNT(j.id) as job_count,
+               AVG(j.rating) as avg_rating,
+               ut.date_added
+        FROM tradesmen t
+        JOIN user_tradesmen ut ON t.id = ut.tradesman_id
+        LEFT JOIN jobs j ON t.id = j.tradesman_id
+        WHERE ut.user_id = ?
+        GROUP BY t.id
+        ORDER BY t.trade, t.name
+    """, (user_id,))
+    tradesmen = cursor.fetchall()
+
+    # Convert to list of dictionaries
+    tradesmen_list = [dict(row) for row in tradesmen]
+
+    return render_template("user_tradesmen.html", 
+                         user=dict(user),
+                         tradesmen=tradesmen_list)
+
+
+@app.route("/edit_tradesman/<int:tradesman_id>", methods=["GET", "POST"])
+@login_required
+def edit_tradesman(tradesman_id):
+    db = get_db()
+    cursor = db.cursor()
+
+    # Check if the tradesman exists and belongs to the current user
+    cursor.execute("""
+        SELECT t.* 
+        FROM tradesmen t
+        JOIN user_tradesmen ut ON t.id = ut.tradesman_id
+        WHERE t.id = ? AND ut.user_id = ?
+    """, (tradesman_id, session["user_id"]))
+    tradesman = cursor.fetchone()
+
+    if not tradesman:
+        flash("Tradesman not found or you don't have permission to edit.", "error")
+        return redirect(url_for("index"))
+
+    if request.method == "POST":
+        # Get form data
+        trade = request.form.get("trade")
+        name = request.form.get("name")
+        address = request.form.get("address")
+        postcode = request.form.get("postcode")
+        phone_number = request.form.get("phone_number")
+        email = request.form.get("email")
+
+        try:
+            # Update the tradesman
+            cursor.execute("""
+                UPDATE tradesmen 
+                SET trade = ?, name = ?, address = ?, postcode = ?, phone_number = ?, email = ?
+                WHERE id = ?
+            """, (trade, name, address, postcode, phone_number, email, tradesman_id))
+            
+            db.commit()
+            flash("Tradesman updated successfully!", "success")
+            return redirect(url_for("view_tradesman", tradesman_id=tradesman_id))
+        except Exception as e:
+            db.rollback()
+            flash(f"An error occurred: {str(e)}", "error")
+            return redirect(url_for("edit_tradesman", tradesman_id=tradesman_id))
+
+    # If it's a GET request, render the form with current tradesman data
+    return render_template("edit_tradesman.html", tradesman=dict(tradesman))
 
 
 if __name__ == '__main__':

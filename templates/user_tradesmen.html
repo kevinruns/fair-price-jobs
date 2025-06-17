@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    {{ user.firstname }}'s Tradesmen
+{% endblock %}
+
+{% block main %}
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col">
+                <h2>{{ user.firstname }} {{ user.lastname }}'s Tradesmen</h2>
+                <p class="text-muted">Username: {{ user.username }}</p>
+            </div>
+        </div>
+
+        {% if tradesmen %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Trade</th>
+                            <th>Name</th>
+                            <th>Contact</th>
+                            <th>Location</th>
+                            <th>Jobs</th>
+                            <th>Rating</th>
+                            <th>Added On</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tradesman in tradesmen %}
+                            <tr>
+                                <td>{{ tradesman.trade }}</td>
+                                <td>
+                                    <a href="{{ url_for('view_tradesman', tradesman_id=tradesman.id) }}" class="text-decoration-none">
+                                        {{ tradesman.name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <div>📞 {{ tradesman.phone_number }}</div>
+                                    {% if tradesman.email %}
+                                        <div>✉️ {{ tradesman.email }}</div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div>{{ tradesman.postcode }}</div>
+                                    <small class="text-muted">{{ tradesman.address }}</small>
+                                </td>
+                                <td>{{ tradesman.job_count }}</td>
+                                <td>
+                                    {% if tradesman.avg_rating %}
+                                        {{ "%.1f"|format(tradesman.avg_rating) }} ⭐
+                                    {% else %}
+                                        No ratings
+                                    {% endif %}
+                                </td>
+                                <td>{{ tradesman.date_added }}</td>
+                                <td>
+                                    <a href="{{ url_for('view_tradesman', tradesman_id=tradesman.id) }}" class="btn btn-sm btn-primary">View</a>
+                                    {% if session.user_id == user_id %}
+                                        <a href="{{ url_for('edit_tradesman', tradesman_id=tradesman.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                No tradesmen have been added yet.
+            </div>
+        {% endif %}
+
+        <div class="mt-4">
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+        </div>
+    </div>
+{% endblock %} 
