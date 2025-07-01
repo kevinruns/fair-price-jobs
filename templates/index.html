@@ -66,10 +66,7 @@
                                 <th>Group Name</th>
                                 <th>Postcode</th>
                                 <th>Members</th>
-                                <th>Pending Requests</th>
                                 <th>Your Status</th>
-                                <th>Actions</th>
-                            </tr>
                         </thead>
                         <tbody>
                             {% for group in groups %}
@@ -81,13 +78,7 @@
                                     </td>
                                     <td>{{ group.postcode }}</td>
                                     <td>{{ group.member_count }}</td>
-                                    <td>{{ group.pending_requests }}</td>
                                     <td>{{ group.status }}</td>
-                                    <td>
-                                        {% if group.status == 'creator' or group.status == 'admin' %}
-                                            <a href="{{ url_for('view_requests', group_id=group.id) }}" class="btn btn-sm btn-warning">Requests</a>
-                                        {% endif %}
-                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
