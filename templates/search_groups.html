@@ -7,7 +7,7 @@
         <!-- Header with Create Button -->
         <div class="d-flex justify-content-end mb-4">
             <a href="{{ url_for('create_group') }}" class="btn btn-primary">
-                <i class="bi bi-plus-circle me-1"></i>Create New Group
+                Create Group
             </a>
         </div>
 
@@ -17,12 +17,13 @@
                 <form action="{{ url_for('search_groups') }}" method="post">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="row justify-content-center">
-                        <div class="col-md-8">
+                        <div class="col-md-6"> <!-- Changed from col-md-8 to col-md-6 to make the search box narrower -->
                             <div class="d-flex gap-2">
-                                <input type="text" class="form-control form-control" name="postcode" 
+                                <input type="text" class="form-control rounded-3" name="postcode" 
                                        placeholder="Enter Postcode" value="{{ postcode }}">
-                                <button type="submit" class="btn btn-primary  px-4" style="min-width: 140px;">
-                                    <i class="bi bi-search me-1"></i>Find Group
+                                <button type="submit" class="btn btn-primary" style="width: 100px;">
+                                    <i class="bi bi-search me-1"></i>
+                                    Search
                                 </button>
                             </div>
                         </div>
@@ -56,17 +57,19 @@
                                         <td>{{ group['member_count'] }}</td>
                                         <td>
                                             {% if group['status'] == 'member' %}
-                                                <span class="badge bg-success">Member</span>
+                                                <span class="badge bg-success rounded-circle p-2">Member</span>
                                             {% elif group['status'] == 'admin' %}
-                                                <span class="badge bg-primary">Admin</span>
+                                                <span class="badge bg-primary rounded-circle p-2">Admin</span>
                                             {% elif group['status'] == 'creator' %}
-                                                <span class="badge bg-primary">Creator</span>
+                                                <span class="badge bg-primary rounded-circle p-2">Creator</span>
                                             {% elif group['status'] == 'pending' %}
-                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                <span class="badge bg-warning text-dark rounded-circle p-2">Pending</span>
                                             {% elif group['status'] is none %}
                                                 <form action="{{ url_for('view_group', group_id=group['id']) }}" method="post" class="d-inline">
                                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                    <button type="submit" class="btn btn-primary btn-lg">Join Group</button>
+                                                    <button type="submit" class="btn btn-primary rounded-circle px-4">
+                                                        Join Group
+                                                    </button>
                                                 </form>
                                             {% endif %}
                                         </td>

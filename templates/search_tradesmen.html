@@ -52,22 +52,28 @@
                             <th>Name</th>
                             <th>Trade</th>
                             <th>Location</th>
-                            <th>Contact</th>
+                            <th>Phone</th>
+                            <th>Email</th>
                             <th>Jobs</th>
                             <th>Rating</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for tradesman in tradesmen %}
                             <tr>
-                                <td>{{ tradesman.name }}</td>
+                                <td>
+                                    <a href="{{ url_for('view_tradesman', tradesman_id=tradesman.id) }}" class="text-decoration-none">
+                                        <span class="fw-semibold text-primary">{{ tradesman.first_name }} {{ tradesman.family_name }}</span>
+                                    </a>
+                                </td>
                                 <td>{{ tradesman.trade }}</td>
                                 <td>{{ tradesman.postcode }}</td>
+                                <td>📞 {{ tradesman.phone_number }}</td>
                                 <td>
-                                    <div>📞 {{ tradesman.phone_number }}</div>
                                     {% if tradesman.email %}
-                                        <div>✉️ {{ tradesman.email }}</div>
+                                        ✉️ {{ tradesman.email }}
+                                    {% else %}
+                                        -
                                     {% endif %}
                                 </td>
                                 <td>{{ tradesman.job_count }}</td>
@@ -77,10 +83,6 @@
                                     {% else %}
                                         No ratings
                                     {% endif %}
-                                </td>
-                                <td>
-                                    <a href="{{ url_for('view_tradesman', tradesman_id=tradesman.id) }}" 
-                                       class="btn btn-sm btn-info">View Details</a>
                                 </td>
                             </tr>
                         {% endfor %}

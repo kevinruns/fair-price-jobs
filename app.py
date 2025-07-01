@@ -249,14 +249,14 @@ def register():
         # Password validation
         if not password:
             errors.append("Must provide password")
-        elif len(password) < 8:
-            errors.append("Password must be at least 8 characters long")
-        elif not any(c.isupper() for c in password):
-            errors.append("Password must contain at least one uppercase letter")
-        elif not any(c.islower() for c in password):
-            errors.append("Password must contain at least one lowercase letter")
-        elif not any(c.isdigit() for c in password):
-            errors.append("Password must contain at least one number")
+        # elif len(password) < 8:
+        #     errors.append("Password must be at least 8 characters long")
+        # elif not any(c.isupper() for c in password):
+        #     errors.append("Password must contain at least one uppercase letter")
+        # elif not any(c.islower() for c in password):
+        #     errors.append("Password must contain at least one lowercase letter")
+        # elif not any(c.isdigit() for c in password):
+        #     errors.append("Password must contain at least one number")
 
         if not confirmation:
             errors.append("Must confirm password")
@@ -454,7 +454,7 @@ def view_group(group_id):
             FROM tradesmen t
             JOIN group_tradesmen gt ON t.id = gt.tradesman_id
             WHERE gt.group_id = ?
-            ORDER BY t.trade, t.name
+            ORDER BY t.trade, t.family_name
         """, (group_id,))
         tradesmen = cursor.fetchall()
 

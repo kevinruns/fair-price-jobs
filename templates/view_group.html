@@ -38,7 +38,7 @@
                             {% for tradesman in trade_group %}
                                 <tr>
                                     <td><strong>{{ trade }}</strong></td>
-                                    <td><a href="{{ url_for('view_tradesman', tradesman_id=tradesman.id) }}">{{ tradesman.name }}</a></td>
+                                    <td><a href="{{ url_for('view_tradesman', tradesman_id=tradesman.id) }}">{{ tradesman.first_name }} {{ tradesman.family_name }}</a></td>
                                     <td>{{ tradesman.phone_number }}</td>
                                     <td>{{ tradesman.postcode }}</td>
                                     <td>{{ tradesman.email }}</td>
