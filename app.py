@@ -578,7 +578,7 @@ def add_job(tradesman_id):
     cursor = db.cursor()
 
     # Get tradesman information
-    cursor.execute("SELECT name, trade FROM tradesmen WHERE id = ?", (tradesman_id,))
+    cursor.execute("SELECT first_name, family_name, company_name, trade FROM tradesmen WHERE id = ?", (tradesman_id,))
     tradesman = cursor.fetchone()
     
     if not tradesman:
@@ -620,7 +620,12 @@ def view_job(job_id):
     cursor = db.cursor()
     
     cursor.execute("""
-        SELECT j.*, t.name as tradesman_name, t.trade
+        SELECT j.*, 
+               CASE 
+                   WHEN t.first_name IS NOT NULL THEN t.first_name || ' ' || t.family_name
+                   ELSE t.family_name
+               END as tradesman_name, 
+               t.trade
         FROM jobs j
         JOIN tradesmen t ON j.tradesman_id = t.id
         WHERE j.id = ?
@@ -738,9 +743,9 @@ def search_tradesmen():
         params = []
         
         if search_term:
-            query += " AND (t.name LIKE ? OR t.email LIKE ? OR t.phone_number LIKE ?)"
+            query += " AND (t.first_name LIKE ? OR t.family_name LIKE ? OR t.company_name LIKE ? OR t.email LIKE ? OR t.phone_number LIKE ?)"
             search_pattern = f"%{search_term}%"
-            params.extend([search_pattern, search_pattern, search_pattern])
+            params.extend([search_pattern, search_pattern, search_pattern, search_pattern, search_pattern])
             
         if trade:
             query += " AND t.trade = ?"
@@ -800,7 +805,7 @@ def user_tradesmen(user_id):
         LEFT JOIN jobs j ON t.id = j.tradesman_id
         WHERE ut.user_id = ?
         GROUP BY t.id
-        ORDER BY t.trade, t.name
+        ORDER BY t.trade, t.family_name, t.first_name, t.company_name
     """, (user_id,))
     tradesmen = cursor.fetchall()
 
@@ -834,7 +839,9 @@ def edit_tradesman(tradesman_id):
     if request.method == "POST":
         # Get form data
         trade = request.form.get("trade")
-        name = request.form.get("name")
+        first_name = request.form.get("first_name")
+        family_name = request.form.get("family_name")
+        company_name = request.form.get("company_name")
         address = request.form.get("address")
         postcode = request.form.get("postcode")
         phone_number = request.form.get("phone_number")
@@ -844,9 +851,11 @@ def edit_tradesman(tradesman_id):
             # Update the tradesman
             cursor.execute("""
                 UPDATE tradesmen 
-                SET trade = ?, name = ?, address = ?, postcode = ?, phone_number = ?, email = ?
+                SET trade = ?, first_name = ?, family_name = ?, company_name = ?, 
+                    address = ?, postcode = ?, phone_number = ?, email = ?
                 WHERE id = ?
-            """, (trade, name, address, postcode, phone_number, email, tradesman_id))
+            """, (trade, first_name, family_name, company_name, 
+                  address, postcode, phone_number, email, tradesman_id))
             
             db.commit()
             flash("Tradesman updated successfully!", "success")
@@ -858,6 +867,80 @@ def edit_tradesman(tradesman_id):
 
     # If it's a GET request, render the form with current tradesman data
     return render_template("edit_tradesman.html", tradesman=dict(tradesman))
+
+
+@app.route("/add_my_tradesman_to_group/<int:group_id>", methods=["GET", "POST"])
+@login_required
+def add_my_tradesman_to_group(group_id):
+    """Show user's tradesmen and allow adding them to a group"""
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Check if user is a member of the group
+    cursor.execute("""
+        SELECT status FROM user_groups 
+        WHERE user_id = ? AND group_id = ?
+    """, (session["user_id"], group_id))
+    membership = cursor.fetchone()
+    
+    if not membership or membership['status'] not in ['member', 'admin', 'creator']:
+        flash("You must be a member of this group to add tradesmen.", "error")
+        return redirect(url_for("view_group", group_id=group_id))
+    
+    # Get group information
+    cursor.execute("SELECT * FROM groups WHERE id = ?", (group_id,))
+    group = cursor.fetchone()
+    
+    if not group:
+        flash("Group not found.", "error")
+        return redirect(url_for("index"))
+    
+    if request.method == "POST":
+        tradesman_id = request.form.get("tradesman_id")
+        
+        if tradesman_id:
+            try:
+                # Check if tradesman is already in the group
+                cursor.execute("""
+                    SELECT 1 FROM group_tradesmen 
+                    WHERE group_id = ? AND tradesman_id = ?
+                """, (group_id, tradesman_id))
+                
+                if cursor.fetchone():
+                    flash("This tradesman is already in the group.", "info")
+                else:
+                    # Add tradesman to group
+                    cursor.execute("""
+                        INSERT INTO group_tradesmen (group_id, tradesman_id)
+                        VALUES (?, ?)
+                    """, (group_id, tradesman_id))
+                    
+                    db.commit()
+                    flash("Tradesman added to group successfully!", "success")
+                
+            except Exception as e:
+                db.rollback()
+                flash(f"An error occurred: {str(e)}", "error")
+        
+        return redirect(url_for("add_my_tradesman_to_group", group_id=group_id))
+    
+    # GET request - show user's tradesmen
+    cursor.execute("""
+        SELECT t.*, 
+               CASE WHEN gt.tradesman_id IS NOT NULL THEN 1 ELSE 0 END as in_group
+        FROM tradesmen t
+        JOIN user_tradesmen ut ON t.id = ut.tradesman_id
+        LEFT JOIN group_tradesmen gt ON t.id = gt.tradesman_id AND gt.group_id = ?
+        WHERE ut.user_id = ?
+        ORDER BY t.family_name, t.first_name, t.company_name
+    """, (group_id, session["user_id"]))
+    
+    user_tradesmen = cursor.fetchall()
+    user_tradesmen = [dict(row) for row in user_tradesmen]
+    
+    return render_template("add_my_tradesman_to_group.html", 
+                         user_tradesmen=user_tradesmen,
+                         group=dict(group))
 
 
 if __name__ == '__main__':
