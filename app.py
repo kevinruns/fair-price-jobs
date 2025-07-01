@@ -99,14 +99,17 @@ def index():
         # Paginate the results
         paginated_groups, total_pages = paginate(groups_list, page, per_page)
 
-        # Fetch tradesmen added by the current user
+        # Fetch tradesmen added by the current user with added by info
         tradesmen = db.execute("""
             SELECT t.*, 
                    COUNT(j.id) as job_count,
-                   AVG(j.rating) as avg_rating
+                   AVG(j.rating) as avg_rating,
+                   u.username as added_by_username,
+                   u.id as added_by_user_id
             FROM tradesmen t
             JOIN user_tradesmen ut ON t.id = ut.tradesman_id
             LEFT JOIN jobs j ON t.id = j.tradesman_id
+            JOIN users u ON ut.user_id = u.id
             WHERE ut.user_id = ?
             GROUP BY t.id
             ORDER BY t.family_name, t.first_name, t.company_name
@@ -855,6 +858,82 @@ def search_tradesmen():
     trades = [row['trade'] for row in trades]
     
     return render_template("search_tradesmen.html", trades=trades)
+
+
+@app.route("/user_profile/<int:user_id>")
+@login_required
+def user_profile(user_id):
+    """Show user profile with basic information"""
+    db = get_db()
+    cursor = db.cursor()
+
+    # Get user information
+    cursor.execute("SELECT id, username, firstname, lastname, email, postcode FROM users WHERE id = ?", (user_id,))
+    user = cursor.fetchone()
+    
+    if not user:
+        flash("User not found.", "error")
+        return redirect(url_for("index"))
+
+    # Get tradesmen count for this user
+    cursor.execute("SELECT COUNT(*) as tradesmen_count FROM user_tradesmen WHERE user_id = ?", (user_id,))
+    tradesmen_count = cursor.fetchone()['tradesmen_count']
+
+    # Get groups count for this user
+    cursor.execute("SELECT COUNT(*) as groups_count FROM user_groups WHERE user_id = ? AND status != 'pending'", (user_id,))
+    groups_count = cursor.fetchone()['groups_count']
+
+    return render_template("user_profile.html", 
+                         user=dict(user),
+                         tradesmen_count=tradesmen_count,
+                         groups_count=groups_count)
+
+
+@app.route("/edit_profile", methods=["GET", "POST"])
+@login_required
+def edit_profile():
+    """Edit current user's profile"""
+    db = get_db()
+    cursor = db.cursor()
+    user_id = session["user_id"]
+
+    if request.method == "POST":
+        # Get form data
+        firstname = request.form.get("firstname")
+        lastname = request.form.get("lastname")
+        email = request.form.get("email")
+        postcode = request.form.get("postcode")
+
+        # Basic validation
+        if not all([firstname, lastname, email, postcode]):
+            flash("All fields are required.", "error")
+            return redirect(url_for("edit_profile"))
+
+        try:
+            # Update user profile
+            cursor.execute("""
+                UPDATE users 
+                SET firstname = ?, lastname = ?, email = ?, postcode = ?
+                WHERE id = ?
+            """, (firstname, lastname, email, postcode, user_id))
+            
+            db.commit()
+            flash("Profile updated successfully!", "success")
+            return redirect(url_for("user_profile", user_id=user_id))
+        except Exception as e:
+            db.rollback()
+            flash(f"An error occurred: {str(e)}", "error")
+            return redirect(url_for("edit_profile"))
+
+    # GET request - show current user data
+    cursor.execute("SELECT id, username, firstname, lastname, email, postcode FROM users WHERE id = ?", (user_id,))
+    user = cursor.fetchone()
+    
+    if not user:
+        flash("User not found.", "error")
+        return redirect(url_for("index"))
+
+    return render_template("edit_profile.html", user=dict(user))
 
 
 @app.route("/user_tradesmen/<int:user_id>")

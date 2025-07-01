@@ -28,6 +28,7 @@
                                 <th>Trade</th>
                                 <th>Phone</th>
                                 <th>Rating</th>
+                                <th>Added By</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -41,6 +42,11 @@
                                     <td>{{ tradesman.trade }}</td>
                                     <td>{{ tradesman.phone_number }}</td>
                                     <td>{{ tradesman.rating }}</td>
+                                    <td>
+                                        <a href="{{ url_for('user_profile', user_id=tradesman.added_by_user_id) }}" class="text-decoration-none">
+                                            <span class="text-info">{{ tradesman.added_by_username }}</span>
+                                        </a>
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
