@@ -6,6 +6,12 @@
     <div class="col-md-6 d-flex flex-column justify-content-end">
         <h2 class="text-primary fw-bold mb-3">{{ tradesman.first_name }} {{ tradesman.family_name }}</h2>
         <h3 class="mb-4">{{ tradesman.trade }}</h3>
+        {% if added_by_info %}
+            <p class="text-muted small mb-0">
+                <i class="fas fa-user-plus"></i> Added by {{ added_by_info.username }} 
+                on {{ added_by_info.date_added if added_by_info.date_added else 'Unknown date' }}
+            </p>
+        {% endif %}
     </div>
     <div class="col-md-6 d-flex justify-content-start">
         <div class="card w-75 me-5">
@@ -26,28 +32,30 @@
 
 {% if jobs %}
     <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Job</th>
-                <th>Date</th>
-                <th>Total Cost</th>
-                <th>Rating</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for job in jobs %}
-                <tr>
-                    <td>
-                        <a href="{{ url_for('view_job', job_id=job.id) }}" class="text-decoration-none">
-                            {{ job.title }}
-                        </a>
-                    </td>
-                    <td>{{ job.date }}</td>
-                    <td>€{{ job.total_cost if job.total_cost else 'N/A' }}</td>
-                    <td>{{ job.rating }}/5</td>
-                </tr>
-            {% endfor %}
-        </tbody>
+                        <thead>
+                    <tr>
+                        <th>Job</th>
+                        <th>Started</th>
+                        <th>Finished</th>
+                        <th>Total Cost</th>
+                        <th>Rating</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in jobs %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('view_job', job_id=job.id) }}" class="text-decoration-none">
+                                    {{ job.title }}
+                                </a>
+                            </td>
+                            <td>{{ job.date_started if job.date_started else 'N/A' }}</td>
+                            <td>{{ job.date_finished if job.date_finished else 'N/A' }}</td>
+                            <td>€{{ job.total_cost if job.total_cost else 'N/A' }}</td>
+                            <td>{{ job.rating }}/5</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
     </table>
 {% else %}
     <p>No jobs entered yet for this tradesman.</p>
@@ -56,6 +64,9 @@
 
 <div class="d-flex justify-content-center align-items-center mt-5 mb-4">
     <a href="{{ url_for('add_job', tradesman_id=tradesman.id) }}" class="btn btn-primary me-2">Add New Job</a>
+    {% if can_edit %}
+        <a href="{{ url_for('edit_tradesman', tradesman_id=tradesman.id) }}" class="btn btn-secondary">Edit Tradesman</a>
+    {% endif %}
 </div>
 
 {% endblock %}

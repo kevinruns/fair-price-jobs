@@ -7,15 +7,23 @@
             <div class="flex-grow-1 d-flex justify-content-start">
                 <span class="fw-bold fs-4 ms-5 me-auto">Group: {{ group['name'] }}</span>
             </div>
-            <div class="d-flex align-items-center">
-                <span class="badge bg-secondary me-2" style="padding: 0.25rem 0.5rem; line-height: 1.5;">{{ group['postcode'] }}</span>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-secondary" style="padding: 0.25rem 0.5rem; line-height: 1.5;">{{ group['postcode'] }}</span>
                 <div>
                     {% if is_member %}
-                        <a href="{{ url_for('group_members', group_id=group['id']) }}" class="badge bg-primary" style="padding: 0.25rem 0.5rem; line-height: 1.5;">{{ group['member_count'] }} Members</a>  <!-- Make it a link if no pending request -->
+                        <a href="{{ url_for('group_members', group_id=group['id']) }}" class="badge bg-primary" style="padding: 0.25rem 0.5rem; line-height: 1.5;">{{ group['member_count'] }} Members</a>
                     {% else %}
-                        <span class="badge bg-primary" style="padding: 0.25rem 0.5rem; line-height: 1.5;">{{ group['member_count'] }} Members</span>  <!-- Show as badge if there is a pending request -->
+                        <span class="badge bg-primary" style="padding: 0.25rem 0.5rem; line-height: 1.5;">{{ group['member_count'] }} Members</span>
                     {% endif %}
                 </div>
+                {% if is_admin_or_creator and pending_requests_count > 0 %}
+                    <a href="{{ url_for('view_requests', group_id=group['id']) }}" class="btn btn-warning btn-sm position-relative">
+                        <i class="fas fa-clock"></i> Pending Requests
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ pending_requests_count }}
+                        </span>
+                    </a>
+                {% endif %}
             </div>
         </div>
 

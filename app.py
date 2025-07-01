@@ -77,12 +77,17 @@ def index():
         username = user["username"] if user else "Unknown"
         user_id = session["user_id"]
         
-        # Modified query to include user's status in groups
+        # Modified query to include user's status in groups and pending requests for admin/creator
         groups = db.execute("""
             SELECT g.*, 
                    (SELECT COUNT(*) FROM user_groups WHERE group_id = g.id AND status != 'pending') as member_count,
                    (SELECT COUNT(*) FROM user_groups WHERE group_id = g.id AND status = 'pending') as pending_requests,                            
-                   ug.status as status
+                   ug.status as status,
+                   CASE 
+                       WHEN ug.status IN ('admin', 'creator') THEN 
+                           (SELECT COUNT(*) FROM user_groups WHERE group_id = g.id AND status = 'pending')
+                       ELSE 0 
+                   END as admin_pending_requests
             FROM groups g 
             INNER JOIN user_groups ug ON g.id = ug.group_id AND ug.user_id = ?
             ORDER BY g.name
@@ -110,12 +115,23 @@ def index():
         # Convert tradesmen to list of dicts
         tradesmen_list = [dict(row) for row in tradesmen]
         
+        # Get total pending requests for groups where user is admin/creator
+        total_pending_requests = db.execute("""
+            SELECT COUNT(*) as total
+            FROM user_groups ug1
+            JOIN user_groups ug2 ON ug1.group_id = ug2.group_id
+            WHERE ug1.user_id = ? 
+            AND ug1.status IN ('admin', 'creator')
+            AND ug2.status = 'pending'
+        """, (user_id,)).fetchone()['total']
+        
         return render_template("index.html", 
                              username=username, 
                              groups=paginated_groups,
                              tradesmen=tradesmen_list,
                              page=page,
-                             total_pages=total_pages)
+                             total_pages=total_pages,
+                             total_pending_requests=total_pending_requests)
     else:
         return redirect("/login")
 
@@ -448,6 +464,15 @@ def view_group(group_id):
 
         group['member_count'] = member_count
 
+        # Fetch pending request count for this group
+        cursor.execute("SELECT COUNT(*) FROM user_groups WHERE group_id = ? AND status = 'pending'", (group_id,))
+        pending_requests_count = cursor.fetchone()[0]
+
+        # Check if user is admin/creator of this group
+        cursor.execute("SELECT status FROM user_groups WHERE user_id = ? AND group_id = ?", (user_id, group_id))
+        user_status = cursor.fetchone()
+        is_admin_or_creator = user_status and user_status['status'] in ['admin', 'creator']
+
         # Fetch tradesmen for this group, sorted by trade
         cursor.execute("""
             SELECT t.* 
@@ -465,7 +490,9 @@ def view_group(group_id):
                             group=group, 
                             is_member=is_member,
                             pending_request=pending_request,
-                            tradesmen=tradesmen)
+                            tradesmen=tradesmen,
+                            pending_requests_count=pending_requests_count,
+                            is_admin_or_creator=is_admin_or_creator)
     else:
         flash("Group not found.", "error")
         return redirect(url_for("search_groups"))
@@ -547,10 +574,10 @@ def view_tradesman(tradesman_id):
 
         # Fetch jobs for this tradesman
         cursor.execute("""
-            SELECT id, date, title, description, total_cost, rating
+            SELECT id, date_started, date_finished, title, description, total_cost, rating
             FROM jobs
             WHERE tradesman_id = ?
-            ORDER BY date DESC
+            ORDER BY date_finished DESC
         """, (tradesman_id,))
         jobs = cursor.fetchall()
 
@@ -559,10 +586,30 @@ def view_tradesman(tradesman_id):
 
         group_id = session.get('group_id')
 
+        # Check if current user is the one who added this tradesman and get added by info
+        cursor.execute("""
+            SELECT DATE(ut.date_added) as date_added, u.username, u.firstname, u.lastname
+            FROM user_tradesmen ut
+            JOIN users u ON ut.user_id = u.id
+            WHERE ut.tradesman_id = ?
+            ORDER BY ut.date_added ASC
+            LIMIT 1
+        """, (tradesman_id,))
+        added_by_info = cursor.fetchone()
+        
+        # Check if current user is the one who added this tradesman
+        cursor.execute("""
+            SELECT 1 FROM user_tradesmen 
+            WHERE user_id = ? AND tradesman_id = ?
+        """, (session["user_id"], tradesman_id))
+        can_edit = cursor.fetchone() is not None
+
         return render_template("view_tradesman.html", 
                              tradesman=tradesman, 
                              jobs=jobs, 
-                             group_id=group_id)
+                             group_id=group_id,
+                             can_edit=can_edit,
+                             added_by_info=added_by_info)
     
     except Exception as e:
         app.logger.error(f"Error in view_tradesman: {str(e)}")
@@ -587,20 +634,24 @@ def add_job(tradesman_id):
 
     if request.method == "POST":
         user_id = session["user_id"]
-        date = request.form.get("date")
+        date_started = request.form.get("date_started")
+        date_finished = request.form.get("date_finished")
         title = request.form.get("title")
         description = request.form.get("description")
         call_out_fee = request.form.get("call_out_fee")
+        materials_fee = request.form.get("materials_fee")
         hourly_rate = request.form.get("hourly_rate")
+        hours_worked = request.form.get("hours_worked")
         daily_rate = request.form.get("daily_rate")
+        days_worked = request.form.get("days_worked")
         total_cost = request.form.get("total_cost")
         rating = request.form.get("rating")
 
         try:
             cursor.execute("""
-                INSERT INTO jobs (user_id, tradesman_id, date, title, description, call_out_fee, hourly_rate, daily_rate, total_cost, rating)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (user_id, tradesman_id, date, title, description, call_out_fee, hourly_rate, daily_rate, total_cost, rating))
+                INSERT INTO jobs (user_id, tradesman_id, date_started, date_finished, title, description, call_out_fee, materials_fee, hourly_rate, hours_worked, daily_rate, days_worked, total_cost, rating)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (user_id, tradesman_id, date_started, date_finished, title, description, call_out_fee, materials_fee, hourly_rate, hours_worked, daily_rate, days_worked, total_cost, rating))
             db.commit()
             flash("Job added successfully!", "success")
         except Exception as e:
@@ -663,7 +714,34 @@ def view_requests(group_id):
         WHERE ug.group_id = ? AND ug.status = 'pending'
     """, (group_id,)).fetchall()
     
+    # If no pending requests, redirect to group page
+    if not requests:
+        flash("No pending requests found.", "info")
+        return redirect(url_for('view_group', group_id=group_id))
+    
     return render_template("view_requests.html", requests=requests, group_name=group['name'])
+
+
+@app.route("/view_all_pending_requests")
+@login_required
+def view_all_pending_requests():
+    """Show all pending requests for groups where user is admin/creator"""
+    db = get_db()
+    
+    # Fetch all pending requests for groups where user is admin/creator
+    requests = db.execute("""
+        SELECT g.name as group_name, g.id as group_id, u.username, u.email, ug.id as request_id
+        FROM user_groups ug1
+        JOIN user_groups ug ON ug1.group_id = ug.group_id
+        JOIN groups g ON ug.group_id = g.id
+        JOIN users u ON ug.user_id = u.id
+        WHERE ug1.user_id = ? 
+        AND ug1.status IN ('admin', 'creator')
+        AND ug.status = 'pending'
+        ORDER BY g.name, u.username
+    """, (session["user_id"],)).fetchall()
+    
+    return render_template("view_all_pending_requests.html", requests=requests)
 
 
 @app.route('/handle_request/<int:request_id>/<action>', methods=['POST'])
