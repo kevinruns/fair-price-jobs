@@ -12,12 +12,106 @@
             </div>
         </div>
 
+        <!-- Recently Completed Jobs Section -->
         <div class="border border-3 rounded-3 p-3 mb-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2>My Tradesmen</h2>
-                <a href="{{ url_for('add_tradesman') }}" class="btn btn-success">
-                    <i class="fas fa-plus"></i> Add Tradesman
-                </a>
+                <h2>Recently Completed Jobs</h2>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('search_tradesmen') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-search"></i> Search Jobs
+                    </a>
+                    <a href="{{ url_for('search_tradesmen') }}" class="btn btn-success btn-sm">
+                        <i class="fas fa-plus"></i> Add Job
+                    </a>
+                </div>
+            </div>
+            {% if recent_jobs %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Job Title</th>
+                                <th>Tradesman</th>
+                                <th>Trade</th>
+                                <th>Completed</th>
+                                <th>Cost</th>
+                                <th>Rating</th>
+                                <th>Added By</th>
+                                <th>Group</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for job in recent_jobs %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('view_job', job_id=job.id) }}" class="text-decoration-none">
+                                            <span class="fw-semibold text-primary">{{ job.title }}</span>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('view_tradesman', tradesman_id=job.tradesman_id) }}" class="text-decoration-none">
+                                            {% if job.first_name %}
+                                                {{ job.first_name }} {{ job.family_name }}
+                                            {% else %}
+                                                {{ job.family_name }}
+                                            {% endif %}
+                                            {% if job.company_name %}
+                                                <small class="text-muted d-block">{{ job.company_name }}</small>
+                                            {% endif %}
+                                        </a>
+                                    </td>
+                                    <td>{{ job.trade }}</td>
+                                    <td>
+                                        {% if job.date_finished %}
+                                            <span class="text-success">{{ job.date_finished }}</span>
+                                        {% else %}
+                                            <span class="text-warning">In Progress</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>£{{ job.total_cost }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if job.rating >= 4 %}success{% elif job.rating >= 3 %}warning{% else %}danger{% endif %}">
+                                            {{ job.rating }}/5
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('user_profile', user_id=job.added_by_user_id) }}" class="text-decoration-none">
+                                            <span class="text-info">{{ job.added_by_username }}</span>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if job.group_name %}
+                                            <a href="{{ url_for('view_group', group_id=job.group_id) }}" class="text-decoration-none">
+                                                <span class="badge bg-secondary">{{ job.group_name }}</span>
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted">No recently completed jobs found.</p>
+                    <p class="text-muted small">Jobs will appear here when you or members of your groups complete work with tradesmen.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="border border-3 rounded-3 p-3 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>Top Rated Tradesmen</h2>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('search_tradesmen') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-search"></i> Search Tradesmen
+                    </a>
+                    <a href="{{ url_for('add_tradesman') }}" class="btn btn-success btn-sm">
+                        <i class="fas fa-plus"></i> Add Tradesman
+                    </a>
+                </div>
             </div>
             {% if tradesmen %}
                 <div class="table-responsive">
@@ -26,9 +120,10 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Trade</th>
-                                <th>Phone</th>
                                 <th>Rating</th>
+                                <th>Jobs</th>
                                 <th>Added By</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -36,16 +131,38 @@
                                 <tr>
                                     <td>
                                         <a href="{{ url_for('view_tradesman', tradesman_id=tradesman.id) }}" class="text-decoration-none">
-                                            <span class="fw-semibold text-primary">{{ tradesman.first_name }} {{ tradesman.family_name }}</span>
+                                            <span class="fw-semibold text-primary">
+                                                {% if tradesman.first_name %}
+                                                    {{ tradesman.first_name }} {{ tradesman.family_name }}
+                                                {% else %}
+                                                    {{ tradesman.family_name }}
+                                                {% endif %}
+                                            </span>
+                                            {% if tradesman.company_name %}
+                                                <small class="text-muted d-block">{{ tradesman.company_name }}</small>
+                                            {% endif %}
                                         </a>
                                     </td>
                                     <td>{{ tradesman.trade }}</td>
-                                    <td>{{ tradesman.phone_number }}</td>
-                                    <td>{{ tradesman.rating }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if tradesman.avg_rating >= 4 %}success{% elif tradesman.avg_rating >= 3 %}warning{% else %}danger{% endif %}">
+                                            {{ "%.1f"|format(tradesman.avg_rating) }}/5
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ tradesman.job_count }}</span>
+                                    </td>
                                     <td>
                                         <a href="{{ url_for('user_profile', user_id=tradesman.added_by_user_id) }}" class="text-decoration-none">
                                             <span class="text-info">{{ tradesman.added_by_username }}</span>
                                         </a>
+                                    </td>
+                                    <td>
+                                        {% if tradesman.is_my_tradesman %}
+                                            <span class="badge bg-success">My Tradesman</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Group Member</span>
+                                        {% endif %}
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -53,23 +170,27 @@
                     </table>
                 </div>
             {% else %}
-                <p>You haven't added any tradesmen yet.</p>
+                <div class="text-center py-4">
+                    <p class="text-muted">No rated tradesmen found.</p>
+                    <p class="text-muted small">Top-rated tradesmen will appear here when you or your group members add tradesmen and complete jobs with ratings.</p>
+                </div>
             {% endif %}
         </div>
 
+        <!-- My Groups Section -->
         <div class="border border-3 rounded-3 p-3 mb-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2>My Groups</h2>
                 <div class="d-flex gap-2">
-                    <a href="{{ url_for('search_groups') }}" class="btn btn-primary">
-                        <i class="fas fa-search"></i> Search Groups
+                    <a href="{{ url_for('search_groups') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-search"></i> Find Group
                     </a>
-                    <a href="{{ url_for('create_group') }}" class="btn btn-success">
+                    <a href="{{ url_for('create_group') }}" class="btn btn-success btn-sm">
                         <i class="fas fa-plus"></i> Create Group
                     </a>
                 </div>
             </div>
-            {% if groups %}
+            {% if my_groups %}
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>
@@ -78,9 +199,10 @@
                                 <th>Postcode</th>
                                 <th>Members</th>
                                 <th>Your Status</th>
+                            </tr>
                         </thead>
                         <tbody>
-                            {% for group in groups %}
+                            {% for group in my_groups %}
                                 <tr>
                                     <td>
                                         <a href="{{ url_for('view_group', group_id=group.id) }}" class="text-decoration-none">
@@ -88,46 +210,30 @@
                                         </a>
                                     </td>
                                     <td>{{ group.postcode }}</td>
-                                    <td>{{ group.member_count }}</td>
-                                    <td>{{ group.status }}</td>
+                                    <td>
+                                        <span class="badge bg-info">{{ group.member_count }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{% if group.status == 'creator' %}primary{% elif group.status == 'admin' %}warning{% else %}success{% endif %}">
+                                            {{ group.status|title }}
+                                        </span>
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
-
-                <!-- Pagination -->
-                {% if total_pages > 1 %}
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination justify-content-center">
-                            {% if page > 1 %}
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ url_for('index', page=page-1) }}" aria-label="Previous">
-                                        <span aria-hidden="true">&laquo;</span>
-                                    </a>
-                                </li>
-                            {% endif %}
-                            
-                            {% for p in range(1, total_pages + 1) %}
-                                <li class="page-item {% if p == page %}active{% endif %}">
-                                    <a class="page-link" href="{{ url_for('index', page=p) }}">{{ p }}</a>
-                                </li>
-                            {% endfor %}
-                            
-                            {% if page < total_pages %}
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ url_for('index', page=page+1) }}" aria-label="Next">
-                                        <span aria-hidden="true">&raquo;</span>
-                                    </a>
-                                </li>
-                            {% endif %}
-                        </ul>
-                    </nav>
-                {% endif %}
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('search_groups') }}" class="btn btn-outline-primary btn-sm">View All Groups</a>
+                </div>
             {% else %}
-                <p>You haven't joined any groups yet.</p>
+                <div class="text-center py-4">
+                    <p class="text-muted">You haven't joined any groups yet.</p>
+                    <p class="text-muted small">Join or create groups to collaborate with others and share tradesmen recommendations.</p>
+                </div>
             {% endif %}
         </div>
+
     </div>
 {% endblock %}
 

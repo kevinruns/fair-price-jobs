@@ -67,74 +67,85 @@ def index():
         db = get_db()
         cursor = db.cursor()
         
-        # Get page number from query parameters, default to 1
-        page = request.args.get('page', 1, type=int)
-        per_page = 10  # Number of items per page
-        
         # Fetch the username
         cursor.execute("SELECT username FROM users WHERE id = ?", (session["user_id"],))
         user = cursor.fetchone()
         username = user["username"] if user else "Unknown"
         user_id = session["user_id"]
-        
-        # Modified query to include user's status in groups and pending requests for admin/creator
-        groups = db.execute("""
-            SELECT g.*, 
-                   (SELECT COUNT(*) FROM user_groups WHERE group_id = g.id AND status != 'pending') as member_count,
-                   (SELECT COUNT(*) FROM user_groups WHERE group_id = g.id AND status = 'pending') as pending_requests,                            
-                   ug.status as status,
-                   CASE 
-                       WHEN ug.status IN ('admin', 'creator') THEN 
-                           (SELECT COUNT(*) FROM user_groups WHERE group_id = g.id AND status = 'pending')
-                       ELSE 0 
-                   END as admin_pending_requests
-            FROM groups g 
-            INNER JOIN user_groups ug ON g.id = ug.group_id AND ug.user_id = ?
-            ORDER BY g.name
-        """, (user_id,)).fetchall()
-        
-        # Convert to list of dicts for easier pagination
-        groups_list = [dict(row) for row in groups]
-        
-        # Paginate the results
-        paginated_groups, total_pages = paginate(groups_list, page, per_page)
 
-        # Fetch tradesmen added by the current user with added by info
+        # Fetch top-rated tradesmen (accessible to user through their groups or direct ownership)
         tradesmen = db.execute("""
             SELECT t.*, 
                    COUNT(j.id) as job_count,
                    AVG(j.rating) as avg_rating,
                    u.username as added_by_username,
-                   u.id as added_by_user_id
+                   u.id as added_by_user_id,
+                   CASE WHEN ut.user_id = ? THEN 1 ELSE 0 END as is_my_tradesman
             FROM tradesmen t
             JOIN user_tradesmen ut ON t.id = ut.tradesman_id
             LEFT JOIN jobs j ON t.id = j.tradesman_id
             JOIN users u ON ut.user_id = u.id
-            WHERE ut.user_id = ?
+            WHERE ut.user_id = ? OR ut.user_id IN (
+                SELECT DISTINCT ug2.user_id 
+                FROM user_groups ug1
+                JOIN user_groups ug2 ON ug1.group_id = ug2.group_id
+                WHERE ug1.user_id = ? AND ug1.status IN ('member', 'admin', 'creator')
+            )
             GROUP BY t.id
-            ORDER BY t.family_name, t.first_name, t.company_name
-        """, (user_id,)).fetchall()
+            HAVING AVG(j.rating) IS NOT NULL
+            ORDER BY AVG(j.rating) DESC, COUNT(j.id) DESC
+            LIMIT 10
+        """, (user_id, user_id, user_id)).fetchall()
         
         # Convert tradesmen to list of dicts
         tradesmen_list = [dict(row) for row in tradesmen]
         
-        # Get total pending requests for groups where user is admin/creator
-        total_pending_requests = db.execute("""
-            SELECT COUNT(*) as total
-            FROM user_groups ug1
-            JOIN user_groups ug2 ON ug1.group_id = ug2.group_id
-            WHERE ug1.user_id = ? 
-            AND ug1.status IN ('admin', 'creator')
-            AND ug2.status = 'pending'
-        """, (user_id,)).fetchone()['total']
+        # Fetch recently completed jobs (added by user or users in groups where user is a member)
+        recent_jobs = db.execute("""
+            SELECT j.*, 
+                   t.first_name, t.family_name, t.company_name, t.trade,
+                   u.username as added_by_username,
+                   u.id as added_by_user_id,
+                   g.name as group_name,
+                   g.id as group_id
+            FROM jobs j
+            JOIN tradesmen t ON j.tradesman_id = t.id
+            JOIN users u ON j.user_id = u.id
+            LEFT JOIN user_groups ug ON u.id = ug.user_id
+            LEFT JOIN groups g ON ug.group_id = g.id
+            WHERE (j.user_id = ? OR 
+                   (ug.group_id IN (
+                       SELECT group_id FROM user_groups 
+                       WHERE user_id = ? AND status IN ('member', 'admin', 'creator')
+                   )))
+            AND j.date_finished IS NOT NULL
+            ORDER BY j.date_finished DESC
+            LIMIT 10
+        """, (user_id, user_id)).fetchall()
+        
+        # Convert jobs to list of dicts
+        recent_jobs_list = [dict(row) for row in recent_jobs]
+        
+        # Fetch user's groups
+        my_groups = db.execute("""
+            SELECT g.*, 
+                   (SELECT COUNT(*) FROM user_groups WHERE group_id = g.id AND status != 'pending') as member_count,
+                   ug.status
+            FROM groups g
+            JOIN user_groups ug ON g.id = ug.group_id
+            WHERE ug.user_id = ? AND ug.status != 'pending'
+            ORDER BY g.name
+            LIMIT 5
+        """, (user_id,)).fetchall()
+        
+        # Convert groups to list of dicts
+        my_groups_list = [dict(row) for row in my_groups]
         
         return render_template("index.html", 
                              username=username, 
-                             groups=paginated_groups,
                              tradesmen=tradesmen_list,
-                             page=page,
-                             total_pages=total_pages,
-                             total_pending_requests=total_pending_requests)
+                             recent_jobs=recent_jobs_list,
+                             my_groups=my_groups_list)
     else:
         return redirect("/login")
 
@@ -385,12 +396,14 @@ def create_group():
 def search_groups():
     groups = []
     postcode = ""
+    
+    user_id = session.get("user_id")
+    db = get_db()
+    
     if request.method == "POST":
         postcode = request.form.get("postcode", "").strip()
-        user_id = session.get("user_id")
-        db = get_db()
         
-        # Base query
+        # Base query for search results
         query = """
             SELECT g.*, 
                    (SELECT COUNT(*) FROM user_groups WHERE group_id = g.id) as member_count,
@@ -416,7 +429,9 @@ def search_groups():
         # Add this debug print
         print("Groups data:", [dict(row) for row in groups])
         
-    return render_template("search_groups.html", groups=groups, postcode=postcode)
+    return render_template("search_groups.html", 
+                         groups=groups, 
+                         postcode=postcode)
 
 
 
@@ -664,6 +679,7 @@ def add_job(tradesman_id):
         return redirect(url_for("view_tradesman", tradesman_id=tradesman_id))
 
     return render_template("add_job.html", tradesman_id=tradesman_id, tradesman=tradesman)
+
 
 
 
