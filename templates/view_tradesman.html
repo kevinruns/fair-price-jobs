@@ -32,28 +32,26 @@
 
 {% if jobs %}
     <h3 class="mb-3">Jobs</h3>
-    <table class="table table-striped">
+        <table class="table table-striped">
         <thead>
             <tr>
-                <th>Job</th>
-                <th>Started</th>
-                <th>Finished</th>
-                <th>Total Cost</th>
-                <th>Rating</th>
+                <th style="width: 40%;">Job</th>
+                <th style="width: 20%;">Finished</th>
+                <th style="width: 20%;">Total Cost</th>
+                <th style="width: 20%;">Rating</th>
             </tr>
         </thead>
         <tbody>
             {% for job in jobs %}
                 <tr>
-                    <td>
-                        <a href="{{ url_for('view_job', job_id=job.id) }}" class="text-decoration-none">
-                            {{ job.title }}
-                        </a>
-                    </td>
-                    <td>{{ job.date_started if job.date_started else 'N/A' }}</td>
-                    <td>{{ job.date_finished if job.date_finished else 'N/A' }}</td>
+                                                <td>
+                                <a href="{{ url_for('view_job', job_id=job.id) }}" class="text-decoration-none">
+                                    {{ job.title }}
+                                </a>
+                            </td>
+                            <td>{{ job.date_finished if job.date_finished else 'N/A' }}</td>
                     <td>€{{ job.total_cost if job.total_cost else 'N/A' }}</td>
-                    <td>{{ job.rating }}/5</td>
+                                                <td>{% if job.rating %}{{ job.rating }}/5{% else %}None{% endif %}</td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -64,26 +62,24 @@
 
 {% if quotes %}
     <h3 class="mb-3 mt-5">Quotes</h3>
-    <table class="table table-striped">
+        <table class="table table-striped">
         <thead>
             <tr>
-                <th>Quote</th>
-                <th>Requested</th>
-                <th>Received</th>
-                <th>Total Quote</th>
-                <th>Status</th>
+                <th style="width: 40%;">Quote</th>
+                <th style="width: 20%;">Received</th>
+                <th style="width: 20%;">Total Quote</th>
+                <th style="width: 20%;">Status</th>
             </tr>
         </thead>
         <tbody>
             {% for quote in quotes %}
                 <tr>
-                    <td>
-                        <a href="{{ url_for('view_quote', quote_id=quote.id) }}" class="text-decoration-none">
-                            <span class="fw-semibold text-primary">{{ quote.title }}</span>
-                        </a>
-                    </td>
-                    <td>{{ quote.date_requested if quote.date_requested else 'N/A' }}</td>
-                    <td>{{ quote.date_received if quote.date_received else 'N/A' }}</td>
+                                                <td>
+                                <a href="{{ url_for('view_quote', quote_id=quote.id) }}" class="text-decoration-none">
+                                    <span class="fw-semibold text-primary">{{ quote.title }}</span>
+                                </a>
+                            </td>
+                            <td>{{ quote.date_received if quote.date_received else 'N/A' }}</td>
                     <td>€{{ quote.total_quote if quote.total_quote else 'N/A' }}</td>
                     <td>
                         <span class="badge bg-{% if quote.status == 'accepted' %}success{% elif quote.status == 'declined' %}danger{% else %}warning{% endif %}">

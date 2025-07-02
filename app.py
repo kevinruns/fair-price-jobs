@@ -885,9 +885,13 @@ def view_job(job_id):
                    WHEN t.first_name IS NOT NULL THEN t.first_name || ' ' || t.family_name
                    ELSE t.family_name
                END as tradesman_name, 
-               t.trade
+               t.trade,
+               u.username as user_username,
+               u.firstname as user_firstname,
+               u.lastname as user_lastname
         FROM jobs j
         JOIN tradesmen t ON j.tradesman_id = t.id
+        JOIN users u ON j.user_id = u.id
         WHERE j.id = ?
     """, (job_id,))
     job = cursor.fetchone()
@@ -903,6 +907,110 @@ def view_job(job_id):
     else:
         flash('Job not found.', 'error')
         return redirect(url_for('index'))
+
+
+@app.route('/edit_job/<int:job_id>', methods=['GET', 'POST'])
+@login_required
+def edit_job(job_id):
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Get the job with user info to check ownership
+    cursor.execute("""
+        SELECT j.*, 
+               CASE 
+                   WHEN t.first_name IS NOT NULL THEN t.first_name || ' ' || t.family_name
+                   ELSE t.family_name
+               END as tradesman_name, 
+               t.trade
+        FROM jobs j
+        JOIN tradesmen t ON j.tradesman_id = t.id
+        WHERE j.id = ?
+    """, (job_id,))
+    job = cursor.fetchone()
+    
+    if not job:
+        flash('Job not found.', 'error')
+        return redirect(url_for('index'))
+    
+    # Check if the current user owns this job
+    if job['user_id'] != session['user_id']:
+        flash('You can only edit your own jobs.', 'error')
+        return redirect(url_for('view_job', job_id=job_id))
+    
+    if request.method == 'POST':
+        title = request.form.get('title', '').strip()
+        description = request.form.get('description', '').strip()
+        date_started = request.form.get('date_started', '').strip() or None
+        date_finished = request.form.get('date_finished', '').strip() or None
+        call_out_fee = request.form.get('call_out_fee', '').strip() or None
+        materials_fee = request.form.get('materials_fee', '').strip() or None
+        hourly_rate = request.form.get('hourly_rate', '').strip() or None
+        hours_worked = request.form.get('hours_worked', '').strip() or None
+        daily_rate = request.form.get('daily_rate', '').strip() or None
+        days_worked = request.form.get('days_worked', '').strip() or None
+        rating = request.form.get('rating', '').strip() or None
+        
+        # Validate required fields
+        if not title:
+            flash('Title is required.', 'error')
+            return render_template('edit_job.html', job=dict(zip([column[0] for column in cursor.description], job)))
+        
+        if not description:
+            flash('Description is required.', 'error')
+            return render_template('edit_job.html', job=dict(zip([column[0] for column in cursor.description], job)))
+        
+        # Convert numeric fields
+        try:
+            if call_out_fee:
+                call_out_fee = int(call_out_fee)
+            if materials_fee:
+                materials_fee = int(materials_fee)
+            if hourly_rate:
+                hourly_rate = int(hourly_rate)
+            if hours_worked:
+                hours_worked = float(hours_worked)
+            if daily_rate:
+                daily_rate = int(daily_rate)
+            if days_worked:
+                days_worked = float(days_worked)
+            if rating:
+                rating = int(rating)
+                if rating < 1 or rating > 5:
+                    flash('Rating must be between 1 and 5.', 'error')
+                    return render_template('edit_job.html', job=dict(zip([column[0] for column in cursor.description], job)))
+        except ValueError:
+            flash('Invalid numeric value provided.', 'error')
+            return render_template('edit_job.html', job=dict(zip([column[0] for column in cursor.description], job)))
+        
+        # Calculate total cost
+        total_cost = 0
+        if call_out_fee:
+            total_cost += call_out_fee
+        if materials_fee:
+            total_cost += materials_fee
+        if hourly_rate and hours_worked:
+            total_cost += hourly_rate * hours_worked
+        if daily_rate and days_worked:
+            total_cost += daily_rate * days_worked
+        
+        # Update the job
+        cursor.execute("""
+            UPDATE jobs 
+            SET title = ?, description = ?, date_started = ?, date_finished = ?,
+                call_out_fee = ?, materials_fee = ?, hourly_rate = ?, hours_worked = ?,
+                daily_rate = ?, days_worked = ?, total_cost = ?, rating = ?
+            WHERE id = ?
+        """, (title, description, date_started, date_finished, call_out_fee, materials_fee,
+              hourly_rate, hours_worked, daily_rate, days_worked, total_cost, rating, job_id))
+        
+        db.commit()
+        flash('Job updated successfully.', 'success')
+        return redirect(url_for('view_job', job_id=job_id))
+    
+    # GET request - show edit form
+    job_dict = dict(zip([column[0] for column in cursor.description], job))
+    return render_template('edit_job.html', job=job_dict)
 
 
 @app.route("/view_requests/<int:group_id>")

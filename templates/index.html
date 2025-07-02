@@ -151,9 +151,13 @@
                                     </td>
                                     <td>£{{ job.total_cost }}</td>
                                     <td>
-                                        <span class="badge bg-{% if job.rating >= 4 %}success{% elif job.rating >= 3 %}warning{% else %}danger{% endif %}">
-                                            {{ job.rating }}/5
-                                        </span>
+                                        {% if job.rating %}
+                                            <span class="badge bg-{% if job.rating >= 4 %}success{% elif job.rating >= 3 %}warning{% else %}danger{% endif %}">
+                                                {{ job.rating }}/5
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">None</span>
+                                        {% endif %}
                                     </td>
                                     <td>
                                         <a href="{{ url_for('user_profile', user_id=job.added_by_user_id) }}" class="text-decoration-none">
