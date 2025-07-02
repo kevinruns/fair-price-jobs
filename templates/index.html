@@ -12,6 +12,87 @@
             </div>
         </div>
 
+        <!-- Top Rated Tradesmen Section -->
+        <div class="border border-3 rounded-3 p-3 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>Top Rated Tradesmen</h2>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('search_tradesmen') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-search"></i> Search Tradesmen
+                    </a>
+                    <a href="{{ url_for('add_tradesman') }}" class="btn btn-success btn-sm">
+                        <i class="fas fa-plus"></i> Add Tradesman
+                    </a>
+                </div>
+            </div>
+            {% if tradesmen %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Trade</th>
+                                <th>Rating</th>
+                                <th>Jobs</th>
+                                <th>Added By</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tradesman in tradesmen %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('view_tradesman', tradesman_id=tradesman.id) }}" class="text-decoration-none">
+                                            <span class="fw-semibold text-primary">
+                                                {% if tradesman.first_name %}
+                                                    {{ tradesman.first_name }} {{ tradesman.family_name }}
+                                                {% else %}
+                                                    {{ tradesman.family_name }}
+                                                {% endif %}
+                                            </span>
+                                            {% if tradesman.company_name %}
+                                                <small class="text-muted d-block">{{ tradesman.company_name }}</small>
+                                            {% endif %}
+                                        </a>
+                                    </td>
+                                    <td>{{ tradesman.trade }}</td>
+                                    <td>
+                                        {% if tradesman.avg_rating %}
+                                            <span class="badge bg-{% if tradesman.avg_rating >= 4 %}success{% elif tradesman.avg_rating >= 3 %}warning{% else %}danger{% endif %}">
+                                                {{ "%.1f"|format(tradesman.avg_rating) }}/5
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">No Rating</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ tradesman.job_count }}</span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('user_profile', user_id=tradesman.added_by_user_id) }}" class="text-decoration-none">
+                                            <span class="text-info">{{ tradesman.added_by_username }}</span>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if tradesman.is_my_tradesman %}
+                                            <span class="badge bg-success">My Tradesman</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Group Member</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted">No rated tradesmen found.</p>
+                    <p class="text-muted small">Top-rated tradesmen will appear here when you or your group members add tradesmen and complete jobs with ratings.</p>
+                </div>
+            {% endif %}
+        </div>
+
         <!-- Recently Completed Jobs Section -->
         <div class="border border-3 rounded-3 p-3 mb-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -97,86 +178,6 @@
                 <div class="text-center py-4">
                     <p class="text-muted">No recently completed jobs found.</p>
                     <p class="text-muted small">Jobs will appear here when you or members of your groups complete work with tradesmen.</p>
-                </div>
-            {% endif %}
-        </div>
-
-        <div class="border border-3 rounded-3 p-3 mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2>Top Rated Tradesmen</h2>
-                <div class="d-flex gap-2">
-                    <a href="{{ url_for('search_tradesmen') }}" class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-search"></i> Search Tradesmen
-                    </a>
-                    <a href="{{ url_for('add_tradesman') }}" class="btn btn-success btn-sm">
-                        <i class="fas fa-plus"></i> Add Tradesman
-                    </a>
-                </div>
-            </div>
-            {% if tradesmen %}
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Trade</th>
-                                <th>Rating</th>
-                                <th>Jobs</th>
-                                <th>Added By</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for tradesman in tradesmen %}
-                                <tr>
-                                    <td>
-                                        <a href="{{ url_for('view_tradesman', tradesman_id=tradesman.id) }}" class="text-decoration-none">
-                                            <span class="fw-semibold text-primary">
-                                                {% if tradesman.first_name %}
-                                                    {{ tradesman.first_name }} {{ tradesman.family_name }}
-                                                {% else %}
-                                                    {{ tradesman.family_name }}
-                                                {% endif %}
-                                            </span>
-                                            {% if tradesman.company_name %}
-                                                <small class="text-muted d-block">{{ tradesman.company_name }}</small>
-                                            {% endif %}
-                                        </a>
-                                    </td>
-                                    <td>{{ tradesman.trade }}</td>
-                                    <td>
-                                        {% if tradesman.avg_rating %}
-                                            <span class="badge bg-{% if tradesman.avg_rating >= 4 %}success{% elif tradesman.avg_rating >= 3 %}warning{% else %}danger{% endif %}">
-                                                {{ "%.1f"|format(tradesman.avg_rating) }}/5
-                                            </span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">No Rating</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-info">{{ tradesman.job_count }}</span>
-                                    </td>
-                                    <td>
-                                        <a href="{{ url_for('user_profile', user_id=tradesman.added_by_user_id) }}" class="text-decoration-none">
-                                            <span class="text-info">{{ tradesman.added_by_username }}</span>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        {% if tradesman.is_my_tradesman %}
-                                            <span class="badge bg-success">My Tradesman</span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">Group Member</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% else %}
-                <div class="text-center py-4">
-                    <p class="text-muted">No rated tradesmen found.</p>
-                    <p class="text-muted small">Top-rated tradesmen will appear here when you or your group members add tradesmen and complete jobs with ratings.</p>
                 </div>
             {% endif %}
         </div>
