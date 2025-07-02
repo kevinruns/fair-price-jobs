@@ -17,10 +17,10 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2>Recently Completed Jobs</h2>
                 <div class="d-flex gap-2">
-                    <a href="{{ url_for('search_tradesmen') }}" class="btn btn-outline-primary btn-sm">
+                    <a href="{{ url_for('search_jobs') }}" class="btn btn-outline-primary btn-sm">
                         <i class="fas fa-search"></i> Search Jobs
                     </a>
-                    <a href="{{ url_for('search_tradesmen') }}" class="btn btn-success btn-sm">
+                    <a href="{{ url_for('search_tradesmen', message='To add a new job, you first must select the tradesman responsible for the job.<br>If the tradesman is not in the database, please add.') }}" class="btn btn-success btn-sm">
                         <i class="fas fa-plus"></i> Add Job
                     </a>
                 </div>
