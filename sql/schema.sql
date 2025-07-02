@@ -68,23 +68,30 @@ CREATE TABLE user_tradesmen (
     FOREIGN KEY (tradesman_id) REFERENCES tradesmen (id) ON DELETE CASCADE
 );
 
--- New table for jobs
+-- New table for jobs and quotes
 CREATE TABLE jobs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     tradesman_id INTEGER NOT NULL,
+    type TEXT NOT NULL CHECK (type IN ('job', 'quote')) DEFAULT 'job',
     date_started TEXT,
     date_finished TEXT,
+    date_requested TEXT,
+    date_received TEXT,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     call_out_fee INTEGER NULL,
     materials_fee INTEGER NULL,
     hourly_rate INTEGER NULL,
     hours_worked REAL NULL,
+    hours_estimated REAL NULL,
     daily_rate INTEGER NULL,
     days_worked REAL NULL,
-    total_cost INTEGER NOT NULL CHECK (total_cost >= 0),
-    rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    days_estimated REAL NULL,
+    total_cost INTEGER NULL CHECK (total_cost IS NULL OR total_cost >= 0),
+    total_quote INTEGER NULL CHECK (total_quote IS NULL OR total_quote >= 0),
+    rating INTEGER NULL CHECK (rating IS NULL OR (rating >= 1 AND rating <= 5)),
+    status TEXT CHECK (status IN ('pending', 'accepted', 'declined')) DEFAULT 'pending',
     FOREIGN KEY (tradesman_id) REFERENCES tradesmen (id) ON DELETE CASCADE
 );
 

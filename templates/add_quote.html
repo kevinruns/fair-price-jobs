@@ -13,17 +13,16 @@
             </h4>
         </div>
     </div>
-    <form action="{{ url_for('add_job', tradesman_id=tradesman_id) }}" method="post">
+    <form action="{{ url_for('add_quote', tradesman_id=tradesman_id) }}" method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-
-       <!-- Description Row -->
+        <!-- Description Row -->
         <div class="row align-items-center mb-4">
-            <label for="title" class="col-sm-2 col-form-label fw-bold">Job Description</label>
+            <label for="title" class="col-sm-2 col-form-label fw-bold">Quote Description</label>
             <div class="col-sm-10">
                 <div class="input-container">
                     <textarea class="form-control" id="title" name="title" rows="1"
-                    placeholder="e.g. Tile bathroom"required></textarea>
+                    placeholder="e.g. Tile bathroom" required></textarea>
                 </div>
             </div>
         </div>
@@ -34,36 +33,35 @@
             <div class="col-sm-10">
                 <div class="input-container">
                     <textarea class="form-control" id="description" name="description" rows="3" 
-                    placeholder="Size of job, complexity, how many people worked on it"required></textarea>
+                    placeholder="Size of job, complexity, how many people will work on it" required></textarea>
                 </div>
             </div>
         </div>
 
-        <!-- Date Started and Date Finished Row -->
+        <!-- Date Requested and Date Received Row -->
         <div class="row align-items-center mb-4">
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="date_started" class="col-sm-6 col-form-label fw-bold">Date Started</label>
-                    <div class="col-sm-6">
-                        <div class="input-container-sm">
-                            <input type="date" class="form-control" id="date_started" name="date_started" required>
+                                <div class="col-sm-6">
+                        <div class="row align-items-center">
+                            <label for="date_requested" class="col-sm-6 col-form-label">Date Requested</label>
+                            <div class="col-sm-6">
+                                <div class="input-container-sm">
+                                    <input type="date" class="form-control" id="date_requested" name="date_requested">
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
             <div class="col-sm-6">
                 <div class="row align-items-center">
-                    <label for="date_finished" class="col-sm-6 col-form-label fw-bold">Date Finished</label>
+                    <label for="date_received" class="col-sm-6 col-form-label fw-bold">Date Received</label>
                     <div class="col-sm-6">
                         <div class="input-container-sm">
-                            <input type="date" class="form-control" id="date_finished" name="date_finished" required>
+                            <input type="date" class="form-control" id="date_received" name="date_received" required>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        
         <!-- Call Out Fee and Materials Fee Row -->
         <div class="row align-items-center mb-4">
             <div class="col-sm-6">
@@ -88,7 +86,7 @@
             </div>
         </div>
 
-        <!-- Hourly Rate and Hours Worked Row -->
+        <!-- Hourly Rate and Hours Estimated Row -->
         <div class="row align-items-center mb-4">
             <div class="col-sm-6">
                 <div class="row align-items-center">
@@ -102,17 +100,17 @@
             </div>
             <div class="col-sm-6">
                 <div class="row align-items-center">
-                    <label for="hours_worked" class="col-sm-6 col-form-label">Hours Worked</label>
+                    <label for="hours_estimated" class="col-sm-6 col-form-label">Hours Estimated</label>
                     <div class="col-sm-6">
                         <div class="input-container-sm">
-                            <input type="number" step="0.5" class="form-control" id="hours_worked" name="hours_worked" placeholder="Optional">
+                            <input type="number" step="0.5" class="form-control" id="hours_estimated" name="hours_estimated" placeholder="Optional">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Daily Rate and Days Worked Row -->
+        <!-- Daily Rate and Days Estimated Row -->
         <div class="row align-items-center mb-4">
             <div class="col-sm-6">
                 <div class="row align-items-center">
@@ -126,48 +124,49 @@
             </div>
             <div class="col-sm-6">
                 <div class="row align-items-center">
-                    <label for="days_worked" class="col-sm-6 col-form-label">Days Worked</label>
+                    <label for="days_estimated" class="col-sm-6 col-form-label">Days Estimated</label>
                     <div class="col-sm-6">
                         <div class="input-container-sm">
-                            <input type="number" step="0.5" class="form-control" id="days_worked" name="days_worked" placeholder="Optional">
+                            <input type="number" step="0.5" class="form-control" id="days_estimated" name="days_estimated" placeholder="Optional">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Rating and Total Cost Row -->
+        <!-- Total Quote and Status Row -->
         <div class="row align-items-center mb-4">
-
             <div class="col-sm-6">
                 <div class="row align-items-center">
-                    <label for="total_cost" class="col-sm-6 col-form-label fw-bold">Total Cost €</label>
+                    <label for="total_quote" class="col-sm-6 col-form-label fw-bold">Total Quote €</label>
                     <div class="col-sm-6">
                         <div class="input-container-sm">
-                            <input type="number" step="0.01" class="form-control" id="total_cost" name="total_cost" required>
+                            <input type="number" step="0.01" class="form-control" id="total_quote" name="total_quote" required>
                         </div>
                     </div>
                 </div>
             </div>
-
             <div class="col-sm-6">
                 <div class="row align-items-center">
-                    <label for="rating" class="col-sm-6 col-form-label fw-bold">Rating (1-5)</label>
+                    <label for="status" class="col-sm-6 col-form-label fw-bold">Status</label>
                     <div class="col-sm-6">
                         <div class="input-container-sm">
-                            <input type="number" min="1" max="5" class="form-control" id="rating" name="rating" required>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="pending" selected>Pending</option>
+                                <option value="accepted">Accepted</option>
+                                <option value="declined">Declined</option>
+                            </select>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
 
         <!-- Buttons Row -->
         <div class="row">
             <div class="col-12">
                 <div class="d-flex justify-content-center gap-3">
-                    <button type="submit" class="btn btn-primary" style="width: 200px;">Add Job</button>
+                    <button type="submit" class="btn btn-primary" style="width: 200px;">Add Quote</button>
                     <a href="{{ url_for('view_tradesman', tradesman_id=tradesman_id) }}" class="btn btn-secondary" style="width: 200px;">Back to Tradesman</a>
                 </div>
             </div>
@@ -175,4 +174,4 @@
     </form>
 </div>
 
-{% endblock %}
+{% endblock %} 

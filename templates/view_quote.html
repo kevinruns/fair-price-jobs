@@ -1,0 +1,131 @@
+{% extends "layout.html" %}
+
+{% block main %}
+<div class="container-fluid p-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="text-primary fw-bold mb-3">{{ quote.title }}</h2>
+            <p class="text-muted mb-0">
+                <strong>Tradesman:</strong> 
+                <a href="{{ url_for('view_tradesman', tradesman_id=quote.tradesman_id) }}" class="text-decoration-none">
+                    {{ quote.tradesman_name }} - {{ quote.trade }}
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Quote Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Description:</strong></div>
+                        <div class="col-sm-8">{{ quote.description }}</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Date Requested:</strong></div>
+                        <div class="col-sm-8">{{ quote.date_requested if quote.date_requested else 'Not specified' }}</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Date Received:</strong></div>
+                        <div class="col-sm-8">{{ quote.date_received if quote.date_received else 'Not specified' }}</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Status:</strong></div>
+                        <div class="col-sm-8">
+                            <span class="badge bg-{% if quote.status == 'accepted' %}success{% elif quote.status == 'declined' %}danger{% else %}warning{% endif %}">
+                                {{ quote.status|title }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Cost Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    {% if quote.call_out_fee %}
+                    <div class="row mb-2">
+                        <div class="col-6">Call Out Fee:</div>
+                        <div class="col-6 text-end">€{{ quote.call_out_fee }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if quote.materials_fee %}
+                    <div class="row mb-2">
+                        <div class="col-6">Materials Fee:</div>
+                        <div class="col-6 text-end">€{{ quote.materials_fee }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if quote.hourly_rate and quote.hours_estimated %}
+                    <div class="row mb-2">
+                        <div class="col-6">Hourly Rate:</div>
+                        <div class="col-6 text-end">€{{ quote.hourly_rate }}/hr</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">Hours Estimated:</div>
+                        <div class="col-6 text-end">{{ quote.hours_estimated }} hrs</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if quote.daily_rate and quote.days_estimated %}
+                    <div class="row mb-2">
+                        <div class="col-6">Daily Rate:</div>
+                        <div class="col-6 text-end">€{{ quote.daily_rate }}/day</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">Days Estimated:</div>
+                        <div class="col-6 text-end">{{ quote.days_estimated }} days</div>
+                    </div>
+                    {% endif %}
+                    
+                    <hr>
+                    <div class="row mb-0">
+                        <div class="col-6"><strong>Total Quote:</strong></div>
+                        <div class="col-6 text-end"><strong>€{{ quote.total_quote }}</strong></div>
+                    </div>
+                </div>
+            </div>
+            
+            {% if quote.status == 'pending' %}
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Actions</h6>
+                    <form method="post" action="{{ url_for('convert_quote_to_job', quote_id=quote.id) }}" class="mb-2">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-success w-100" onclick="return confirm('Are you sure you want to convert this quote to a job?')">
+                            Convert to Job
+                        </button>
+                    </form>
+                    <form method="post" action="{{ url_for('reject_quote', quote_id=quote.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-danger w-100" onclick="return confirm('Are you sure you want to decline this quote?')">
+                            Decline Quote
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col">
+            <a href="{{ url_for('view_tradesman', tradesman_id=quote.tradesman_id) }}" class="btn btn-secondary">
+                Back to Tradesman
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

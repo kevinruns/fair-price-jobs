@@ -560,7 +560,7 @@ def add_tradesman():
             
             db.commit()
             flash("Tradesman added successfully!", "success")
-            return redirect(url_for("index"))
+            return redirect(url_for("view_tradesman", tradesman_id=tradesman_id))
         except Exception as e:
             db.rollback()
             flash(f"An error occurred: {str(e)}", "error")
@@ -593,13 +593,25 @@ def view_tradesman(tradesman_id):
         cursor.execute("""
             SELECT id, date_started, date_finished, title, description, total_cost, rating
             FROM jobs
-            WHERE tradesman_id = ?
+            WHERE tradesman_id = ? AND type = 'job'
             ORDER BY date_finished DESC
         """, (tradesman_id,))
         jobs = cursor.fetchall()
 
         # Convert jobs to dictionaries for easier handling in the template
         jobs = [dict(zip([column[0] for column in cursor.description], row)) for row in jobs]
+
+        # Fetch quotes for this tradesman (excluding accepted quotes)
+        cursor.execute("""
+            SELECT id, date_requested, date_received, title, description, total_quote, status
+            FROM jobs
+            WHERE tradesman_id = ? AND type = 'quote' AND status != 'accepted'
+            ORDER BY date_received DESC
+        """, (tradesman_id,))
+        quotes = cursor.fetchall()
+
+        # Convert quotes to dictionaries for easier handling in the template
+        quotes = [dict(zip([column[0] for column in cursor.description], row)) for row in quotes]
 
         group_id = session.get('group_id')
 
@@ -623,7 +635,8 @@ def view_tradesman(tradesman_id):
 
         return render_template("view_tradesman.html", 
                              tradesman=tradesman, 
-                             jobs=jobs, 
+                             jobs=jobs,
+                             quotes=quotes,
                              group_id=group_id,
                              can_edit=can_edit,
                              added_by_info=added_by_info)
@@ -665,9 +678,17 @@ def add_job(tradesman_id):
         rating = request.form.get("rating")
 
         try:
+            # Convert empty strings to None for optional fields
+            call_out_fee = call_out_fee if call_out_fee else None
+            materials_fee = materials_fee if materials_fee else None
+            hourly_rate = hourly_rate if hourly_rate else None
+            hours_worked = hours_worked if hours_worked else None
+            daily_rate = daily_rate if daily_rate else None
+            days_worked = days_worked if days_worked else None
+            
             cursor.execute("""
-                INSERT INTO jobs (user_id, tradesman_id, date_started, date_finished, title, description, call_out_fee, materials_fee, hourly_rate, hours_worked, daily_rate, days_worked, total_cost, rating)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO jobs (user_id, tradesman_id, type, date_started, date_finished, title, description, call_out_fee, materials_fee, hourly_rate, hours_worked, daily_rate, days_worked, total_cost, rating)
+                VALUES (?, ?, 'job', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (user_id, tradesman_id, date_started, date_finished, title, description, call_out_fee, materials_fee, hourly_rate, hours_worked, daily_rate, days_worked, total_cost, rating))
             db.commit()
             flash("Job added successfully!", "success")
@@ -678,6 +699,176 @@ def add_job(tradesman_id):
         return redirect(url_for("view_tradesman", tradesman_id=tradesman_id))
 
     return render_template("add_job.html", tradesman_id=tradesman_id, tradesman=tradesman)
+
+
+@app.route("/add_quote/<int:tradesman_id>", methods=["GET", "POST"])
+@login_required
+def add_quote(tradesman_id):
+    db = get_db()
+    cursor = db.cursor()
+
+    # Get tradesman information
+    cursor.execute("SELECT first_name, family_name, company_name, trade FROM tradesmen WHERE id = ?", (tradesman_id,))
+    tradesman = cursor.fetchone()
+    
+    if not tradesman:
+        flash("Tradesman not found.", "error")
+        return redirect(url_for("search_tradesmen"))
+
+    if request.method == "POST":
+        user_id = session["user_id"]
+        date_requested = request.form.get("date_requested")
+        date_received = request.form.get("date_received")
+        title = request.form.get("title")
+        description = request.form.get("description")
+        call_out_fee = request.form.get("call_out_fee")
+        materials_fee = request.form.get("materials_fee")
+        hourly_rate = request.form.get("hourly_rate")
+        hours_estimated = request.form.get("hours_estimated")
+        daily_rate = request.form.get("daily_rate")
+        days_estimated = request.form.get("days_estimated")
+        total_quote = request.form.get("total_quote")
+        status = request.form.get("status", "pending")
+
+        try:
+            # Convert empty strings to None for optional fields
+            call_out_fee = call_out_fee if call_out_fee else None
+            materials_fee = materials_fee if materials_fee else None
+            hourly_rate = hourly_rate if hourly_rate else None
+            hours_estimated = hours_estimated if hours_estimated else None
+            daily_rate = daily_rate if daily_rate else None
+            days_estimated = days_estimated if days_estimated else None
+            
+            cursor.execute("""
+                INSERT INTO jobs (user_id, tradesman_id, type, date_requested, date_received, title, description, call_out_fee, materials_fee, hourly_rate, hours_estimated, daily_rate, days_estimated, total_quote, status)
+                VALUES (?, ?, 'quote', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (user_id, tradesman_id, date_requested, date_received, title, description, call_out_fee, materials_fee, hourly_rate, hours_estimated, daily_rate, days_estimated, total_quote, status))
+            db.commit()
+            flash("Quote added successfully!", "success")
+        except Exception as e:
+            db.rollback()
+            flash(f"An error occurred: {str(e)}", "error")
+
+        return redirect(url_for("view_tradesman", tradesman_id=tradesman_id))
+
+    return render_template("add_quote.html", tradesman_id=tradesman_id, tradesman=tradesman)
+
+
+@app.route("/convert_quote_to_job/<int:quote_id>", methods=["POST"])
+@login_required
+def convert_quote_to_job(quote_id):
+    """Convert a quote to a job when accepted"""
+    db = get_db()
+    cursor = db.cursor()
+    
+    try:
+        # Get the quote details
+        cursor.execute("""
+            SELECT tradesman_id, title, description, call_out_fee, materials_fee, 
+                   hourly_rate, hours_estimated, daily_rate, days_estimated, total_quote
+            FROM jobs 
+            WHERE id = ? AND type = 'quote'
+        """, (quote_id,))
+        quote = cursor.fetchone()
+        
+        if not quote:
+            flash("Quote not found.", "error")
+            return redirect(url_for("search_tradesmen"))
+        
+        # Update the quote status to accepted
+        cursor.execute("""
+            UPDATE jobs 
+            SET status = 'accepted' 
+            WHERE id = ?
+        """, (quote_id,))
+        
+        # Create a new job based on the quote
+        cursor.execute("""
+            INSERT INTO jobs (
+                user_id, tradesman_id, type, title, description, 
+                call_out_fee, materials_fee, hourly_rate, hours_worked, 
+                daily_rate, days_worked, total_cost
+            ) VALUES (?, ?, 'job', ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            session["user_id"], quote['tradesman_id'], quote['title'], 
+            quote['description'], quote['call_out_fee'], quote['materials_fee'],
+            quote['hourly_rate'], quote['hours_estimated'], quote['daily_rate'], 
+            quote['days_estimated'], quote['total_quote']
+        ))
+        
+        db.commit()
+        flash("Quote converted to job successfully!", "success")
+        
+    except Exception as e:
+        db.rollback()
+        flash(f"An error occurred: {str(e)}", "error")
+    
+    return redirect(url_for("view_tradesman", tradesman_id=quote['tradesman_id']))
+
+
+@app.route("/reject_quote/<int:quote_id>", methods=["POST"])
+@login_required
+def reject_quote(quote_id):
+    """Reject a quote"""
+    db = get_db()
+    cursor = db.cursor()
+    
+    try:
+        # Get the quote details
+        cursor.execute("""
+            SELECT tradesman_id FROM jobs 
+            WHERE id = ? AND type = 'quote'
+        """, (quote_id,))
+        quote = cursor.fetchone()
+        
+        if not quote:
+            flash("Quote not found.", "error")
+            return redirect(url_for("search_tradesmen"))
+        
+        # Update the quote status to declined
+        cursor.execute("""
+            UPDATE jobs 
+            SET status = 'declined' 
+            WHERE id = ?
+        """, (quote_id,))
+        
+        db.commit()
+        flash("Quote declined successfully!", "success")
+        
+    except Exception as e:
+        db.rollback()
+        flash(f"An error occurred: {str(e)}", "error")
+    
+    return redirect(url_for("view_tradesman", tradesman_id=quote['tradesman_id']))
+
+
+@app.route('/view_quote/<int:quote_id>')
+@login_required
+def view_quote(quote_id):
+    db = get_db()
+    cursor = db.cursor()
+    
+    cursor.execute("""
+        SELECT j.*, 
+               CASE 
+                   WHEN t.first_name IS NOT NULL THEN t.first_name || ' ' || t.family_name
+                   ELSE t.family_name
+               END as tradesman_name, 
+               t.trade
+        FROM jobs j
+        JOIN tradesmen t ON j.tradesman_id = t.id
+        WHERE j.id = ? AND j.type = 'quote'
+    """, (quote_id,))
+    quote = cursor.fetchone()
+    
+    if quote:
+        # Convert row to dictionary using column names
+        quote_dict = dict(zip([column[0] for column in cursor.description], quote))
+        
+        return render_template('view_quote.html', quote=quote_dict)
+    else:
+        flash('Quote not found.', 'error')
+        return redirect(url_for('index'))
 
 
 
