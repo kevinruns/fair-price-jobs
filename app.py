@@ -92,8 +92,7 @@ def index():
                 WHERE ug1.user_id = ? AND ug1.status IN ('member', 'admin', 'creator')
             )
             GROUP BY t.id
-            HAVING AVG(j.rating) IS NOT NULL
-            ORDER BY AVG(j.rating) DESC, COUNT(j.id) DESC
+            ORDER BY AVG(j.rating) DESC NULLS LAST, COUNT(j.id) DESC
             LIMIT 10
         """, (user_id, user_id, user_id)).fetchall()
         
@@ -832,9 +831,13 @@ def search_tradesmen():
         query = """
             SELECT DISTINCT t.*, 
                    COUNT(j.id) as job_count,
-                   AVG(j.rating) as avg_rating
+                   AVG(j.rating) as avg_rating,
+                   u.username as added_by_username,
+                   u.id as added_by_user_id
             FROM tradesmen t
             LEFT JOIN jobs j ON t.id = j.tradesman_id
+            JOIN user_tradesmen ut ON t.id = ut.tradesman_id
+            JOIN users u ON ut.user_id = u.id
             WHERE 1=1
         """
         params = []
@@ -852,7 +855,7 @@ def search_tradesmen():
             query += " AND t.postcode LIKE ?"
             params.append(f"{postcode}%")
             
-        query += " GROUP BY t.id ORDER BY avg_rating DESC NULLS LAST"
+        query += " GROUP BY t.id ORDER BY COUNT(j.id) DESC, avg_rating DESC NULLS LAST"
         
         tradesmen = db.execute(query, params).fetchall()
         tradesmen = [dict(row) for row in tradesmen]

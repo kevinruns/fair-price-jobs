@@ -6,19 +6,24 @@
 
 {% block main %}
     <div class="container">
-        <h1 class="mb-4">Search Tradesmen</h1>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Search Tradesmen</h1>
+            <a href="{{ url_for('add_tradesman') }}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Add Tradesman
+            </a>
+        </div>
         
         <div class="card mb-4">
             <div class="card-body">
                 <form method="post" class="row g-3">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="search_term" class="form-label">Search</label>
                         <input type="text" class="form-control" id="search_term" name="search_term" 
                                value="{{ search_term }}" placeholder="Name, email, or phone">
                     </div>
                     
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="trade" class="form-label">Trade</label>
                         <select class="form-select" id="trade" name="trade">
                             <option value="">All Trades</option>
@@ -30,10 +35,34 @@
                         </select>
                     </div>
                     
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <label for="postcode" class="form-label">Postcode</label>
                         <input type="text" class="form-control" id="postcode" name="postcode" 
-                               value="{{ postcode }}" placeholder="Enter postcode">
+                               value="{{ postcode }}" placeholder="Postcode">
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <label for="added_by_user" class="form-label">Added By</label>
+                        <select class="form-select" id="added_by_user" name="added_by_user">
+                            <option value="">All Users</option>
+                            {% for user in users %}
+                                <option value="{{ user.username }}" {% if user.username == selected_user %}selected{% endif %}>
+                                    {{ user.username }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <label for="group" class="form-label">Group</label>
+                        <select class="form-select" id="group" name="group">
+                            <option value="">All Groups</option>
+                            {% for group in groups %}
+                                <option value="{{ group.name }}" {% if group.name == selected_group %}selected{% endif %}>
+                                    {{ group.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
                     </div>
                     
                     <div class="col-12">
@@ -55,6 +84,7 @@
                             <th>Phone</th>
                             <th>Email</th>
                             <th>Jobs</th>
+                            <th>Added By</th>
                             <th>Rating</th>
                         </tr>
                     </thead>
@@ -77,6 +107,11 @@
                                     {% endif %}
                                 </td>
                                 <td>{{ tradesman.job_count }}</td>
+                                <td>
+                                    <a href="{{ url_for('user_profile', user_id=tradesman.added_by_user_id) }}" class="text-decoration-none">
+                                        <span class="text-info">{{ tradesman.added_by_username }}</span>
+                                    </a>
+                                </td>
                                 <td>
                                     {% if tradesman.avg_rating %}
                                         {{ "%.1f"|format(tradesman.avg_rating) }} ⭐

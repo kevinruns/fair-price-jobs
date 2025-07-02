@@ -145,9 +145,13 @@
                                     </td>
                                     <td>{{ tradesman.trade }}</td>
                                     <td>
-                                        <span class="badge bg-{% if tradesman.avg_rating >= 4 %}success{% elif tradesman.avg_rating >= 3 %}warning{% else %}danger{% endif %}">
-                                            {{ "%.1f"|format(tradesman.avg_rating) }}/5
-                                        </span>
+                                        {% if tradesman.avg_rating %}
+                                            <span class="badge bg-{% if tradesman.avg_rating >= 4 %}success{% elif tradesman.avg_rating >= 3 %}warning{% else %}danger{% endif %}">
+                                                {{ "%.1f"|format(tradesman.avg_rating) }}/5
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">No Rating</span>
+                                        {% endif %}
                                     </td>
                                     <td>
                                         <span class="badge bg-info">{{ tradesman.job_count }}</span>
