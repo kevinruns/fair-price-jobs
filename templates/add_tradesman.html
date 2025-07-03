@@ -4,7 +4,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <form action="{{ url_for('add_tradesman') }}" method="post">
+            <form action="{{ url_for('tradesmen.add_tradesman') }}" method="post">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="mb-3 row">
                     <label for="trade" class="col-sm-3 col-form-label text-start">Trade</label>
@@ -82,7 +82,7 @@
                 <div class="row">
                     <div class="col-sm-9 offset-sm-3">
                         <button type="submit" class="btn btn-primary btn-sm me-4">Add Tradesman</button>
-                        <a href="{{ url_for('index') }}" class="btn btn-secondary btn-sm">Back to Home</a>
+                        <a href="{{ url_for('main.index') }}" class="btn btn-secondary btn-sm">Back to Home</a>
                     </div>
                 </div>
             </form>

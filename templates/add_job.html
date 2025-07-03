@@ -13,7 +13,7 @@
             </h4>
         </div>
     </div>
-    <form action="{{ url_for('add_job', tradesman_id=tradesman_id) }}" method="post">
+    <form action="{{ url_for('jobs.add_job', tradesman_id=tradesman_id) }}" method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
 
@@ -168,7 +168,7 @@
             <div class="col-12">
                 <div class="d-flex justify-content-center gap-3">
                     <button type="submit" class="btn btn-primary" style="width: 200px;">Add Job</button>
-                    <a href="{{ url_for('view_tradesman', tradesman_id=tradesman_id) }}" class="btn btn-secondary" style="width: 200px;">Back to Tradesman</a>
+                    <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman_id) }}" class="btn btn-secondary" style="width: 200px;">Back to Tradesman</a>
                 </div>
             </div>
         </div>

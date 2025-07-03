@@ -8,7 +8,7 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Search Tradesmen</h1>
-            <a href="{{ url_for('add_tradesman') }}" class="btn btn-success">
+            <a href="{{ url_for('tradesmen.add_tradesman') }}" class="btn btn-success">
                 <i class="fas fa-plus"></i> Add Tradesman
             </a>
         </div>
@@ -73,7 +73,7 @@
                     
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary">Search</button>
-                        <a href="{{ url_for('search_tradesmen') }}" class="btn btn-secondary">Clear</a>
+                        <a href="{{ url_for('search.search_tradesmen') }}" class="btn btn-secondary">Clear</a>
                     </div>
                 </form>
             </div>
@@ -98,7 +98,7 @@
                         {% for tradesman in tradesmen %}
                             <tr>
                                 <td>
-                                    <a href="{{ url_for('view_tradesman', tradesman_id=tradesman.id) }}" class="text-decoration-none">
+                                    <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}" class="text-decoration-none">
                                         <span class="fw-semibold text-primary">{{ tradesman.first_name }} {{ tradesman.family_name }}</span>
                                     </a>
                                 </td>
@@ -114,7 +114,7 @@
                                 </td>
                                 <td>{{ tradesman.job_count }}</td>
                                 <td>
-                                    <a href="{{ url_for('user_profile', user_id=tradesman.added_by_user_id) }}" class="text-decoration-none">
+                                                                            <a href="{{ url_for('profile.user_profile', user_id=tradesman.added_by_user_id) }}" class="text-decoration-none">
                                         <span class="text-info">{{ tradesman.added_by_username }}</span>
                                     </a>
                                 </td>

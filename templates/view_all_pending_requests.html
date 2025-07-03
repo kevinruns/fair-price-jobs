@@ -6,7 +6,7 @@
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Pending Join Requests</h2>
-        <a href="{{ url_for('index') }}" class="btn btn-secondary">
+        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Back to Home
         </a>
     </div>
@@ -28,7 +28,7 @@
                             {% for request in requests %}
                                 <tr>
                                     <td>
-                                        <a href="{{ url_for('view_group', group_id=request.group_id) }}" class="text-decoration-none">
+                                        <a href="{{ url_for('groups.view_group', group_id=request.group_id) }}" class="text-decoration-none">
                                             <span class="fw-semibold text-primary">{{ request.group_name }}</span>
                                         </a>
                                     </td>
@@ -36,13 +36,13 @@
                                     <td>{{ request.email }}</td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <form action="{{ url_for('handle_request', request_id=request.request_id, action='accept') }}" method="post" class="d-inline">
+                                            <form action="{{ url_for('groups.handle_request', request_id=request.request_id, action='accept') }}" method="post" class="d-inline">
                                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                                 <button type="submit" class="btn btn-success btn-sm">
                                                     <i class="fas fa-check"></i> Accept
                                                 </button>
                                             </form>
-                                            <form action="{{ url_for('handle_request', request_id=request.request_id, action='reject') }}" method="post" class="d-inline ms-1">
+                                            <form action="{{ url_for('groups.handle_request', request_id=request.request_id, action='reject') }}" method="post" class="d-inline ms-1">
                                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                                 <button type="submit" class="btn btn-danger btn-sm">
                                                     <i class="fas fa-times"></i> Reject

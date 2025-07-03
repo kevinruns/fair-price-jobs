@@ -8,7 +8,7 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Search Jobs</h1>
-            <a href="{{ url_for('search_tradesmen', message='To add a new job, you first must select the tradesman responsible for the job.<br>If the tradesman is not in the database, please add.') }}" class="btn btn-success">
+            <a href="{{ url_for('search.search_tradesmen', message='To add a new job, you first must select the tradesman responsible for the job.<br>If the tradesman is not in the database, please add.') }}" class="btn btn-success">
                 <i class="fas fa-plus"></i> Add Job
             </a>
         </div>
@@ -73,7 +73,7 @@
                     
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary">Search</button>
-                        <a href="{{ url_for('search_jobs') }}" class="btn btn-secondary">Clear</a>
+                        <a href="{{ url_for('search.search_jobs') }}" class="btn btn-secondary">Clear</a>
                     </div>
                 </form>
             </div>
@@ -98,7 +98,7 @@
                         {% for job in jobs %}
                             <tr>
                                 <td>
-                                    <a href="{{ url_for('view_job', job_id=job.id) }}" class="text-decoration-none">
+                                    <a href="{{ url_for('jobs.view_job', job_id=job.id) }}" class="text-decoration-none">
                                         <span class="fw-semibold text-primary">{{ job.title }}</span>
                                     </a>
                                     {% if job.description %}
@@ -106,7 +106,7 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a href="{{ url_for('view_tradesman', tradesman_id=job.tradesman_id) }}" class="text-decoration-none">
+                                    <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=job.tradesman_id) }}" class="text-decoration-none">
                                         {% if job.first_name %}
                                             {{ job.first_name }} {{ job.family_name }}
                                         {% else %}
@@ -136,13 +136,13 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a href="{{ url_for('user_profile', user_id=job.added_by_user_id) }}" class="text-decoration-none">
+                                                                            <a href="{{ url_for('profile.user_profile', user_id=job.added_by_user_id) }}" class="text-decoration-none">
                                         <span class="text-info">{{ job.added_by_username }}</span>
                                     </a>
                                 </td>
                                 <td>
                                     {% if job.group_name %}
-                                        <a href="{{ url_for('view_group', group_id=job.group_id) }}" class="text-decoration-none">
+                                        <a href="{{ url_for('groups.view_group', group_id=job.group_id) }}" class="text-decoration-none">
                                             <span class="badge bg-secondary">{{ job.group_name }}</span>
                                         </a>
                                     {% else %}

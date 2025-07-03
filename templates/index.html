@@ -17,10 +17,10 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2>Top Rated Tradesmen</h2>
                 <div class="d-flex gap-2">
-                    <a href="{{ url_for('search_tradesmen') }}" class="btn btn-outline-primary btn-sm">
+                    <a href="{{ url_for('search.search_tradesmen') }}" class="btn btn-outline-primary btn-sm">
                         <i class="fas fa-search"></i> Search Tradesmen
                     </a>
-                    <a href="{{ url_for('add_tradesman') }}" class="btn btn-success btn-sm">
+                    <a href="{{ url_for('tradesmen.add_tradesman') }}" class="btn btn-success btn-sm">
                         <i class="fas fa-plus"></i> Add Tradesman
                     </a>
                 </div>
@@ -42,7 +42,7 @@
                             {% for tradesman in tradesmen %}
                                 <tr>
                                     <td>
-                                        <a href="{{ url_for('view_tradesman', tradesman_id=tradesman.id) }}" class="text-decoration-none">
+                                        <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}" class="text-decoration-none">
                                             <span class="fw-semibold text-primary">
                                                 {% if tradesman.first_name %}
                                                     {{ tradesman.first_name }} {{ tradesman.family_name }}
@@ -69,7 +69,7 @@
                                         <span class="badge bg-info">{{ tradesman.job_count }}</span>
                                     </td>
                                     <td>
-                                        <a href="{{ url_for('user_profile', user_id=tradesman.added_by_user_id) }}" class="text-decoration-none">
+                                        <a href="{{ url_for('profile.user_profile', user_id=tradesman.added_by_user_id) }}" class="text-decoration-none">
                                             <span class="text-info">{{ tradesman.added_by_username }}</span>
                                         </a>
                                     </td>
@@ -98,10 +98,10 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2>Recently Completed Jobs</h2>
                 <div class="d-flex gap-2">
-                    <a href="{{ url_for('search_jobs') }}" class="btn btn-outline-primary btn-sm">
+                    <a href="{{ url_for('search.search_jobs') }}" class="btn btn-outline-primary btn-sm">
                         <i class="fas fa-search"></i> Search Jobs
                     </a>
-                    <a href="{{ url_for('search_tradesmen', message='To add a new job, you first must select the tradesman responsible for the job.<br>If the tradesman is not in the database, please add.') }}" class="btn btn-success btn-sm">
+                    <a href="{{ url_for('search.search_tradesmen', message='To add a new job, you first must select the tradesman responsible for the job.<br>If the tradesman is not in the database, please add.') }}" class="btn btn-success btn-sm">
                         <i class="fas fa-plus"></i> Add Job
                     </a>
                 </div>
@@ -125,12 +125,12 @@
                             {% for job in recent_jobs %}
                                 <tr>
                                     <td>
-                                        <a href="{{ url_for('view_job', job_id=job.id) }}" class="text-decoration-none">
+                                        <a href="{{ url_for('jobs.view_job', job_id=job.id) }}" class="text-decoration-none">
                                             <span class="fw-semibold text-primary">{{ job.title }}</span>
                                         </a>
                                     </td>
                                     <td>
-                                        <a href="{{ url_for('view_tradesman', tradesman_id=job.tradesman_id) }}" class="text-decoration-none">
+                                        <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=job.tradesman_id) }}" class="text-decoration-none">
                                             {% if job.first_name %}
                                                 {{ job.first_name }} {{ job.family_name }}
                                             {% else %}
@@ -160,13 +160,13 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <a href="{{ url_for('user_profile', user_id=job.added_by_user_id) }}" class="text-decoration-none">
+                                        <a href="{{ url_for('profile.user_profile', user_id=job.added_by_user_id) }}" class="text-decoration-none">
                                             <span class="text-info">{{ job.added_by_username }}</span>
                                         </a>
                                     </td>
                                     <td>
                                         {% if job.group_name %}
-                                            <a href="{{ url_for('view_group', group_id=job.group_id) }}" class="text-decoration-none">
+                                            <a href="{{ url_for('groups.view_group', group_id=job.group_id) }}" class="text-decoration-none">
                                                 <span class="badge bg-secondary">{{ job.group_name }}</span>
                                             </a>
                                         {% else %}
@@ -191,10 +191,10 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2>My Groups</h2>
                 <div class="d-flex gap-2">
-                    <a href="{{ url_for('search_groups') }}" class="btn btn-outline-primary btn-sm">
+                    <a href="{{ url_for('groups.search_groups') }}" class="btn btn-outline-primary btn-sm">
                         <i class="fas fa-search"></i> Find Group
                     </a>
-                    <a href="{{ url_for('create_group') }}" class="btn btn-success btn-sm">
+                    <a href="{{ url_for('groups.create_group') }}" class="btn btn-success btn-sm">
                         <i class="fas fa-plus"></i> Create Group
                     </a>
                 </div>
@@ -214,7 +214,7 @@
                             {% for group in my_groups %}
                                 <tr>
                                     <td>
-                                        <a href="{{ url_for('view_group', group_id=group.id) }}" class="text-decoration-none">
+                                        <a href="{{ url_for('groups.view_group', group_id=group.id) }}" class="text-decoration-none">
                                             <span class="fw-semibold text-primary">{{ group.name }}</span>
                                         </a>
                                     </td>
@@ -233,7 +233,7 @@
                     </table>
                 </div>
                 <div class="text-center mt-3">
-                    <a href="{{ url_for('search_groups') }}" class="btn btn-outline-primary btn-sm">View All Groups</a>
+                    <a href="{{ url_for('groups.search_groups') }}" class="btn btn-outline-primary btn-sm">View All Groups</a>
                 </div>
             {% else %}
                 <div class="text-center py-4">

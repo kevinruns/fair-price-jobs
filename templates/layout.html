@@ -31,21 +31,21 @@
                     {% if session.user_id %}
                         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+                                <a class="nav-link" href="{{ url_for('main.index') }}">Home</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('search_jobs') }}">Jobs</a>
+                                <a class="nav-link" href="{{ url_for('search.search_jobs') }}">Jobs</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('search_tradesmen') }}">Tradesmen</a>
+                                <a class="nav-link" href="{{ url_for('search.search_tradesmen') }}">Tradesmen</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('search_groups') }}">Groups</a>
+                                <a class="nav-link" href="{{ url_for('groups.search_groups') }}">Groups</a>
                             </li>
                         </ul>
                         <ul class="navbar-nav ms-auto mt-1 align-items-center">
                             <li class="nav-item me-3">
-                                <a class="nav-link fs-5 fw-bold p-0" href="{{ url_for('user_profile', user_id=session.user_id) }}">{{ session.username }}</a>
+                                <a class="nav-link fs-5 fw-bold p-0" href="{{ url_for('profile.user_profile', user_id=session.user_id) }}">{{ session.username }}</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="/logout">Log Out</a>

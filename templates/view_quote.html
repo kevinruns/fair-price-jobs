@@ -7,7 +7,7 @@
             <h2 class="text-primary fw-bold mb-3">{{ quote.title }}</h2>
             <p class="text-muted mb-0">
                 <strong>Tradesman:</strong> 
-                <a href="{{ url_for('view_tradesman', tradesman_id=quote.tradesman_id) }}" class="text-decoration-none">
+                <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=quote.tradesman_id) }}" class="text-decoration-none">
                     {{ quote.tradesman_name }} - {{ quote.trade }}
                 </a>
             </p>
@@ -102,13 +102,13 @@
             <div class="card">
                 <div class="card-body">
                     <h6 class="card-title">Actions</h6>
-                    <form method="post" action="{{ url_for('convert_quote_to_job', quote_id=quote.id) }}" class="mb-2">
+                    <form method="post" action="{{ url_for('jobs.convert_quote_to_job', quote_id=quote.id) }}" class="mb-2">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="btn btn-success w-100" onclick="return confirm('Are you sure you want to convert this quote to a job?')">
                             Convert to Job
                         </button>
                     </form>
-                    <form method="post" action="{{ url_for('reject_quote', quote_id=quote.id) }}">
+                    <form method="post" action="{{ url_for('jobs.reject_quote', quote_id=quote.id) }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="btn btn-danger w-100" onclick="return confirm('Are you sure you want to decline this quote?')">
                             Decline Quote
@@ -122,7 +122,7 @@
     
     <div class="row">
         <div class="col">
-            <a href="{{ url_for('view_tradesman', tradesman_id=quote.tradesman_id) }}" class="btn btn-secondary">
+            <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=quote.tradesman_id) }}" class="btn btn-secondary">
                 Back to Tradesman
             </a>
         </div>
