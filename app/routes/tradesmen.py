@@ -153,7 +153,4 @@ def add_my_tradesman_to_group(group_id):
         t['in_group'] = tradesman_service.is_tradesman_in_group(group_id, t['id'])
     return render_template("add_my_tradesman_to_group.html", user_tradesmen=user_tradesmen, group=group)
 
-# Legacy get_db function for backward compatibility
-def get_db():
-    from app.services.database import get_db_service
-    return get_db_service().get_connection() 
+ 

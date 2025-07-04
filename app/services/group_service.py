@@ -159,4 +159,19 @@ class GroupService:
             WHERE ug.group_id = ? AND ug.status IN ('member', 'admin', 'creator')
         """
         result = self.db.execute_single_query(query, (group_id,))
-        return result['count'] if result else 0 
+        return result['count'] if result else 0
+    
+    def get_all_pending_requests_for_user(self, user_id: int) -> List[Dict[str, Any]]:
+        """Get all pending requests for groups where user is admin/creator."""
+        query = """
+            SELECT g.name as group_name, g.id as group_id, u.username, u.email, ug.id as request_id
+            FROM user_groups ug1
+            JOIN user_groups ug ON ug1.group_id = ug.group_id
+            JOIN groups g ON ug.group_id = g.id
+            JOIN users u ON ug.user_id = u.id
+            WHERE ug1.user_id = ? 
+            AND ug1.status IN ('admin', 'creator')
+            AND ug.status = 'pending'
+            ORDER BY g.name, u.username
+        """
+        return self.db.execute_query(query, (user_id,)) 

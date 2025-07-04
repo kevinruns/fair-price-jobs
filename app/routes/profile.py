@@ -74,7 +74,4 @@ def edit_profile():
 
     return render_template("edit_profile.html", user=user)
 
-# Legacy get_db function for backward compatibility
-def get_db():
-    from app.services.database import get_db_service
-    return get_db_service().get_connection() 
+ 

@@ -104,6 +104,13 @@ def view_requests(group_id):
     pending_requests = group_service.get_pending_requests(group_id)
     return render_template('view_all_pending_requests.html', requests=pending_requests)
 
+@groups_bp.route('/view_all_pending_requests')
+@login_required
+def view_all_pending_requests():
+    """Show all pending requests for groups where user is admin/creator"""
+    requests = group_service.get_all_pending_requests_for_user(session['user_id'])
+    return render_template('view_all_pending_requests.html', requests=requests)
+
 @groups_bp.route('/handle_request/<int:request_id>/<action>', methods=['POST'])
 @login_required
 def handle_request(request_id, action):
@@ -139,7 +146,4 @@ def handle_request(request_id, action):
     
     return redirect(request.referrer or url_for('main.index'))
 
-# Legacy get_db function for backward compatibility
-def get_db():
-    from app.services.database import get_db_service
-    return get_db_service().get_connection() 
+ 

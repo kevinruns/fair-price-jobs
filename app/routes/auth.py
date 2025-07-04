@@ -157,7 +157,4 @@ def welcome(username):
     """Display welcome page after registration"""
     return render_template("welcome.html", username=username)
 
-# Legacy get_db function for backward compatibility
-def get_db():
-    from app.services.database import get_db_service
-    return get_db_service().get_connection() 
+ 

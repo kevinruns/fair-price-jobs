@@ -56,7 +56,4 @@ def init_db():
             db_service.get_connection().cursor().executescript(f.read())
         db_service.commit()
 
-# Legacy get_db function for backward compatibility
-def get_db():
-    from app.services.database import get_db_service
-    return get_db_service().get_connection() 
+ 
