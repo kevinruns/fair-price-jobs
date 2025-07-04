@@ -1,20 +1,20 @@
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
-import sqlite3
-
 from helpers import login_required
+from app.services.job_service import JobService
+from app.services.tradesman_service import TradesmanService
 
 # Create Blueprint
 jobs_bp = Blueprint('jobs', __name__)
 
+# Initialize services
+job_service = JobService()
+tradesman_service = TradesmanService()
+
 @jobs_bp.route("/add_job/<int:tradesman_id>", methods=["GET", "POST"])
 @login_required
 def add_job(tradesman_id):
-    db = get_db()
-    cursor = db.cursor()
-
     # Get tradesman information
-    cursor.execute("SELECT first_name, family_name, company_name, trade FROM tradesmen WHERE id = ?", (tradesman_id,))
-    tradesman = cursor.fetchone()
+    tradesman = tradesman_service.get_tradesman_by_id(tradesman_id)
     
     if not tradesman:
         flash("Tradesman not found.", "error")
@@ -37,21 +37,33 @@ def add_job(tradesman_id):
 
         try:
             # Convert empty strings to None for optional fields
-            call_out_fee = call_out_fee if call_out_fee else None
-            materials_fee = materials_fee if materials_fee else None
-            hourly_rate = hourly_rate if hourly_rate else None
-            hours_worked = hours_worked if hours_worked else None
-            daily_rate = daily_rate if daily_rate else None
-            days_worked = days_worked if days_worked else None
+            call_out_fee = int(call_out_fee) if call_out_fee else None
+            materials_fee = int(materials_fee) if materials_fee else None
+            hourly_rate = int(hourly_rate) if hourly_rate else None
+            hours_worked = float(hours_worked) if hours_worked else None
+            daily_rate = int(daily_rate) if daily_rate else None
+            days_worked = float(days_worked) if days_worked else None
+            total_cost = int(total_cost) if total_cost else None
+            rating = int(rating) if rating else None
             
-            cursor.execute("""
-                INSERT INTO jobs (user_id, tradesman_id, type, date_started, date_finished, title, description, call_out_fee, materials_fee, hourly_rate, hours_worked, daily_rate, days_worked, total_cost, rating)
-                VALUES (?, ?, 'job', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (user_id, tradesman_id, date_started, date_finished, title, description, call_out_fee, materials_fee, hourly_rate, hours_worked, daily_rate, days_worked, total_cost, rating))
-            db.commit()
+            job_service.create_job(
+                user_id=user_id,
+                tradesman_id=tradesman_id,
+                title=title,
+                description=description,
+                date_started=date_started,
+                date_finished=date_finished,
+                call_out_fee=call_out_fee,
+                materials_fee=materials_fee,
+                hourly_rate=hourly_rate,
+                hours_worked=hours_worked,
+                daily_rate=daily_rate,
+                days_worked=days_worked,
+                total_cost=total_cost,
+                rating=rating
+            )
             flash("Job added successfully!", "success")
         except Exception as e:
-            db.rollback()
             flash(f"An error occurred: {str(e)}", "error")
 
         return redirect(url_for("tradesmen.view_tradesman", tradesman_id=tradesman_id))
@@ -61,12 +73,8 @@ def add_job(tradesman_id):
 @jobs_bp.route("/add_quote/<int:tradesman_id>", methods=["GET", "POST"])
 @login_required
 def add_quote(tradesman_id):
-    db = get_db()
-    cursor = db.cursor()
-
     # Get tradesman information
-    cursor.execute("SELECT first_name, family_name, company_name, trade FROM tradesmen WHERE id = ?", (tradesman_id,))
-    tradesman = cursor.fetchone()
+    tradesman = tradesman_service.get_tradesman_by_id(tradesman_id)
     
     if not tradesman:
         flash("Tradesman not found.", "error")
@@ -89,21 +97,31 @@ def add_quote(tradesman_id):
 
         try:
             # Convert empty strings to None for optional fields
-            call_out_fee = call_out_fee if call_out_fee else None
-            materials_fee = materials_fee if materials_fee else None
-            hourly_rate = hourly_rate if hourly_rate else None
-            hours_estimated = hours_estimated if hours_estimated else None
-            daily_rate = daily_rate if daily_rate else None
-            days_estimated = days_estimated if days_estimated else None
+            call_out_fee = int(call_out_fee) if call_out_fee else None
+            materials_fee = int(materials_fee) if materials_fee else None
+            hourly_rate = int(hourly_rate) if hourly_rate else None
+            hours_estimated = float(hours_estimated) if hours_estimated else None
+            daily_rate = int(daily_rate) if daily_rate else None
+            days_estimated = float(days_estimated) if days_estimated else None
+            total_quote = int(total_quote) if total_quote else None
             
-            cursor.execute("""
-                INSERT INTO jobs (user_id, tradesman_id, type, date_requested, date_received, title, description, call_out_fee, materials_fee, hourly_rate, hours_estimated, daily_rate, days_estimated, total_quote, status)
-                VALUES (?, ?, 'quote', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (user_id, tradesman_id, date_requested, date_received, title, description, call_out_fee, materials_fee, hourly_rate, hours_estimated, daily_rate, days_estimated, total_quote, status))
-            db.commit()
+            job_service.create_quote(
+                user_id=user_id,
+                tradesman_id=tradesman_id,
+                title=title,
+                description=description,
+                date_requested=date_requested,
+                date_received=date_received,
+                call_out_fee=call_out_fee,
+                materials_fee=materials_fee,
+                hourly_rate=hourly_rate,
+                hours_estimated=hours_estimated,
+                daily_rate=daily_rate,
+                days_estimated=days_estimated,
+                total_quote=total_quote
+            )
             flash("Quote added successfully!", "success")
         except Exception as e:
-            db.rollback()
             flash(f"An error occurred: {str(e)}", "error")
 
         return redirect(url_for("tradesmen.view_tradesman", tradesman_id=tradesman_id))
@@ -114,49 +132,18 @@ def add_quote(tradesman_id):
 @login_required
 def convert_quote_to_job(quote_id):
     """Convert a quote to a job when accepted"""
-    db = get_db()
-    cursor = db.cursor()
-    
     try:
-        # Get the quote details
-        cursor.execute("""
-            SELECT tradesman_id, title, description, call_out_fee, materials_fee, 
-                   hourly_rate, hours_estimated, daily_rate, days_estimated, total_quote
-            FROM jobs 
-            WHERE id = ? AND type = 'quote'
-        """, (quote_id,))
-        quote = cursor.fetchone()
-        
-        if not quote:
+        quote = job_service.get_job_by_id(quote_id)
+        if not quote or quote['type'] != 'quote':
             flash("Quote not found.", "error")
             return redirect(url_for("search.search_tradesmen"))
         
-        # Update the quote status to accepted
-        cursor.execute("""
-            UPDATE jobs 
-            SET status = 'accepted' 
-            WHERE id = ?
-        """, (quote_id,))
-        
-        # Create a new job based on the quote
-        cursor.execute("""
-            INSERT INTO jobs (
-                user_id, tradesman_id, type, title, description, 
-                call_out_fee, materials_fee, hourly_rate, hours_worked, 
-                daily_rate, days_worked, total_cost
-            ) VALUES (?, ?, 'job', ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            session["user_id"], quote['tradesman_id'], quote['title'], 
-            quote['description'], quote['call_out_fee'], quote['materials_fee'],
-            quote['hourly_rate'], quote['hours_estimated'], quote['daily_rate'], 
-            quote['days_estimated'], quote['total_quote']
-        ))
-        
-        db.commit()
-        flash("Quote converted to job successfully!", "success")
+        if job_service.convert_quote_to_job(quote_id):
+            flash("Quote converted to job successfully!", "success")
+        else:
+            flash("Failed to convert quote to job.", "error")
         
     except Exception as e:
-        db.rollback()
         flash(f"An error occurred: {str(e)}", "error")
     
     return redirect(url_for("tradesmen.view_tradesman", tradesman_id=quote['tradesman_id']))
@@ -165,33 +152,18 @@ def convert_quote_to_job(quote_id):
 @login_required
 def reject_quote(quote_id):
     """Reject a quote"""
-    db = get_db()
-    cursor = db.cursor()
-    
     try:
-        # Get the quote details
-        cursor.execute("""
-            SELECT tradesman_id FROM jobs 
-            WHERE id = ? AND type = 'quote'
-        """, (quote_id,))
-        quote = cursor.fetchone()
-        
-        if not quote:
+        quote = job_service.get_job_by_id(quote_id)
+        if not quote or quote['type'] != 'quote':
             flash("Quote not found.", "error")
             return redirect(url_for("search.search_tradesmen"))
         
-        # Update the quote status to declined
-        cursor.execute("""
-            UPDATE jobs 
-            SET status = 'declined' 
-            WHERE id = ?
-        """, (quote_id,))
-        
-        db.commit()
-        flash("Quote declined successfully!", "success")
+        if job_service.reject_quote(quote_id):
+            flash("Quote declined successfully!", "success")
+        else:
+            flash("Failed to decline quote.", "error")
         
     except Exception as e:
-        db.rollback()
         flash(f"An error occurred: {str(e)}", "error")
     
     return redirect(url_for("tradesmen.view_tradesman", tradesman_id=quote['tradesman_id']))
@@ -199,173 +171,84 @@ def reject_quote(quote_id):
 @jobs_bp.route('/view_quote/<int:quote_id>')
 @login_required
 def view_quote(quote_id):
-    db = get_db()
-    cursor = db.cursor()
+    quote = job_service.get_job_by_id(quote_id)
+    if not quote or quote['type'] != 'quote':
+        flash("Quote not found.", "error")
+        return redirect(url_for("search.search_tradesmen"))
     
-    cursor.execute("""
-        SELECT j.*, 
-               CASE 
-                   WHEN t.first_name IS NOT NULL THEN t.first_name || ' ' || t.family_name
-                   ELSE t.family_name
-               END as tradesman_name, 
-               t.trade
-        FROM jobs j
-        JOIN tradesmen t ON j.tradesman_id = t.id
-        WHERE j.id = ? AND j.type = 'quote'
-    """, (quote_id,))
-    quote = cursor.fetchone()
-    
-    if quote:
-        # Convert row to dictionary using column names
-        quote_dict = dict(zip([column[0] for column in cursor.description], quote))
-        
-        return render_template('view_quote.html', quote=quote_dict)
-    else:
-        flash('Quote not found.', 'error')
-        return redirect(url_for('main.index'))
+    return render_template("view_quote.html", quote=quote)
 
 @jobs_bp.route('/view_job/<int:job_id>')
 @login_required
 def view_job(job_id):
-    db = get_db()
-    cursor = db.cursor()
+    job = job_service.get_job_by_id(job_id)
+    if not job or job['type'] != 'job':
+        flash("Job not found.", "error")
+        return redirect(url_for("search.search_jobs"))
     
-    cursor.execute("""
-        SELECT j.*, 
-               CASE 
-                   WHEN t.first_name IS NOT NULL THEN t.first_name || ' ' || t.family_name
-                   ELSE t.family_name
-               END as tradesman_name, 
-               t.trade,
-               u.username as user_username,
-               u.firstname as user_firstname,
-               u.lastname as user_lastname
-        FROM jobs j
-        JOIN tradesmen t ON j.tradesman_id = t.id
-        JOIN users u ON j.user_id = u.id
-        WHERE j.id = ?
-    """, (job_id,))
-    job = cursor.fetchone()
-    
-    if job:
-        # Convert row to dictionary using column names
-        job_dict = dict(zip([column[0] for column in cursor.description], job))
-        
-        return render_template('view_job.html', job=job_dict)
-    else:
-        flash('Job not found.', 'error')
-        return redirect(url_for('main.index'))
+    return render_template("view_job.html", job=job)
 
 @jobs_bp.route('/edit_job/<int:job_id>', methods=['GET', 'POST'])
 @login_required
 def edit_job(job_id):
-    db = get_db()
-    cursor = db.cursor()
+    job = job_service.get_job_by_id(job_id)
+    if not job or job['type'] != 'job':
+        flash("Job not found.", "error")
+        return redirect(url_for("search.search_jobs"))
     
-    # Get the job with user info to check ownership
-    cursor.execute("""
-        SELECT j.*, 
-               CASE 
-                   WHEN t.first_name IS NOT NULL THEN t.first_name || ' ' || t.family_name
-                   ELSE t.family_name
-               END as tradesman_name, 
-               t.trade
-        FROM jobs j
-        JOIN tradesmen t ON j.tradesman_id = t.id
-        WHERE j.id = ?
-    """, (job_id,))
-    job = cursor.fetchone()
-    
-    if not job:
-        flash('Job not found.', 'error')
-        return redirect(url_for('main.index'))
-    
-    # Check if the current user owns this job
-    if job['user_id'] != session['user_id']:
-        flash('You can only edit your own jobs.', 'error')
-        return redirect(url_for('jobs.view_job', job_id=job_id))
-    
-    if request.method == 'POST':
-        title = request.form.get('title', '').strip()
-        description = request.form.get('description', '').strip()
-        date_started = request.form.get('date_started', '').strip() or None
-        date_finished = request.form.get('date_finished', '').strip() or None
-        call_out_fee = request.form.get('call_out_fee', '').strip() or None
-        materials_fee = request.form.get('materials_fee', '').strip() or None
-        hourly_rate = request.form.get('hourly_rate', '').strip() or None
-        hours_worked = request.form.get('hours_worked', '').strip() or None
-        daily_rate = request.form.get('daily_rate', '').strip() or None
-        days_worked = request.form.get('days_worked', '').strip() or None
-        rating = request.form.get('rating', '').strip() or None
-        
-        # Validate required fields
-        if not title:
-            flash('Title is required.', 'error')
-            return render_template('edit_job.html', job=dict(zip([column[0] for column in cursor.description], job)))
-        
-        if not description:
-            flash('Description is required.', 'error')
-            return render_template('edit_job.html', job=dict(zip([column[0] for column in cursor.description], job)))
-        
-        # Convert numeric fields
-        try:
-            if call_out_fee:
-                call_out_fee = int(call_out_fee)
-            if materials_fee:
-                materials_fee = int(materials_fee)
-            if hourly_rate:
-                hourly_rate = int(hourly_rate)
-            if hours_worked:
-                hours_worked = float(hours_worked)
-            if daily_rate:
-                daily_rate = int(daily_rate)
-            if days_worked:
-                days_worked = float(days_worked)
-            if rating:
-                rating = int(rating)
-                if rating < 1 or rating > 5:
-                    flash('Rating must be between 1 and 5.', 'error')
-                    return render_template('edit_job.html', job=dict(zip([column[0] for column in cursor.description], job)))
-        except ValueError:
-            flash('Invalid numeric value provided.', 'error')
-            return render_template('edit_job.html', job=dict(zip([column[0] for column in cursor.description], job)))
-        
-        # Calculate total cost
-        total_cost = 0
-        if call_out_fee:
-            total_cost += call_out_fee
-        if materials_fee:
-            total_cost += materials_fee
-        if hourly_rate and hours_worked:
-            total_cost += hourly_rate * hours_worked
-        if daily_rate and days_worked:
-            total_cost += daily_rate * days_worked
-        
-        # Update the job
-        cursor.execute("""
-            UPDATE jobs 
-            SET title = ?, description = ?, date_started = ?, date_finished = ?,
-                call_out_fee = ?, materials_fee = ?, hourly_rate = ?, hours_worked = ?,
-                daily_rate = ?, days_worked = ?, total_cost = ?, rating = ?
-            WHERE id = ?
-        """, (title, description, date_started, date_finished, call_out_fee, materials_fee,
-              hourly_rate, hours_worked, daily_rate, days_worked, total_cost, rating, job_id))
-        
-        db.commit()
-        flash('Job updated successfully.', 'success')
-        return redirect(url_for('jobs.view_job', job_id=job_id))
-    
-    # GET request - show edit form
-    job_dict = dict(zip([column[0] for column in cursor.description], job))
-    return render_template('edit_job.html', job=job_dict)
+    if not job_service.can_user_edit_job(session["user_id"], job_id):
+        flash("You don't have permission to edit this job.", "error")
+        return redirect(url_for("jobs.view_job", job_id=job_id))
 
-# Import get_db function - this will be moved to a database service later
+    if request.method == "POST":
+        date_started = request.form.get("date_started")
+        date_finished = request.form.get("date_finished")
+        title = request.form.get("title")
+        description = request.form.get("description")
+        call_out_fee = request.form.get("call_out_fee")
+        materials_fee = request.form.get("materials_fee")
+        hourly_rate = request.form.get("hourly_rate")
+        hours_worked = request.form.get("hours_worked")
+        daily_rate = request.form.get("daily_rate")
+        days_worked = request.form.get("days_worked")
+        total_cost = request.form.get("total_cost")
+        rating = request.form.get("rating")
+
+        try:
+            # Convert empty strings to None for optional fields
+            call_out_fee = int(call_out_fee) if call_out_fee else None
+            materials_fee = int(materials_fee) if materials_fee else None
+            hourly_rate = int(hourly_rate) if hourly_rate else None
+            hours_worked = float(hours_worked) if hours_worked else None
+            daily_rate = int(daily_rate) if daily_rate else None
+            days_worked = float(days_worked) if days_worked else None
+            total_cost = int(total_cost) if total_cost else None
+            rating = int(rating) if rating else None
+            
+            job_service.update_job(
+                job_id,
+                title=title,
+                description=description,
+                date_started=date_started,
+                date_finished=date_finished,
+                call_out_fee=call_out_fee,
+                materials_fee=materials_fee,
+                hourly_rate=hourly_rate,
+                hours_worked=hours_worked,
+                daily_rate=daily_rate,
+                days_worked=days_worked,
+                total_cost=total_cost,
+                rating=rating
+            )
+            flash("Job updated successfully!", "success")
+            return redirect(url_for("jobs.view_job", job_id=job_id))
+        except Exception as e:
+            flash(f"An error occurred: {str(e)}", "error")
+            return redirect(url_for("jobs.edit_job", job_id=job_id))
+
+    return render_template("edit_job.html", job=job)
+
+# Legacy get_db function for backward compatibility
 def get_db():
-    from flask import g
-    db = getattr(g, '_database', None)
-    if db is None:
-        from app.config import DATABASE
-        import sqlite3
-        db = g._database = sqlite3.connect(DATABASE, isolation_level=None)
-        db.row_factory = sqlite3.Row
-    return db 
+    from app.services.database import get_db_service
+    return get_db_service().get_connection() 

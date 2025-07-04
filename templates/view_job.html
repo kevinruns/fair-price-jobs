@@ -15,8 +15,8 @@
                     </p>
                     <p class="text-muted mb-0">
                         <strong>Added by:</strong> 
-                        <a href="{{ url_for('profile.user_profile', user_id=job.user_id) }}" class="text-decoration-none">
-                            {{ job.user_username }}
+                        <a href="{{ url_for('profile.user_profile', user_id=job.added_by_user_id) }}" class="text-decoration-none">
+                            {{ job.added_by_username }}
                         </a>
                     </p>
                 </div>

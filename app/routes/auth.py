@@ -1,13 +1,15 @@
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
-from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime, timedelta
-import sqlite3
 from functools import wraps
 
 from helpers import apology, login_required
+from app.services.user_service import UserService
 
 # Create Blueprint
 auth_bp = Blueprint('auth', __name__)
+
+# Initialize services
+user_service = UserService()
 
 # Rate limiting decorator
 def rate_limit(limit=5, window=300):  # 5 attempts per 5 minutes
@@ -50,20 +52,18 @@ def login():
             apology("must provide password", 403)
             return render_template("login.html"), 403
 
-        # Query database for username
-        db = get_db()
-        cursor = db.cursor()
-        cursor.execute("SELECT * FROM users WHERE username = ?", (request.form.get("username"),))
-        rows = cursor.fetchall()
-
-        # Ensure username exists and password is correct
-        if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
+        # Query database for username and verify password
+        username = request.form.get("username")
+        password = request.form.get("password")
+        
+        if not user_service.verify_password(username, password):
             apology("invalid username and/or password", 403)
             return render_template("login.html"), 403
 
-        # Remember which user has logged in
-        session["user_id"] = rows[0]["id"]
-        session["username"] = rows[0]["username"]  # Store username in session
+        # Get user and remember which user has logged in
+        user = user_service.get_user_by_username(username)
+        session["user_id"] = user["id"]
+        session["username"] = user["username"]  # Store username in session
 
         # Redirect user to home page
         return redirect("/")
@@ -141,22 +141,13 @@ def register():
                 flash(error, "error")
             return render_template("register.html")
 
-        # Hash the password
-        hash = generate_password_hash(password)
-
-        # Insert new user into database
-        db = get_db()
+        # Create new user
         try:
-            with db:
-                db.execute("INSERT INTO users (username, firstname, lastname, email, postcode, hash) VALUES (?, ?, ?, ?, ?, ?)", 
-                           (username, firstname, lastname, email, postcode, hash))
+            user_id = user_service.create_user(username, firstname, lastname, email, postcode, password)
             flash("Registration successful.", "success")
             return redirect(url_for("auth.welcome", username=username))
-        except sqlite3.IntegrityError:
-            flash("Username or email already taken", "error")
-            return render_template("register.html")
         except Exception as e:
-            flash("An error occurred during registration. Please try again.", "error")
+            flash("Username or email already taken", "error")
             return render_template("register.html")
 
     return render_template("register.html")
@@ -166,13 +157,7 @@ def welcome(username):
     """Display welcome page after registration"""
     return render_template("welcome.html", username=username)
 
-# Import get_db function - this will be moved to a database service later
+# Legacy get_db function for backward compatibility
 def get_db():
-    from flask import g
-    db = getattr(g, '_database', None)
-    if db is None:
-        from app.config import DATABASE
-        import sqlite3
-        db = g._database = sqlite3.connect(DATABASE, isolation_level=None)
-        db.row_factory = sqlite3.Row
-    return db 
+    from app.services.database import get_db_service
+    return get_db_service().get_connection() 

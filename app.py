@@ -33,12 +33,18 @@ app.logger.info('Application startup')
 # Configure session
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-app.config["SECRET_KEY"] = os.urandom(24)  # Generate a random secret key
+app.config["SECRET_KEY"] = "your-secret-key-here-change-in-production"  # Use consistent secret key
+
+# Configure CSRF protection
+app.config["WTF_CSRF_ENABLED"] = True
+app.config["WTF_CSRF_TIME_LIMIT"] = 3600  # 1 hour
 
 # Initialize CSRF protection
 csrf = CSRFProtect(app)
 
 Session(app)
+
+
 
 # Import configuration
 from app.config import DATABASE
@@ -64,18 +70,17 @@ def internal_error(error):
         db.rollback()
     return render_template('500.html'), 500
 
+# Import database service
+from app.services.database import get_db_service
+
 def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = sqlite3.connect(DATABASE, isolation_level=None)
-        db.row_factory = sqlite3.Row
-    return db
+    """Legacy function for backward compatibility."""
+    return get_db_service().get_connection()
 
 @app.teardown_appcontext
 def close_connection(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
+    """Close database connection on app context teardown."""
+    get_db_service().close_connection()
 
 if __name__ == '__main__':
     app.run(debug=True) 

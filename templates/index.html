@@ -165,13 +165,7 @@
                                         </a>
                                     </td>
                                     <td>
-                                        {% if job.group_name %}
-                                            <a href="{{ url_for('groups.view_group', group_id=job.group_id) }}" class="text-decoration-none">
-                                                <span class="badge bg-secondary">{{ job.group_name }}</span>
-                                            </a>
-                                        {% else %}
-                                            <span class="text-muted">-</span>
-                                        {% endif %}
+                                        <span class="text-muted">-</span>
                                     </td>
                                 </tr>
                             {% endfor %}
