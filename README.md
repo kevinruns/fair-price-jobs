@@ -22,26 +22,84 @@ In addition to files below I wrote some sql scripts to reset the database and en
 The social group aspect was more complex than I originally anticipated
 
 
-#### File Descriptions:
+## 📁 Project Structure
 
-- `app.py`: Main application file that runs the server and handles requests.
-- `helpers.py`: helper functions, alerts, login required etc.
-- `static/`: Directory for static files like CSS and JavaScript. Not much used so far
-- `templates/`: Directory for HTML templates used for rendering the web pages.
-  - `index.html`: Homepage of the application.
-  - `layout.html`: Base layout template for the application.
-  - `register.html`: User registration page.
-  - `login.html`: User login page.  
-  - `welcome.html`: Welcome page displayed after user login.
-  - `create_group.html`: Interface for creating a new user group.
-  - `group_members.html`: Displays the members of a specific group.
-  - `add_tradesman.html`: Form for adding a new tradesman.
-  - `add_job.html`: Form for adding a new job entry.
-  - `view_job.html`: Detailed view of a specific job entry.
-  - `application.db`: sqlite database tables below
-        users:         Stores user information including credentials and personal details.
-        groups:        Contains group information with names and postcodes.
-        user_groups:   Junction table linking users to groups with their respective statuses.
-        tradesmen:     Holds details about tradesmen including their contact information and trade type.
-        group_tradesmen: Junction table linking groups to tradesmen.
-        jobs:          Records job details including user, tradesman, and financial information.
+```
+fair-price/
+├── app/                    # Main application
+│   ├── routes/            # Route handlers (auth, groups, tradesmen, jobs, etc.)
+│   ├── services/          # Business logic (UserService, GroupService, etc.)
+│   └── config.py          # Configuration
+├── templates/             # HTML templates
+│   ├── layout.html        # Base layout template
+│   ├── index.html         # Homepage
+│   ├── login.html         # Login page
+│   ├── register.html      # Registration page
+│   └── ...                # Other templates
+├── static/               # CSS, JavaScript, images
+├── sql/                  # Database scripts
+│   ├── init_db.py        # Initialize database
+│   ├── load_db.py        # Load sample data
+│   └── schema.sql        # Database schema
+├── docs/                 # 📚 Documentation
+│   ├── README.md         # Documentation index
+│   ├── DEVELOPER_GUIDE.md # Developer quick reference
+│   ├── USEFUL_COMMANDS.md # Command reference
+│   └── TEST_README.md    # Testing guide
+├── scripts/              # 🔧 Utility scripts
+│   ├── *.bat            # Windows scripts
+│   └── *.sh             # Linux/Mac scripts
+├── logs/                 # Application logs
+├── tests/                # 🧪 Test files
+│   └── test_app.py       # Test suite
+├── run_tests.py          # Test runner
+└── app.py               # Main application entry point
+```
+
+## 🚀 Quick Start
+
+### For Developers
+1. **Setup**: See [Developer Guide](docs/DEVELOPER_GUIDE.md)
+2. **Testing**: See [Test Documentation](docs/TEST_README.md)
+3. **Commands**: See [Useful Commands](docs/USEFUL_COMMANDS.md)
+
+### For Users
+1. **Install**: `pip install -r requirements.txt`
+2. **Setup**: `python sql/init_db.py`
+3. **Run**: `python app.py`
+4. **Access**: http://localhost:5000
+
+## 📚 Documentation
+
+- **[Developer Guide](docs/DEVELOPER_GUIDE.md)** - Quick reference for developers
+- **[Useful Commands](docs/USEFUL_COMMANDS.md)** - Comprehensive command reference
+- **[Test Documentation](docs/TEST_README.md)** - Complete testing guide
+- **[Scripts Documentation](scripts/README.md)** - Utility scripts guide
+
+## 🔧 Utility Scripts
+
+### Windows
+```cmd
+scripts\reset_db.bat      # Reset database
+scripts\quick_test.bat    # Run quick tests
+scripts\backup_db.bat     # Backup database
+scripts\cleanup.bat       # Clean up files
+```
+
+### Linux/Mac
+```bash
+./scripts/reset_db.sh     # Reset database
+./scripts/quick_test.sh   # Run quick tests
+./scripts/backup_db.sh    # Backup database
+./scripts/cleanup.sh      # Clean up files
+```
+
+## 🗄️ Database Schema
+
+The application uses SQLite with the following tables:
+- **users**: User information and credentials
+- **groups**: Group information with postcodes
+- **user_groups**: User-group memberships and statuses
+- **tradesmen**: Tradesman details and contact information
+- **group_tradesmen**: Group-tradesman associations
+- **jobs**: Job records with pricing and ratings
