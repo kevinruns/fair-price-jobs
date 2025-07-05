@@ -54,23 +54,34 @@ def view_group(group_id: int) -> Union[str, Response]:
     member_count: int = len(members) if members else 0
     tradesmen_count: int = len(tradesmen) if tradesmen else 0
     job_count: int = group_service.get_group_job_count(group_id)
-    
+
+    # Fetch pending requests if admin or creator
+    pending_requests: List[Dict[str, Any]] = []
+    if is_admin_or_creator:
+        pending_requests = group_service.get_pending_requests(group_id)
+
+    # Check if current user has a pending request
+    pending_request: bool = bool(membership and membership['status'] == 'pending')
+
     if request.method == 'POST' and not is_member:
         try:
-            group_service.add_user_to_group(session['user_id'], group_id)
-            
-            # Automatically add all user's tradesmen to the group when they join
-            tradesmen_added: int = group_service.add_user_tradesmen_to_group(session['user_id'], group_id)
-            
-            if tradesmen_added > 0:
-                flash(f'Join request sent. {tradesmen_added} of your tradesmen have been automatically added to the group.', 'success')
+            # Check if user already has a request
+            if membership and membership['status'] == 'pending':
+                flash('You already have a pending request for this group.', 'warning')
             else:
-                flash('Join request sent.', 'success')
-            
+                success = group_service.add_user_to_group(session['user_id'], group_id)
+                if success:
+                    tradesmen_added: int = group_service.add_user_tradesmen_to_group(session['user_id'], group_id)
+                    if tradesmen_added > 0:
+                        flash(f'Join request sent. {tradesmen_added} of your tradesmen have been automatically added to the group.', 'success')
+                    else:
+                        flash('Join request sent.', 'success')
+                else:
+                    flash('You already have a request for this group.', 'warning')
             return redirect(url_for('groups.view_group', group_id=group_id))
         except Exception as e:
             flash(f'An error occurred: {str(e)}', 'error')
-    return render_template('view_group.html', group=group, members=members, tradesmen=tradesmen, creator=creator, member_count=member_count, tradesmen_count=tradesmen_count, job_count=job_count, is_member=is_member, is_admin_or_creator=is_admin_or_creator, pending_requests_count=pending_requests_count)
+    return render_template('view_group.html', group=group, members=members, tradesmen=tradesmen, creator=creator, member_count=member_count, tradesmen_count=tradesmen_count, job_count=job_count, is_member=is_member, is_admin_or_creator=is_admin_or_creator, pending_requests_count=pending_requests_count, pending_requests=pending_requests, pending_request=pending_request)
 
 @groups_bp.route('/search_groups', methods=['GET', 'POST'])
 @login_required
@@ -114,22 +125,31 @@ def view_requests(group_id: int) -> str:
 def view_all_pending_requests() -> str:
     """Show all pending requests for groups where user is admin/creator"""
     requests: List[Dict[str, Any]] = group_service.get_all_pending_requests_for_user(session['user_id'])
-    return render_template('view_all_pending_requests.html', requests=requests)
+    # Get all group memberships for the current user
+    user_groups = group_service.get_user_groups(session['user_id'])
+    admin_or_creator_group_ids = {g['id'] for g in user_groups if g['status'] in ['admin', 'creator']}
+    return render_template('view_all_pending_requests.html', requests=requests, admin_or_creator_group_ids=admin_or_creator_group_ids)
 
 @groups_bp.route('/handle_request/<int:request_id>/<action>', methods=['POST'])
 @login_required
 def handle_request(request_id: int, action: str) -> Response:
     try:
+        # Get the request details
+        request_data: Optional[Dict[str, Any]] = group_service.get_request_by_id(request_id)
+        if not request_data:
+            flash('Request not found.', 'error')
+            return redirect(request.referrer or url_for('main.index'))
+        
+        group_id: int = request_data['group_id']
+        user_id: int = request_data['user_id']
+        
+        # Check if current user has permission to handle requests (creator or admin)
+        current_user_membership: Optional[Dict[str, Any]] = group_service.get_user_group_membership(session['user_id'], group_id)
+        if not current_user_membership or current_user_membership['status'] not in ['creator', 'admin']:
+            flash('You do not have permission to handle join requests.', 'error')
+            return redirect(request.referrer or url_for('main.index'))
+        
         if action == 'accept':
-            # Get the request details
-            request_data: Optional[Dict[str, Any]] = group_service.get_request_by_id(request_id)
-            if not request_data:
-                flash('Request not found.', 'error')
-                return redirect(request.referrer or url_for('main.index'))
-            
-            user_id: int = request_data['user_id']
-            group_id: int = request_data['group_id']
-            
             # Update user status to 'member'
             group_service.update_user_group_status(user_id, group_id, 'member')
             
@@ -143,8 +163,7 @@ def handle_request(request_id: int, action: str) -> Response:
                 
         elif action == 'reject':
             # Remove the request
-            if request_data:
-                group_service.remove_user_from_group(request_data['user_id'], request_data['group_id'])
+            group_service.remove_user_from_group(user_id, group_id)
             flash('Request rejected.', 'info')
             
     except Exception as e:

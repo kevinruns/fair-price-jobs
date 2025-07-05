@@ -56,8 +56,15 @@ class GroupService:
         return self.db.execute_query(query, tuple(params))
 
     def add_user_to_group(self, user_id: int, group_id: int, status: str = 'pending') -> bool:
-        query = "INSERT INTO user_groups (user_id, group_id, status) VALUES (?, ?, ?)"
-        return self.db.execute_insert(query, (user_id, group_id, status)) > 0
+        """Add user to group. Returns True if successful, False if user already exists in group."""
+        try:
+            query = "INSERT INTO user_groups (user_id, group_id, status) VALUES (?, ?, ?)"
+            return self.db.execute_insert(query, (user_id, group_id, status)) > 0
+        except Exception as e:
+            # If it's a unique constraint violation, user already exists in group
+            if "UNIQUE constraint failed" in str(e):
+                return False
+            raise e
 
     def update_user_group_status(self, user_id: int, group_id: int, status: str) -> bool:
         query = "UPDATE user_groups SET status = ? WHERE user_id = ? AND group_id = ?"
@@ -93,7 +100,12 @@ class GroupService:
         return self.db.execute_query(query, (user_id,))
 
     def get_pending_requests(self, group_id: int) -> List[Dict[str, Any]]:
-        query = "SELECT * FROM user_groups WHERE group_id = ? AND status = 'pending'"
+        query = """
+            SELECT ug.id, ug.user_id, u.username, u.email
+            FROM user_groups ug
+            JOIN users u ON ug.user_id = u.id
+            WHERE ug.group_id = ? AND ug.status = 'pending'
+        """
         return self.db.execute_query(query, (group_id,))
 
     def handle_request(self, request_id: int, action: str) -> bool:

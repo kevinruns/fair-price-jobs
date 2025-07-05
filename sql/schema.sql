@@ -34,7 +34,8 @@ CREATE TABLE user_groups (
     group_id INTEGER,
     status TEXT NOT NULL CHECK(status IN ('creator', 'admin', 'member', 'pending')) DEFAULT 'pending',
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-    FOREIGN KEY (group_id) REFERENCES groups (id) ON DELETE CASCADE
+    FOREIGN KEY (group_id) REFERENCES groups (id) ON DELETE CASCADE,
+    UNIQUE (user_id, group_id)
 );
 
 -- tradesmen

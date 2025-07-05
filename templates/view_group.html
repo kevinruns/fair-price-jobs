@@ -135,6 +135,47 @@
             {% endif %}
 
         {% endif %}
+
+        {% if is_admin_or_creator and pending_requests %}
+            <h5 class="mt-5 mb-4">Pending Join Requests:</h5>
+            <table class="table table-striped mb-4">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in pending_requests %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('profile.user_profile', user_id=request.user_id) }}" class="text-decoration-none">
+                                <span class="text-primary">{{ request.username }}</span>
+                            </a>
+                        </td>
+                        <td>{{ request.email if request.email else '' }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <form action="{{ url_for('groups.handle_request', request_id=request.id, action='accept') }}" method="post" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="fas fa-check"></i> Accept
+                                    </button>
+                                </form>
+                                <form action="{{ url_for('groups.handle_request', request_id=request.id, action='reject') }}" method="post" class="d-inline ms-1">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
     </div>
 {% else %}
     <div class="container">
