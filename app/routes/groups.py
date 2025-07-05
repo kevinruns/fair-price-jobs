@@ -21,13 +21,7 @@ def create_group() -> Union[str, Response]:
             group_id: int = group_service.create_group(name, postcode, description)
             group_service.add_user_to_group(session['user_id'], group_id, status='creator')
             
-            # Automatically add all user's tradesmen to the group
-            tradesmen_added: int = group_service.add_user_tradesmen_to_group(session['user_id'], group_id)
-            
-            if tradesmen_added > 0:
-                flash(f'Group created successfully! {tradesmen_added} of your tradesmen have been automatically added to the group.', 'success')
-            else:
-                flash('Group created successfully!', 'success')
+            flash('Group created successfully!', 'success')
             
             return redirect(url_for('groups.view_group', group_id=group_id))
         except Exception as e:
