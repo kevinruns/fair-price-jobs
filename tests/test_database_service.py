@@ -9,7 +9,7 @@ import os
 # Add the current directory to the Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from app import app
+import main
 from app.services.database import get_db_service
 from app.services.user_service import UserService
 from app.services.tradesman_service import TradesmanService
@@ -19,9 +19,18 @@ def test_database_service():
     print("Testing Database Service...")
     
     # Create application context
-    with app.app_context():
+    with main.app.app_context():
         # Get the database service
         db_service = get_db_service()
+        
+        # Initialize database schema
+        print("0. Initializing database schema...")
+        try:
+            db_service.init_db()
+            print("   ✓ Database schema initialized")
+        except Exception as e:
+            print(f"   ✗ Database initialization failed: {e}")
+            return False
         
         # Test basic database operations
         print("1. Testing database connection...")
