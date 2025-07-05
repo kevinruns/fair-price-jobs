@@ -146,10 +146,13 @@ class TestUserService(unittest.TestCase):
         )
         
         # Verify correct password
-        self.assertTrue(self.user_service.verify_password('testuser', 'password123'))
+        user = self.user_service.authenticate_user('testuser', 'password123')
+        self.assertIsNotNone(user)
+        self.assertEqual(user['username'], 'testuser')
         
         # Verify incorrect password
-        self.assertFalse(self.user_service.verify_password('testuser', 'wrongpassword'))
+        user = self.user_service.authenticate_user('testuser', 'wrongpassword')
+        self.assertIsNone(user)
 
 
 class TestGroupService(unittest.TestCase):

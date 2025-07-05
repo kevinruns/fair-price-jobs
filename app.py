@@ -99,17 +99,9 @@ def register_blueprints(app: Flask):
     app.register_blueprint(main_bp)
 
 def register_error_handlers(app: Flask):
-    """Register error handlers."""
-    @app.errorhandler(404)
-    def not_found_error(error):
-        return render_template('404.html'), 404
-
-    @app.errorhandler(500)
-    def internal_error(error):
-        db = getattr(g, '_database', None)
-        if db is not None:
-            db.rollback()
-        return render_template('500.html'), 500
+    """Register centralized error handlers."""
+    from app.error_handlers import register_error_handlers as register_app_error_handlers
+    register_app_error_handlers(app)
 
 def register_database_teardown(app: Flask):
     """Register database teardown function."""

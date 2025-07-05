@@ -2,8 +2,10 @@ from flask import Blueprint, flash, redirect, render_template, request, session,
 from datetime import datetime, timedelta
 from functools import wraps
 
-from helpers import apology, login_required
+from helpers import login_required
 from app.services.user_service import UserService
+from app.validators import validate_form, StringValidator, EmailValidator, PasswordValidator
+from app.exceptions import AuthenticationError, ValidationError, DuplicateResourceError
 
 # Create Blueprint
 auth_bp = Blueprint('auth', __name__)
@@ -36,118 +38,104 @@ def rate_limit(limit=5, window=300):  # 5 attempts per 5 minutes
 @rate_limit()
 def login():
     """Log user in"""
-
     # Forget any user_id
     session.clear()
 
-    # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-        # Ensure username was submitted
-        if not request.form.get("username"):
-            apology("must provide username", 403)
-            return render_template("login.html"), 403
-
-        # Ensure password was submitted
-        elif not request.form.get("password"):
-            apology("must provide password", 403)
-            return render_template("login.html"), 403
-
-        # Query database for username and verify password
-        username = request.form.get("username")
-        password = request.form.get("password")
+        # Validate input
+        validators = {
+            'username': StringValidator('username', min_length=1, required=True),
+            'password': PasswordValidator('password', required=True)
+        }
         
-        if not user_service.verify_password(username, password):
-            apology("invalid username and/or password", 403)
-            return render_template("login.html"), 403
-
-        # Get user and remember which user has logged in
-        user = user_service.get_user_by_username(username)
-        session["user_id"] = user["id"]
-        session["username"] = user["username"]  # Store username in session
-
-        # Redirect user to home page
-        return redirect("/")
+        try:
+            # Validate form data
+            validated_data = {}
+            for field_name, validator in validators.items():
+                value = request.form.get(field_name)
+                validated_data[field_name] = validator.validate(value)
+            
+            # Attempt login
+            user = user_service.authenticate_user(
+                validated_data['username'], 
+                validated_data['password']
+            )
+            
+            if user:
+                # Remember which user has logged in
+                session["user_id"] = user['id']
+                session["username"] = user['username']
+                
+                # Redirect user to home page
+                return redirect("/")
+            else:
+                flash("Invalid username and/or password", "error")
+                return render_template("login.html")
+                
+        except ValidationError as e:
+            flash(e.message, "error")
+            return render_template("login.html")
+        except AuthenticationError as e:
+            flash(e.message, "error")
+            return render_template("login.html")
 
     # User reached route via GET (as by clicking a link or via redirect)
-    else:
-        return render_template("login.html")
+    return render_template("login.html")
 
 @auth_bp.route("/logout")
 def logout():
     """Log user out"""
-
     # Forget any user_id
     session.clear()
-
     # Redirect user to login form
     return redirect("/")
 
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        username = request.form.get("username")
-        firstname = request.form.get("firstname")
-        lastname = request.form.get("lastname")
-        email = request.form.get("email")
-        postcode = request.form.get("postcode")
-        password = request.form.get("password")
-        confirmation = request.form.get("confirmation")
-
-        # Input validation
-        errors = []
+        # Define validators for registration
+        validators = {
+            'username': StringValidator('username', min_length=3, pattern=r'^[a-zA-Z0-9_]+$', required=True),
+            'firstname': StringValidator('firstname', min_length=1, pattern=r'^[a-zA-Z\s]+$', required=True),
+            'lastname': StringValidator('lastname', min_length=1, pattern=r'^[a-zA-Z\s]+$', required=True),
+            'email': EmailValidator('email', required=True),
+            'postcode': StringValidator('postcode', min_length=1, pattern=r'^[a-zA-Z0-9\s]+$', required=True),
+            'password': PasswordValidator('password', min_length=6, required=True),
+            'confirmation': StringValidator('confirmation', required=True)
+        }
         
-        # Username validation
-        if not username:
-            errors.append("Must provide username")
-        elif len(username) < 3:
-            errors.append("Username must be at least 3 characters long")
-        elif not username.isalnum():
-            errors.append("Username must contain only letters and numbers")
-
-        # Name validation
-        if not firstname:
-            errors.append("Must provide first name")
-        elif not firstname.replace(" ", "").isalpha():
-            errors.append("First name must contain only letters")
-            
-        if not lastname:
-            errors.append("Must provide last name")
-        elif not lastname.replace(" ", "").isalpha():
-            errors.append("Last name must contain only letters")
-
-        # Email validation
-        if not email:
-            errors.append("Must provide email address")
-        elif not "@" in email or not "." in email:
-            errors.append("Invalid email format")
-
-        # Postcode validation (basic format check)
-        if not postcode:
-            errors.append("Must provide postcode")
-        elif not postcode.replace(" ", "").isalnum():
-            errors.append("Postcode must contain only letters and numbers")
-
-        # Password validation
-        if not password:
-            errors.append("Must provide password")
-
-        if not confirmation:
-            errors.append("Must confirm password")
-        elif password != confirmation:
-            errors.append("Passwords do not match")
-
-        if errors:
-            for error in errors:
-                flash(error, "error")
-            return render_template("register.html")
-
-        # Create new user
         try:
-            user_id = user_service.create_user(username, firstname, lastname, email, postcode, password)
+            # Validate form data
+            validated_data = {}
+            for field_name, validator in validators.items():
+                value = request.form.get(field_name)
+                validated_data[field_name] = validator.validate(value)
+            
+            # Check password confirmation
+            if validated_data['password'] != validated_data['confirmation']:
+                raise ValidationError("Passwords do not match", "confirmation")
+            
+            # Create new user
+            user_id = user_service.create_user(
+                username=validated_data['username'],
+                firstname=validated_data['firstname'],
+                lastname=validated_data['lastname'],
+                email=validated_data['email'],
+                postcode=validated_data['postcode'],
+                password=validated_data['password']
+            )
+            
             flash("Registration successful.", "success")
-            return redirect(url_for("auth.welcome", username=username))
+            return redirect(url_for("auth.welcome", username=validated_data['username']))
+            
+        except ValidationError as e:
+            flash(e.message, "error")
+            return render_template("register.html")
+        except DuplicateResourceError as e:
+            flash(e.message, "error")
+            return render_template("register.html")
         except Exception as e:
-            flash("Username or email already taken", "error")
+            flash("An error occurred during registration. Please try again.", "error")
             return render_template("register.html")
 
     return render_template("register.html")
