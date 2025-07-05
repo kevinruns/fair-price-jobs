@@ -28,7 +28,7 @@ def index() -> Union[str, Response]:
     user_tradesmen = tradesman_service.get_tradesmen_by_user(user_id)
     
     # Get user's groups
-    user_groups = group_service.get_user_groups(user_id)
+    user_groups = group_service.get_user_groups_with_stats(user_id, limit=10)
     
     # Get recent jobs for user's tradesmen
     recent_jobs = job_service.get_recent_completed_jobs_for_user(user_id, limit=5)
@@ -42,7 +42,7 @@ def index() -> Union[str, Response]:
     
     return render_template("index.html", 
                          tradesmen=user_tradesmen, 
-                         groups=user_groups, 
+                         my_groups=user_groups, 
                          recent_jobs=recent_jobs,
                          stats=stats)
 

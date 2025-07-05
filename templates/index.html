@@ -118,7 +118,6 @@
                                 <th>Cost</th>
                                 <th>Rating</th>
                                 <th>Added By</th>
-                                <th>Group</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -149,7 +148,7 @@
                                             <span class="text-warning">In Progress</span>
                                         {% endif %}
                                     </td>
-                                    <td>£{{ job.total_cost }}</td>
+                                    <td>€{{ job.total_cost }}</td>
                                     <td>
                                         {% if job.rating %}
                                             <span class="badge bg-{% if job.rating >= 4 %}success{% elif job.rating >= 3 %}warning{% else %}danger{% endif %}">
@@ -163,9 +162,6 @@
                                         <a href="{{ url_for('profile.user_profile', user_id=job.added_by_user_id) }}" class="text-decoration-none">
                                             <span class="text-info">{{ job.added_by_username }}</span>
                                         </a>
-                                    </td>
-                                    <td>
-                                        <span class="text-muted">-</span>
                                     </td>
                                 </tr>
                             {% endfor %}
