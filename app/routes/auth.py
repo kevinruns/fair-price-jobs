@@ -16,24 +16,39 @@ auth_bp = Blueprint('auth', __name__)
 # Initialize services
 user_service = UserService()
 
+# Rate limiting storage (persists across requests)
+_rate_limit_attempts: Dict[str, list] = {}
+
 # Rate limiting decorator
 def rate_limit(limit: int = 5, window: int = 300) -> Callable:  # 5 attempts per 5 minutes
     def decorator(f: Callable) -> Callable:
-        attempts: Dict[str, list] = {}
         @wraps(f)
         def wrapped(*args: Any, **kwargs: Any) -> Union[str, tuple[str, int], Response]:
             now = datetime.now()
             ip = request.remote_addr or "unknown"
             
             # Clean old attempts
-            attempts[ip] = [t for t in attempts.get(ip, []) if now - t < timedelta(seconds=window)]
+            _rate_limit_attempts[ip] = [t for t in _rate_limit_attempts.get(ip, []) if now - t < timedelta(seconds=window)]
             
-            if len(attempts.get(ip, [])) >= limit:
+            if len(_rate_limit_attempts.get(ip, [])) >= limit:
                 flash("Too many login attempts. Please try again later.", "error")
                 return render_template("login.html"), 429
             
-            attempts[ip] = attempts.get(ip, []) + [now]
+            # Call the original function
             result = f(*args, **kwargs)
+            
+            # Only count failed attempts (when login fails)
+            # Check if this was a POST request and login failed
+            if request.method == "POST":
+                # If the result is a redirect to "/", login was successful
+                # If the result is a rendered template, login failed
+                if isinstance(result, Response) and result.status_code == 302 and result.location == "/":
+                    # Successful login - don't count this attempt
+                    pass
+                else:
+                    # Failed login - count this attempt
+                    _rate_limit_attempts[ip] = _rate_limit_attempts.get(ip, []) + [now]
+            
             if isinstance(result, (str, tuple, Response)):
                 return result
             raise RuntimeError("rate_limit wrapped function did not return str, tuple[str, int], or Response")
@@ -41,7 +56,7 @@ def rate_limit(limit: int = 5, window: int = 300) -> Callable:  # 5 attempts per
     return decorator
 
 @auth_bp.route("/login", methods=["GET", "POST"])
-@rate_limit()
+@rate_limit() # Apply rate limiting to the login route
 def login() -> Response:
     """Log user in"""
     # Forget any user_id
