@@ -23,7 +23,8 @@ CREATE TABLE users (
 CREATE TABLE groups (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    postcode TEXT NOT NULL
+    postcode TEXT NOT NULL,
+    description TEXT
 );
 
 -- Junction table for user-group relationship

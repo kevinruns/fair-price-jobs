@@ -41,6 +41,7 @@
                                 <tr>
                                     <th>Group Name</th>
                                     <th>Postcode</th>
+                                    <th>Description</th>
                                     <th>Members</th>
                                     <th>Status</th>
                                 </tr>
@@ -54,6 +55,13 @@
                                             </a>
                                         </td>
                                         <td>{{ group['postcode'] }}</td>
+                                        <td>
+                                            {% if group['description'] %}
+                                                <span class="text-muted small">{{ group['description'][:50] }}{% if group['description']|length > 50 %}...{% endif %}</span>
+                                            {% else %}
+                                                <span class="text-muted small">No description</span>
+                                            {% endif %}
+                                        </td>
                                         <td>{{ group['member_count'] }}</td>
                                         <td>
                                             {% if group['status'] == 'member' %}

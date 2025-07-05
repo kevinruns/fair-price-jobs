@@ -10,9 +10,12 @@ class GroupService:
         query = "SELECT * FROM groups WHERE id = ?"
         return self.db.execute_single_query(query, (group_id,))
 
-    def create_group(self, name: str, postcode: str) -> int:
-        query = "INSERT INTO groups (name, postcode) VALUES (?, ?)"
-        return self.db.execute_insert(query, (name, postcode))
+    def create_group(self, name: str, postcode: str, description: str = None) -> int:
+        # Convert empty string to None
+        if description == '':
+            description = None
+        query = "INSERT INTO groups (name, postcode, description) VALUES (?, ?, ?)"
+        return self.db.execute_insert(query, (name, postcode, description))
 
     def update_group(self, group_id: int, name: Optional[str] = None, postcode: Optional[str] = None) -> bool:
         update_fields = []
@@ -157,6 +160,16 @@ class GroupService:
             JOIN user_groups ug ON u.id = ug.user_id
             JOIN group_tradesmen gt ON ug.group_id = gt.group_id
             WHERE ug.group_id = ? AND ug.status IN ('member', 'admin', 'creator')
+        """
+        result = self.db.execute_single_query(query, (group_id,))
+        return result['count'] if result else 0
+    
+    def get_group_member_count(self, group_id: int) -> int:
+        """Get the number of members in a group (excluding pending requests)."""
+        query = """
+            SELECT COUNT(*) as count 
+            FROM user_groups 
+            WHERE group_id = ? AND status != 'pending'
         """
         result = self.db.execute_single_query(query, (group_id,))
         return result['count'] if result else 0

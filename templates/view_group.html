@@ -18,6 +18,12 @@
                             <div class="col-4"><strong>Postcode:</strong></div>
                             <div class="col-8">{{ group['postcode'] }}</div>
                         </div>
+                        {% if group['description'] %}
+                        <div class="row mb-2">
+                            <div class="col-4"><strong>Description:</strong></div>
+                            <div class="col-8">{{ group['description'] }}</div>
+                        </div>
+                        {% endif %}
                         {% if creator %}
                         <div class="row mb-2">
                             <div class="col-4"><strong>Created by:</strong></div>

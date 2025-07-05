@@ -180,6 +180,46 @@ class TestGroupService(unittest.TestCase):
         self.assertIsInstance(group_id, int)
         self.assertGreater(group_id, 0)
     
+    def test_create_group_with_description(self):
+        """Test group creation with description"""
+        description = "This is a test group for testing purposes"
+        group_id = self.group_service.create_group('Test Group', '12345', description)
+        self.assertIsInstance(group_id, int)
+        self.assertGreater(group_id, 0)
+        
+        # Verify the group was created with description
+        group = self.group_service.get_group_by_id(group_id)
+        self.assertIsNotNone(group)
+        self.assertEqual(group['name'], 'Test Group')
+        self.assertEqual(group['postcode'], '12345')
+        self.assertEqual(group['description'], description)
+    
+    def test_create_group_without_description(self):
+        """Test group creation without description (should be None)"""
+        group_id = self.group_service.create_group('Test Group', '12345')
+        self.assertIsInstance(group_id, int)
+        self.assertGreater(group_id, 0)
+        
+        # Verify the group was created without description
+        group = self.group_service.get_group_by_id(group_id)
+        self.assertIsNotNone(group)
+        self.assertEqual(group['name'], 'Test Group')
+        self.assertEqual(group['postcode'], '12345')
+        self.assertIsNone(group['description'])
+    
+    def test_create_group_with_empty_description(self):
+        """Test group creation with empty description (should be None)"""
+        group_id = self.group_service.create_group('Test Group', '12345', '')
+        self.assertIsInstance(group_id, int)
+        self.assertGreater(group_id, 0)
+        
+        # Verify the group was created without description
+        group = self.group_service.get_group_by_id(group_id)
+        self.assertIsNotNone(group)
+        self.assertEqual(group['name'], 'Test Group')
+        self.assertEqual(group['postcode'], '12345')
+        self.assertIsNone(group['description'])
+    
     def test_get_group_by_id(self):
         """Test getting group by ID"""
         # Create a group first
@@ -232,6 +272,54 @@ class TestGroupService(unittest.TestCase):
         members = self.group_service.get_group_members(group_id)
         self.assertEqual(len(members), 1)
         self.assertEqual(members[0]['username'], 'testuser')
+    
+    def test_get_group_member_count(self):
+        """Test getting group member count"""
+        # Create users and group
+        user1_id = self.user_service.create_user(
+            username='user1',
+            firstname='User',
+            lastname='One',
+            email='user1@example.com',
+            postcode='12345',
+            password='password123'
+        )
+        user2_id = self.user_service.create_user(
+            username='user2',
+            firstname='User',
+            lastname='Two',
+            email='user2@example.com',
+            postcode='12345',
+            password='password123'
+        )
+        group_id = self.group_service.create_group('Test Group', '12345')
+        
+        # Initially no members
+        member_count = self.group_service.get_group_member_count(group_id)
+        self.assertEqual(member_count, 0)
+        
+        # Add first user to group
+        self.group_service.add_user_to_group(user1_id, group_id, 'member')
+        member_count = self.group_service.get_group_member_count(group_id)
+        self.assertEqual(member_count, 1)
+        
+        # Add second user to group
+        self.group_service.add_user_to_group(user2_id, group_id, 'member')
+        member_count = self.group_service.get_group_member_count(group_id)
+        self.assertEqual(member_count, 2)
+        
+        # Add a pending user (should not count)
+        user3_id = self.user_service.create_user(
+            username='user3',
+            firstname='User',
+            lastname='Three',
+            email='user3@example.com',
+            postcode='12345',
+            password='password123'
+        )
+        self.group_service.add_user_to_group(user3_id, group_id, 'pending')
+        member_count = self.group_service.get_group_member_count(group_id)
+        self.assertEqual(member_count, 2)  # Still 2, pending doesn't count
 
 
 class TestTradesmanService(unittest.TestCase):

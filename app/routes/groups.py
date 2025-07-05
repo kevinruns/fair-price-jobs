@@ -13,11 +13,12 @@ group_service = GroupService()
 @groups_bp.route('/create_group', methods=['GET', 'POST'])
 @login_required
 def create_group() -> Union[str, Response]:
-    if request.method == 'POST':
+    if request.method == "POST":
         name: str = request.form.get('group_name', '')
         postcode: str = request.form.get('group_postcode', '')
+        description: str = request.form.get('group_description', '').strip() or None
         try:
-            group_id: int = group_service.create_group(name, postcode)
+            group_id: int = group_service.create_group(name, postcode, description)
             group_service.add_user_to_group(session['user_id'], group_id, status='creator')
             
             # Automatically add all user's tradesmen to the group
@@ -87,6 +88,14 @@ def search_groups() -> str:
         groups = group_service.search_groups(name=name, postcode=postcode)
     else:
         groups = group_service.get_all_groups()
+    
+    # Add member count and user status to each group
+    for group in groups:
+        group['member_count'] = group_service.get_group_member_count(group['id'])
+        # Check if current user is a member
+        membership = group_service.get_user_group_membership(session['user_id'], group['id'])
+        group['status'] = membership['status'] if membership else None
+    
     return render_template('search_groups.html', groups=groups)
 
 @groups_bp.route('/group_members/<int:group_id>')
