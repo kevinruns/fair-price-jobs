@@ -155,9 +155,12 @@ class TradesmanService:
             SELECT t.*, 
                    COUNT(j.id) as job_count,
                    AVG(j.rating) as avg_rating,
-                   ut.date_added
+                   ut.date_added,
+                   u.username as added_by_username,
+                   u.id as added_by_user_id
             FROM tradesmen t
             JOIN user_tradesmen ut ON t.id = ut.tradesman_id
+            JOIN users u ON ut.user_id = u.id
             LEFT JOIN jobs j ON t.id = j.tradesman_id
             WHERE ut.user_id = ?
             GROUP BY t.id

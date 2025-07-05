@@ -21,7 +21,7 @@ def rate_limit(limit: int = 5, window: int = 300) -> Callable:  # 5 attempts per
     def decorator(f: Callable) -> Callable:
         attempts: Dict[str, list] = {}
         @wraps(f)
-        def wrapped(*args: Any, **kwargs: Any) -> Union[str, tuple[str, int]]:
+        def wrapped(*args: Any, **kwargs: Any) -> Union[str, tuple[str, int], Response]:
             now = datetime.now()
             ip = request.remote_addr or "unknown"
             
@@ -34,9 +34,9 @@ def rate_limit(limit: int = 5, window: int = 300) -> Callable:  # 5 attempts per
             
             attempts[ip] = attempts.get(ip, []) + [now]
             result = f(*args, **kwargs)
-            if isinstance(result, (str, tuple)):
+            if isinstance(result, (str, tuple, Response)):
                 return result
-            raise RuntimeError("rate_limit wrapped function did not return str or tuple[str, int]")
+            raise RuntimeError("rate_limit wrapped function did not return str, tuple[str, int], or Response")
         return wrapped
     return decorator
 
