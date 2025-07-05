@@ -1,105 +1,220 @@
-# Fair Price Jobs
-#### Video Demo:  https://www.youtube.com/watch?v=vg5jIKvffYA
-#### Description:
+# Fair Price Application
 
-This project was developed to address a real life headache faced by anyone who wants to renovate a property in the South of France (where I live).
-Finding a reasonably priced tradesman to lay tiles, do the electrics, check the roof etc. is very difficult.
+A Flask-based web application for managing tradesmen, groups, and job tracking.
 
-The idea is to build a platform where friends can share information on jobs that they have had done:
-- contact details of the tradesman, pricing, rating, job description etc.
+## 🚀 Quick Start
 
-Anyone can register and create a group or search for an existing group. Groups are associated with postcodes.
-To join an existing group will require approval from that groups owner.
+### Prerequisites
+- Python 3.8+
+- pip
 
-Once joined the user can see the different members and the tradesmen who have been entered along with the jobs they have done.
+### Installation
 
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd fair-price
+   ```
 
-### Design choices
+2. **Create virtual environment**
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
 
-I worked outside the cs50.dev environment for this project
-I used flask, html with bootstrap and sqlite3
-In addition to files below I wrote some sql scripts to reset the database and enter dummy data
-The social group aspect was more complex than I originally anticipated
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
+4. **Configure the application**
+   ```bash
+   # Copy the example environment file
+   cp env.example .env
+   
+   # Edit .env with your settings
+   nano .env
+   ```
+
+5. **Initialize the database**
+   ```bash
+   python sql/init_db.py
+   python sql/load_db.py
+   ```
+
+6. **Run the application**
+   ```bash
+   python app.py
+   ```
+
+The application will be available at `http://localhost:5000`
+
+## ⚙️ Configuration
+
+The application uses a flexible configuration system that supports multiple environments:
+
+### Environment Variables
+
+Copy `env.example` to `.env` and configure the following variables:
+
+```bash
+# Flask Environment
+FLASK_ENV=development  # Options: development, production, testing
+
+# Security
+SECRET_KEY=your-super-secret-key-change-this-in-production
+
+# Database
+DATABASE=application.db
+
+# Logging
+LOG_LEVEL=INFO
+LOG_FILE=logs/app.log
+```
+
+### Configuration Classes
+
+The application supports three configuration modes:
+
+- **Development**: Debug mode, detailed logging, development database
+- **Production**: Optimized for production, requires SECRET_KEY
+- **Testing**: In-memory database, CSRF disabled
+
+### Environment-Specific Settings
+
+#### Development
+```bash
+export FLASK_ENV=development
+python app.py
+```
+
+#### Production
+```bash
+export FLASK_ENV=production
+export SECRET_KEY="your-production-secret-key"
+python app.py
+```
+
+#### Testing
+```bash
+export FLASK_ENV=testing
+python -m pytest
+```
+
+## 🗄️ Database Management
+
+### Initialize Database
+```bash
+python sql/init_db.py
+```
+
+### Load Sample Data
+```bash
+python sql/load_db.py
+```
+
+### Check Database
+```bash
+python sql/check_db.py
+```
+
+### Reset Database
+```bash
+# Windows
+scripts\reset_db.bat
+
+# Linux/Mac
+./scripts/reset_db.sh
+```
+
+## 🧪 Testing
+
+Run the test suite:
+```bash
+python run_tests.py
+```
+
+Run specific tests:
+```bash
+python run_tests.py --service database
+python run_tests.py --verbose
+```
 
 ## 📁 Project Structure
 
 ```
 fair-price/
-├── app/                    # Main application
-│   ├── routes/            # Route handlers (auth, groups, tradesmen, jobs, etc.)
-│   ├── services/          # Business logic (UserService, GroupService, etc.)
-│   └── config.py          # Configuration
-├── templates/             # HTML templates
-│   ├── layout.html        # Base layout template
-│   ├── index.html         # Homepage
-│   ├── login.html         # Login page
-│   ├── register.html      # Registration page
-│   └── ...                # Other templates
-├── static/               # CSS, JavaScript, images
-├── sql/                  # Database scripts
-│   ├── init_db.py        # Initialize database
-│   ├── load_db.py        # Load sample data
-│   └── schema.sql        # Database schema
-├── docs/                 # 📚 Documentation
-│   ├── README.md         # Documentation index
-│   ├── DEVELOPER_GUIDE.md # Developer quick reference
-│   ├── USEFUL_COMMANDS.md # Command reference
-│   └── TEST_README.md    # Testing guide
-├── scripts/              # 🔧 Utility scripts
-│   ├── *.bat            # Windows scripts
-│   └── *.sh             # Linux/Mac scripts
-├── logs/                 # Application logs
-├── tests/                # 🧪 Test files
-│   └── test_app.py       # Test suite
-├── run_tests.py          # Test runner
-└── app.py               # Main application entry point
+├── app/
+│   ├── routes/          # Route handlers
+│   ├── services/        # Business logic
+│   └── config.py        # App configuration
+├── templates/           # HTML templates
+├── static/             # CSS, JS, images
+├── sql/                # Database scripts
+├── logs/               # Application logs
+├── config.py           # Main configuration
+├── app.py              # Application factory
+├── requirements.txt    # Dependencies
+└── env.example         # Environment template
 ```
 
-## 🚀 Quick Start
+## 🔧 Development
 
-### For Developers
-1. **Setup**: See [Developer Guide](docs/DEVELOPER_GUIDE.md)
-2. **Testing**: See [Test Documentation](docs/TEST_README.md)
-3. **Commands**: See [Useful Commands](docs/USEFUL_COMMANDS.md)
+### Code Organization
 
-### For Users
-1. **Install**: `pip install -r requirements.txt`
-2. **Setup**: `python sql/init_db.py`
-3. **Run**: `python app.py`
-4. **Access**: http://localhost:5000
+The application follows a service-oriented architecture:
 
-## 📚 Documentation
+- **Routes**: Handle HTTP requests and responses
+- **Services**: Contain business logic and database operations
+- **Configuration**: Environment-based settings management
 
-- **[Developer Guide](docs/DEVELOPER_GUIDE.md)** - Quick reference for developers
-- **[Useful Commands](docs/USEFUL_COMMANDS.md)** - Comprehensive command reference
-- **[Test Documentation](docs/TEST_README.md)** - Complete testing guide
-- **[Scripts Documentation](scripts/README.md)** - Utility scripts guide
+### Adding New Features
 
-## 🔧 Utility Scripts
+1. Create service methods in appropriate service classes
+2. Add route handlers in route modules
+3. Update templates as needed
+4. Add tests for new functionality
 
-### Windows
-```cmd
-scripts\reset_db.bat      # Reset database
-scripts\quick_test.bat    # Run quick tests
-scripts\backup_db.bat     # Backup database
-scripts\cleanup.bat       # Clean up files
+### Database Operations
+
+All database operations go through service classes:
+
+```python
+from app.services.user_service import UserService
+
+user_service = UserService()
+users = user_service.get_all_users()
 ```
 
-### Linux/Mac
-```bash
-./scripts/reset_db.sh     # Reset database
-./scripts/quick_test.sh   # Run quick tests
-./scripts/backup_db.sh    # Backup database
-./scripts/cleanup.sh      # Clean up files
-```
+## 🚨 Troubleshooting
 
-## 🗄️ Database Schema
+### Common Issues
 
-The application uses SQLite with the following tables:
-- **users**: User information and credentials
-- **groups**: Group information with postcodes
-- **user_groups**: User-group memberships and statuses
-- **tradesmen**: Tradesman details and contact information
-- **group_tradesmen**: Group-tradesman associations
-- **jobs**: Job records with pricing and ratings
+**Application won't start**
+- Check if database exists: `python sql/check_db.py`
+- Verify configuration: Check `.env` file
+- Check logs: `tail -f logs/app.log`
+
+**Database errors**
+- Reset database: `scripts/reset_db.sh`
+- Check schema: `python sql/check_db.py`
+
+**Import errors**
+- Ensure virtual environment is activated
+- Check Python path: `python -c "import sys; print(sys.path)"`
+
+### Logs
+
+Application logs are stored in `logs/app.log`. Check this file for detailed error information.
+
+## 📝 License
+
+This project is licensed under the MIT License.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests
+5. Submit a pull request

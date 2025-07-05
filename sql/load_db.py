@@ -1,5 +1,13 @@
 import sqlite3
+import sys
+from pathlib import Path
 from werkzeug.security import generate_password_hash
+
+# Add the project root to the Python path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+from config import get_config
 
 # Updated dummy user data
 dummy_users = [
@@ -16,36 +24,37 @@ dummy_users = [
 ]
 
 def add_users_to_db():
-    with sqlite3.connect('application.db') as conn:
-        cursor = conn.cursor()  # Create a cursor object to execute SQL commands
+    """Add dummy users to the database."""
+    config = get_config()
+    db_path = config.DATABASE_PATH
+    
+    with sqlite3.connect(db_path) as conn:
+        cursor = conn.cursor()
         
         for user in dummy_users:
-            hashed_password = generate_password_hash(user['password'])  # Hash the password
+            hashed_password = generate_password_hash(user['password'])
             
-            # Prepare the SQL INSERT statement
             cursor.execute("""
                 INSERT INTO users (username, firstname, lastname, email, postcode, hash) 
                 VALUES (?, ?, ?, ?, ?, ?)
             """, (user['username'], user['firstname'], user['lastname'], user['email'], user['postcode'], hashed_password))
         
-        conn.commit()  # Commit the transaction
+        conn.commit()
         print("Dummy users inserted!")
 
-
-
 def load_db():
-    with sqlite3.connect('application.db') as conn:
-        with open(r'sql\load.sql', 'r') as f:
+    """Load sample data into the database."""
+    config = get_config()
+    db_path = config.DATABASE_PATH
+    load_sql_path = Path(__file__).parent / 'load.sql'
+    
+    with sqlite3.connect(db_path) as conn:
+        with open(load_sql_path, 'r') as f:
             sql_script = f.read()
-            # print("SQL Script:")
-            # print(sql_script)  # Add this line
             conn.executescript(sql_script)
-    print("New database loaded.")
-
-
+    print("Sample data loaded successfully.")
 
 if __name__ == '__main__':
-    add_users_to_db()
     load_db()
 
 

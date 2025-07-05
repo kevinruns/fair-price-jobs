@@ -2,85 +2,133 @@
 from flask import Flask, g, render_template
 from flask_session import Session
 from flask_wtf.csrf import CSRFProtect
-import sqlite3
 import os
 import logging
 from logging.handlers import RotatingFileHandler
-
-# Import route blueprints
-from app.routes.auth import auth_bp
-from app.routes.groups import groups_bp
-from app.routes.tradesmen import tradesmen_bp
-from app.routes.jobs import jobs_bp
-from app.routes.search import search_bp
-from app.routes.profile import profile_bp
-from app.routes.main import main_bp
-
-app = Flask(__name__)
-
-# Configure logging
-if not os.path.exists('logs'):
-    os.mkdir('logs')
-file_handler = RotatingFileHandler('logs/app.log', maxBytes=10240, backupCount=10)
-file_handler.setFormatter(logging.Formatter(
-    '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
-))
-file_handler.setLevel(logging.INFO)
-app.logger.addHandler(file_handler)
-app.logger.setLevel(logging.INFO)
-app.logger.info('Application startup')
-
-# Configure session
-app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
-app.config["SECRET_KEY"] = "your-secret-key-here-change-in-production"  # Use consistent secret key
-
-# Configure CSRF protection
-app.config["WTF_CSRF_ENABLED"] = True
-app.config["WTF_CSRF_TIME_LIMIT"] = 3600  # 1 hour
-
-# Initialize CSRF protection
-csrf = CSRFProtect(app)
-
-Session(app)
-
-
+from pathlib import Path
 
 # Import configuration
-from app.config import DATABASE
+from config import get_config
 
-# Register blueprints
-app.register_blueprint(auth_bp)
-app.register_blueprint(groups_bp)
-app.register_blueprint(tradesmen_bp)
-app.register_blueprint(jobs_bp)
-app.register_blueprint(search_bp)
-app.register_blueprint(profile_bp)
-app.register_blueprint(main_bp)
+def create_app(config_name: str = None):
+    """
+    Application factory function.
+    
+    Args:
+        config_name: Configuration name ('development', 'production', 'testing')
+    
+    Returns:
+        Flask application instance
+    """
+    # Get configuration
+    config = get_config(config_name)
+    
+    # Create Flask app
+    app = Flask(__name__)
+    
+    # Load configuration into Flask app
+    app.config.from_object(config)
+    
+    # Configure logging
+    setup_logging(app, config)
+    
+    # Initialize extensions
+    setup_extensions(app, config)
+    
+    # Register blueprints
+    register_blueprints(app)
+    
+    # Register error handlers
+    register_error_handlers(app)
+    
+    # Register database teardown
+    register_database_teardown(app)
+    
+    return app
 
-# Custom error handlers
-@app.errorhandler(404)
-def not_found_error(error):
-    return render_template('404.html'), 404
+def setup_logging(app: Flask, config):
+    """Configure application logging."""
+    # Ensure logs directory exists
+    log_dir = Path(config.LOG_FILE).parent
+    log_dir.mkdir(exist_ok=True)
+    
+    # Configure file handler
+    file_handler = RotatingFileHandler(
+        config.LOG_FILE, 
+        maxBytes=config.LOG_MAX_BYTES, 
+        backupCount=config.LOG_BACKUP_COUNT
+    )
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+    ))
+    file_handler.setLevel(getattr(logging, config.LOG_LEVEL))
+    
+    # Add handlers to app logger
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(getattr(logging, config.LOG_LEVEL))
+    
+    # Log application startup
+    app.logger.info('Application startup')
 
-@app.errorhandler(500)
-def internal_error(error):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.rollback()
-    return render_template('500.html'), 500
+def setup_extensions(app: Flask, config):
+    """Initialize Flask extensions."""
+    # Initialize CSRF protection
+    csrf = CSRFProtect(app)
+    
+    # Initialize session
+    Session(app)
 
-# Import database service
-from app.services.database import get_db_service
+def register_blueprints(app: Flask):
+    """Register Flask blueprints."""
+    # Import route blueprints
+    from app.routes.auth import auth_bp
+    from app.routes.groups import groups_bp
+    from app.routes.tradesmen import tradesmen_bp
+    from app.routes.jobs import jobs_bp
+    from app.routes.search import search_bp
+    from app.routes.profile import profile_bp
+    from app.routes.main import main_bp
+    
+    # Register blueprints
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(groups_bp)
+    app.register_blueprint(tradesmen_bp)
+    app.register_blueprint(jobs_bp)
+    app.register_blueprint(search_bp)
+    app.register_blueprint(profile_bp)
+    app.register_blueprint(main_bp)
 
+def register_error_handlers(app: Flask):
+    """Register error handlers."""
+    @app.errorhandler(404)
+    def not_found_error(error):
+        return render_template('404.html'), 404
+
+    @app.errorhandler(500)
+    def internal_error(error):
+        db = getattr(g, '_database', None)
+        if db is not None:
+            db.rollback()
+        return render_template('500.html'), 500
+
+def register_database_teardown(app: Flask):
+    """Register database teardown function."""
+    # Import database service
+    from app.services.database import get_db_service
+
+    @app.teardown_appcontext
+    def close_connection(exception):
+        """Close database connection on app context teardown."""
+        get_db_service().close_connection()
+
+# Create the application instance
+app = create_app()
+
+# Legacy function for backward compatibility
 def get_db():
     """Legacy function for backward compatibility."""
+    from app.services.database import get_db_service
     return get_db_service().get_connection()
 
-@app.teardown_appcontext
-def close_connection(exception):
-    """Close database connection on app context teardown."""
-    get_db_service().close_connection()
-
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(debug=app.config['DEBUG']) 

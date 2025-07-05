@@ -3,14 +3,17 @@ import logging
 from contextlib import contextmanager
 from typing import Optional, List, Dict, Any, Tuple
 from flask import g, current_app
-from app.config import DATABASE
+from config import get_config
 
 logger = logging.getLogger(__name__)
 
 class DatabaseService:
     """Centralized database service for handling all database operations."""
     
-    def __init__(self, database_path: str = DATABASE):
+    def __init__(self, database_path: Optional[str] = None):
+        if database_path is None:
+            config = get_config()
+            database_path = config.DATABASE_PATH
         self.database_path = database_path
     
     def get_connection(self) -> sqlite3.Connection:

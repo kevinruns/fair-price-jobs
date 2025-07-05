@@ -1,15 +1,23 @@
 #!/usr/bin/env python3
 
 import sqlite3
-import os
+import sys
+from pathlib import Path
+
+# Add the project root to the Python path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+from config import get_config
 
 def check_database():
     """Check what's in the database"""
     
-    # Get the database path
-    db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'application.db')
+    # Get configuration
+    config = get_config()
+    db_path = config.DATABASE_PATH
     
-    if not os.path.exists(db_path):
+    if not Path(db_path).exists():
         print(f"Database file not found: {db_path}")
         return
     
