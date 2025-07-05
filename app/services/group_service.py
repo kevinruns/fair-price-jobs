@@ -77,7 +77,7 @@ class GroupService:
             SELECT u.id, u.username, u.firstname, u.lastname, u.email, ug.status
             FROM user_groups ug
             JOIN users u ON ug.user_id = u.id
-            WHERE ug.group_id = ? AND ug.status != 'pending'
+            WHERE ug.group_id = ? AND ug.status IN ('member', 'admin', 'creator')
             ORDER BY u.username
         """
         return self.db.execute_query(query, (group_id,))
@@ -169,7 +169,7 @@ class GroupService:
         query = """
             SELECT COUNT(*) as count 
             FROM user_groups 
-            WHERE group_id = ? AND status != 'pending'
+            WHERE group_id = ? AND status IN ('member', 'admin', 'creator')
         """
         result = self.db.execute_single_query(query, (group_id,))
         return result['count'] if result else 0
