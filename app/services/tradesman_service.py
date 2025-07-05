@@ -91,7 +91,7 @@ class TradesmanService:
             
         query += " GROUP BY t.id ORDER BY COUNT(j.id) DESC, avg_rating DESC NULLS LAST"
         
-        return self.db.execute_query(query, params)
+        return self.db.execute_query(query, tuple(params))
     
     def get_tradesman_jobs(self, tradesman_id: int) -> List[Dict[str, Any]]:
         """Get all jobs for a tradesman."""

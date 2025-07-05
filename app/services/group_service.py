@@ -16,7 +16,7 @@ class GroupService:
 
     def update_group(self, group_id: int, name: Optional[str] = None, postcode: Optional[str] = None) -> bool:
         update_fields = []
-        params = []
+        params: list[Any] = []
         if name is not None:
             update_fields.append("name = ?")
             params.append(name)
@@ -175,3 +175,9 @@ class GroupService:
             ORDER BY g.name, u.username
         """
         return self.db.execute_query(query, (user_id,)) 
+
+    def get_group_names(self) -> List[str]:
+        """Get all group names."""
+        query = "SELECT name FROM groups ORDER BY name"
+        results = self.db.execute_query(query)
+        return [row['name'] for row in results] 

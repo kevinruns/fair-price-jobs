@@ -86,12 +86,12 @@ class ProductionConfig(Config):
     SESSION_TIMEOUT = 86400  # 24 hours
     
     # Ensure secret key is set in production
-    @property
-    def SECRET_KEY(self) -> str:
+    def __init__(self):
+        super().__init__()
         secret_key = os.environ.get('SECRET_KEY')
         if not secret_key:
             raise ValueError("SECRET_KEY environment variable must be set in production")
-        return secret_key
+        self.SECRET_KEY = secret_key
 
 class TestingConfig(Config):
     """Testing configuration."""
@@ -136,4 +136,7 @@ def get_config(config_name: Optional[str] = None) -> Config:
 # Convenience function for getting database path
 def get_database_path() -> str:
     """Get the database path from current configuration."""
-    return get_config().DATABASE_PATH
+    db_path = get_config().DATABASE_PATH
+    if db_path is None:
+        raise ValueError("Database path is not configured")
+    return db_path

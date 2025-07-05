@@ -3,9 +3,9 @@ Input validation utilities for the Fair Price application.
 """
 
 import re
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, Callable, cast
 from functools import wraps
-from flask import request, flash, redirect, url_for
+from flask import request, flash, redirect, url_for, g
 from app.exceptions import ValidationError
 
 class Validator:
@@ -27,11 +27,17 @@ class Validator:
         """Override this method in subclasses."""
         return value
 
+def _is_less_than(a: int, b: Optional[int]) -> bool:
+    return b is not None and a < b
+
+def _is_greater_than(a: int, b: Optional[int]) -> bool:
+    return b is not None and a > b
+
 class StringValidator(Validator):
     """Validates string fields."""
     
-    def __init__(self, field_name: str, min_length: int = None, max_length: int = None, 
-                 pattern: str = None, required: bool = True):
+    def __init__(self, field_name: str, min_length: Optional[int] = None, max_length: Optional[int] = None, 
+                 pattern: Optional[str] = None, required: bool = True):
         super().__init__(field_name, required)
         self.min_length = min_length
         self.max_length = max_length
@@ -40,18 +46,18 @@ class StringValidator(Validator):
     def _validate(self, value: str) -> str:
         if not isinstance(value, str):
             raise ValidationError(f"{self.field_name} must be a string", self.field_name)
-        
         value = value.strip()
-        
-        if self.min_length and len(value) < self.min_length:
-            raise ValidationError(f"{self.field_name} must be at least {self.min_length} characters", self.field_name)
-        
-        if self.max_length and len(value) > self.max_length:
-            raise ValidationError(f"{self.field_name} must be no more than {self.max_length} characters", self.field_name)
-        
+        value_len = len(value)
+        if self.min_length is not None:
+            min_length: int = self.min_length
+            if value_len < min_length:
+                raise ValidationError(f"{self.field_name} must be at least {min_length} characters", self.field_name)
+        if self.max_length is not None:
+            max_length: int = self.max_length
+            if value_len > max_length:
+                raise ValidationError(f"{self.field_name} must be no more than {max_length} characters", self.field_name)
         if self.pattern and not re.match(self.pattern, value):
             raise ValidationError(f"{self.field_name} format is invalid", self.field_name)
-        
         return value
 
 class EmailValidator(StringValidator):
@@ -69,17 +75,17 @@ class PasswordValidator(StringValidator):
     
     def _validate(self, value: str) -> str:
         value = super()._validate(value)
-        
         # Additional password strength checks can be added here
-        if len(value) < self.min_length:
-            raise ValidationError(f"Password must be at least {self.min_length} characters", self.field_name)
-        
+        if self.min_length is not None:
+            min_length: int = self.min_length
+            if len(value) < min_length:
+                raise ValidationError(f"Password must be at least {min_length} characters", self.field_name)
         return value
 
 class IntegerValidator(Validator):
     """Validates integer fields."""
     
-    def __init__(self, field_name: str, min_value: int = None, max_value: int = None, required: bool = True):
+    def __init__(self, field_name: str, min_value: Optional[int] = None, max_value: Optional[int] = None, required: bool = True):
         super().__init__(field_name, required)
         self.min_value = min_value
         self.max_value = max_value
@@ -101,7 +107,7 @@ class IntegerValidator(Validator):
 class FloatValidator(Validator):
     """Validates float fields."""
     
-    def __init__(self, field_name: str, min_value: float = None, max_value: float = None, required: bool = True):
+    def __init__(self, field_name: str, min_value: Optional[float] = None, max_value: Optional[float] = None, required: bool = True):
         super().__init__(field_name, required)
         self.min_value = min_value
         self.max_value = max_value
@@ -133,7 +139,7 @@ class ChoiceValidator(Validator):
             raise ValidationError(f"{self.field_name} must be one of: {choices_str}", self.field_name)
         return value
 
-def validate_form(validators: Dict[str, Validator]):
+def validate_form(validators: Dict[str, Validator]) -> Callable:
     """
     Decorator to validate form data.
     
@@ -143,9 +149,9 @@ def validate_form(validators: Dict[str, Validator]):
     Returns:
         Decorated function that validates form data before execution
     """
-    def decorator(f):
+    def decorator(f: Callable) -> Callable:
         @wraps(f)
-        def decorated_function(*args, **kwargs):
+        def decorated_function(*args: Any, **kwargs: Any) -> Any:
             if request.method == "POST":
                 try:
                     # Validate all fields
@@ -154,8 +160,8 @@ def validate_form(validators: Dict[str, Validator]):
                         value = request.form.get(field_name)
                         validated_data[field_name] = validator.validate(value)
                     
-                    # Add validated data to request
-                    request.validated_data = validated_data
+                    # Add validated data to flask.g
+                    g.validated_data = validated_data
                     
                 except ValidationError as e:
                     flash(e.message, "error")
@@ -168,15 +174,13 @@ def validate_form(validators: Dict[str, Validator]):
 def sanitize_input(value: str) -> str:
     """Sanitize string input to prevent XSS."""
     if not isinstance(value, str):
-        return str(value)
-    
+        return str(value)  # type: ignore[unreachable]
     # Basic HTML entity encoding
     value = value.replace("&", "&amp;")
     value = value.replace("<", "&lt;")
     value = value.replace(">", "&gt;")
     value = value.replace('"', "&quot;")
     value = value.replace("'", "&#x27;")
-    
     return value
 
 def validate_required_fields(data: Dict[str, Any], required_fields: List[str]) -> None:

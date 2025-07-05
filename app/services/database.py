@@ -16,8 +16,9 @@ class DatabaseService:
             database_path = config.DATABASE_PATH
         self.database_path = database_path
     
-    def get_connection(self) -> sqlite3.Connection:
-        """Get a database connection, creating it if necessary."""
+    def get_connection(self):
+        if self.database_path is None:
+            raise ValueError("Database path is not configured")
         try:
             # Try to use Flask's g object if we're in a Flask context
             if not hasattr(g, '_database'):
@@ -76,22 +77,29 @@ class DatabaseService:
             return None
     
     def execute_insert(self, query: str, params: Tuple = ()) -> int:
-        """Execute an INSERT query and return the last row ID."""
         with self.get_cursor() as cursor:
             cursor.execute(query, params)
-            return cursor.lastrowid
-    
+            lastrowid = cursor.lastrowid
+            if lastrowid is None:
+                return 0
+            return int(lastrowid)
+
     def execute_update(self, query: str, params: Tuple = ()) -> int:
-        """Execute an UPDATE query and return the number of affected rows."""
         with self.get_cursor() as cursor:
             cursor.execute(query, params)
-            return cursor.rowcount
+            rowcount = cursor.rowcount
+            if rowcount is None:
+                return 0
+            return int(rowcount)
     
     def execute_delete(self, query: str, params: Tuple = ()) -> int:
         """Execute a DELETE query and return the number of affected rows."""
         with self.get_cursor() as cursor:
             cursor.execute(query, params)
-            return cursor.rowcount
+            rowcount = cursor.rowcount
+            if rowcount is None:
+                return 0
+            return int(rowcount)
     
     def execute_transaction(self, queries: List[Tuple[str, Tuple]]) -> bool:
         """Execute multiple queries in a transaction."""

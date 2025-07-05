@@ -1,6 +1,9 @@
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for, make_response
+from werkzeug.wrappers.response import Response
 from datetime import datetime, timedelta
 from functools import wraps
+from typing import Callable, Any, Dict, Optional, Union
+from typing import cast
 
 from helpers import login_required
 from app.services.user_service import UserService
@@ -14,13 +17,13 @@ auth_bp = Blueprint('auth', __name__)
 user_service = UserService()
 
 # Rate limiting decorator
-def rate_limit(limit=5, window=300):  # 5 attempts per 5 minutes
-    def decorator(f):
-        attempts = {}
+def rate_limit(limit: int = 5, window: int = 300) -> Callable:  # 5 attempts per 5 minutes
+    def decorator(f: Callable) -> Callable:
+        attempts: Dict[str, list] = {}
         @wraps(f)
-        def wrapped(*args, **kwargs):
+        def wrapped(*args: Any, **kwargs: Any) -> Union[str, tuple[str, int]]:
             now = datetime.now()
-            ip = request.remote_addr
+            ip = request.remote_addr or "unknown"
             
             # Clean old attempts
             attempts[ip] = [t for t in attempts.get(ip, []) if now - t < timedelta(seconds=window)]
@@ -30,13 +33,16 @@ def rate_limit(limit=5, window=300):  # 5 attempts per 5 minutes
                 return render_template("login.html"), 429
             
             attempts[ip] = attempts.get(ip, []) + [now]
-            return f(*args, **kwargs)
+            result = f(*args, **kwargs)
+            if isinstance(result, (str, tuple)):
+                return result
+            raise RuntimeError("rate_limit wrapped function did not return str or tuple[str, int]")
         return wrapped
     return decorator
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 @rate_limit()
-def login():
+def login() -> Response:
     """Log user in"""
     # Forget any user_id
     session.clear()
@@ -50,7 +56,7 @@ def login():
         
         try:
             # Validate form data
-            validated_data = {}
+            validated_data: Dict[str, str] = {}
             for field_name, validator in validators.items():
                 value = request.form.get(field_name)
                 validated_data[field_name] = validator.validate(value)
@@ -70,20 +76,20 @@ def login():
                 return redirect("/")
             else:
                 flash("Invalid username and/or password", "error")
-                return render_template("login.html")
+                return make_response(render_template("login.html"))
                 
         except ValidationError as e:
             flash(e.message, "error")
-            return render_template("login.html")
+            return make_response(render_template("login.html"))
         except AuthenticationError as e:
             flash(e.message, "error")
-            return render_template("login.html")
+            return make_response(render_template("login.html"))
 
     # User reached route via GET (as by clicking a link or via redirect)
-    return render_template("login.html")
+    return make_response(render_template("login.html"))
 
 @auth_bp.route("/logout")
-def logout():
+def logout() -> Response:
     """Log user out"""
     # Forget any user_id
     session.clear()
@@ -91,7 +97,7 @@ def logout():
     return redirect("/")
 
 @auth_bp.route("/register", methods=["GET", "POST"])
-def register():
+def register() -> Response:
     if request.method == "POST":
         # Define validators for registration
         validators = {
@@ -106,7 +112,7 @@ def register():
         
         try:
             # Validate form data
-            validated_data = {}
+            validated_data: Dict[str, str] = {}
             for field_name, validator in validators.items():
                 value = request.form.get(field_name)
                 validated_data[field_name] = validator.validate(value)
@@ -130,18 +136,18 @@ def register():
             
         except ValidationError as e:
             flash(e.message, "error")
-            return render_template("register.html")
+            return make_response(render_template("register.html"))
         except DuplicateResourceError as e:
             flash(e.message, "error")
-            return render_template("register.html")
+            return make_response(render_template("register.html"))
         except Exception as e:
             flash("An error occurred during registration. Please try again.", "error")
-            return render_template("register.html")
+            return make_response(render_template("register.html"))
 
-    return render_template("register.html")
+    return make_response(render_template("register.html"))
 
 @auth_bp.route("/welcome/<username>")
-def welcome(username):
+def welcome(username: str) -> str:
     """Display welcome page after registration"""
     return render_template("welcome.html", username=username)
 

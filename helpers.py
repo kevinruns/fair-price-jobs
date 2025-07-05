@@ -1,10 +1,11 @@
-from flask import flash, redirect, url_for, session
+from flask import flash, redirect, url_for, session, Response
 from functools import wraps
+from typing import Callable, Any, Optional, Union
 
 
 
         
-def apology(message, code=400):
+def apology(message: str, code: int = 400) -> None:
     """Flash an error message.""" 
     flash(message, "error")
     return None  # Return None instead of redirecting
@@ -12,7 +13,7 @@ def apology(message, code=400):
 
 
 
-def login_required(f):
+def login_required(f: Callable) -> Callable:
     """
     Decorate routes to require login.
 
@@ -20,7 +21,7 @@ def login_required(f):
     """
 
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def decorated_function(*args: Any, **kwargs: Any) -> Union[Response, Any]:
         if session.get("user_id") is None:
             return redirect("/login")
         return f(*args, **kwargs)

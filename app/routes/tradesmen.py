@@ -1,4 +1,6 @@
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from werkzeug.wrappers.response import Response
+from typing import Optional, List, Dict, Any, Union
 from helpers import login_required
 from app.services.tradesman_service import TradesmanService
 
@@ -10,17 +12,17 @@ tradesman_service = TradesmanService()
 
 @tradesmen_bp.route("/add_tradesman", methods=["GET", "POST"])
 @login_required
-def add_tradesman():
+def add_tradesman() -> Union[str, Response]:
     if request.method == "POST":
         # Get form data
-        trade = request.form.get("trade")
-        first_name = request.form.get("first_name")
-        family_name = request.form.get("family_name")
-        company_name = request.form.get("company_name")
-        address = request.form.get("address")
-        postcode = request.form.get("postcode")
-        phone_number = request.form.get("phone_number")
-        email = request.form.get("email")
+        trade = request.form.get("trade") or ""
+        first_name = request.form.get("first_name") or ""
+        family_name = request.form.get("family_name") or ""
+        company_name = request.form.get("company_name") or ""
+        address = request.form.get("address") or ""
+        postcode = request.form.get("postcode") or ""
+        phone_number = request.form.get("phone_number") or ""
+        email = request.form.get("email") or ""
 
         try:
             tradesman_id = tradesman_service.create_tradesman(
@@ -39,7 +41,7 @@ def add_tradesman():
 
 @tradesmen_bp.route("/tradesman/<int:tradesman_id>")
 @login_required
-def view_tradesman(tradesman_id):
+def view_tradesman(tradesman_id: int) -> Union[str, Response]:
     try:
         tradesman = tradesman_service.get_tradesman_by_id(tradesman_id)
         if not tradesman:
@@ -65,7 +67,7 @@ def view_tradesman(tradesman_id):
 
 @tradesmen_bp.route("/edit_tradesman/<int:tradesman_id>", methods=["GET", "POST"])
 @login_required
-def edit_tradesman(tradesman_id):
+def edit_tradesman(tradesman_id: int) -> Union[str, Response]:
     # Check if the tradesman exists and belongs to the current user
     can_edit = tradesman_service.can_user_edit_tradesman(session["user_id"], tradesman_id)
     tradesman = tradesman_service.get_tradesman_by_id(tradesman_id)
@@ -75,14 +77,14 @@ def edit_tradesman(tradesman_id):
 
     if request.method == "POST":
         # Get form data
-        trade = request.form.get("trade")
-        first_name = request.form.get("first_name")
-        family_name = request.form.get("family_name")
-        company_name = request.form.get("company_name")
-        address = request.form.get("address")
-        postcode = request.form.get("postcode")
-        phone_number = request.form.get("phone_number")
-        email = request.form.get("email")
+        trade = request.form.get("trade") or ""
+        first_name = request.form.get("first_name") or ""
+        family_name = request.form.get("family_name") or ""
+        company_name = request.form.get("company_name") or ""
+        address = request.form.get("address") or ""
+        postcode = request.form.get("postcode") or ""
+        phone_number = request.form.get("phone_number") or ""
+        email = request.form.get("email") or ""
 
         try:
             tradesman_service.update_tradesman(
@@ -107,7 +109,7 @@ def edit_tradesman(tradesman_id):
 
 @tradesmen_bp.route("/user_tradesmen/<int:user_id>")
 @login_required
-def user_tradesmen(user_id):
+def user_tradesmen(user_id: int) -> Union[str, Response]:
     """Show tradesmen associated with a specific user"""
     # Get user information and tradesmen
     from app.services.user_service import UserService
@@ -121,7 +123,7 @@ def user_tradesmen(user_id):
 
 @tradesmen_bp.route("/add_my_tradesman_to_group/<int:group_id>", methods=["GET", "POST"])
 @login_required
-def add_my_tradesman_to_group(group_id):
+def add_my_tradesman_to_group(group_id: int) -> Union[str, Response]:
     """Show user's tradesmen and allow adding them to a group"""
     from app.services.group_service import GroupService
     group_service = GroupService()
@@ -135,9 +137,10 @@ def add_my_tradesman_to_group(group_id):
         flash("Group not found.", "error")
         return redirect(url_for("main.index"))
     if request.method == "POST":
-        tradesman_id = request.form.get("tradesman_id")
-        if tradesman_id:
+        tradesman_id_str = request.form.get("tradesman_id")
+        if tradesman_id_str:
             try:
+                tradesman_id = int(tradesman_id_str)
                 if tradesman_service.is_tradesman_in_group(group_id, tradesman_id):
                     flash("This tradesman is already in the group.", "info")
                 else:

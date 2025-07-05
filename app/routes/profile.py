@@ -1,16 +1,38 @@
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask import Blueprint, render_template, session, flash, redirect, url_for, request
+from werkzeug.wrappers.response import Response
+from typing import Any, Dict, List, Optional, Union
 from helpers import login_required
 from app.services.user_service import UserService
+from app.services.group_service import GroupService
+from app.services.tradesman_service import TradesmanService
+from app.services.job_service import JobService
 
-# Create Blueprint
 profile_bp = Blueprint('profile', __name__)
 
-# Initialize service
 user_service = UserService()
+group_service = GroupService()
+tradesman_service = TradesmanService()
+job_service = JobService()
+
+@profile_bp.route('/profile')
+@login_required
+def profile() -> Union[str, Response]:
+    user_id = session.get('user_id')
+    if user_id is None:
+        flash('User not logged in.', 'error')
+        return redirect(url_for('auth.login'))
+    user = user_service.get_user_by_id(user_id)
+    if not user:
+        flash('User not found.', 'error')
+        return redirect(url_for('auth.login'))
+    user_groups = group_service.get_user_groups(user_id)
+    user_tradesmen = tradesman_service.get_tradesmen_by_user(user_id)
+    user_jobs = job_service.get_jobs_by_user(user_id)
+    return render_template('profile.html', user=user, groups=user_groups, tradesmen=user_tradesmen, jobs=user_jobs)
 
 @profile_bp.route("/user_profile/<int:user_id>")
 @login_required
-def user_profile(user_id):
+def user_profile(user_id: int) -> Union[str, Response]:
     """Show user profile with basic information"""
     # Get user information
     user = user_service.get_user_by_id(user_id)
@@ -20,8 +42,8 @@ def user_profile(user_id):
         return redirect(url_for("main.index"))
 
     # Get user statistics
-    user_groups = user_service.get_user_groups(user_id)
-    user_tradesmen = user_service.get_user_tradesmen(user_id)
+    user_groups = group_service.get_user_groups(user_id)
+    user_tradesmen = tradesman_service.get_tradesmen_by_user(user_id)
     
     tradesmen_count = len(user_tradesmen)
     groups_count = len([g for g in user_groups if g['status'] != 'pending'])
@@ -33,7 +55,7 @@ def user_profile(user_id):
 
 @profile_bp.route("/edit_profile", methods=["GET", "POST"])
 @login_required
-def edit_profile():
+def edit_profile() -> Union[str, Response]:
     """Edit current user's profile"""
     user_id = session["user_id"]
 

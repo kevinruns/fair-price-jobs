@@ -1,4 +1,6 @@
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from werkzeug.wrappers.response import Response
+from typing import Optional, List, Dict, Any, Union
 from helpers import login_required
 from app.services.job_service import JobService
 from app.services.tradesman_service import TradesmanService
@@ -12,7 +14,7 @@ tradesman_service = TradesmanService()
 
 @jobs_bp.route("/add_job/<int:tradesman_id>", methods=["GET", "POST"])
 @login_required
-def add_job(tradesman_id):
+def add_job(tradesman_id: int) -> Union[str, Response]:
     # Get tradesman information
     tradesman = tradesman_service.get_tradesman_by_id(tradesman_id)
     
@@ -22,10 +24,10 @@ def add_job(tradesman_id):
 
     if request.method == "POST":
         user_id = session["user_id"]
-        date_started = request.form.get("date_started")
-        date_finished = request.form.get("date_finished")
-        title = request.form.get("title")
-        description = request.form.get("description")
+        date_started = request.form.get("date_started") or None
+        date_finished = request.form.get("date_finished") or None
+        title = request.form.get("title") or ""
+        description = request.form.get("description") or ""
         call_out_fee = request.form.get("call_out_fee")
         materials_fee = request.form.get("materials_fee")
         hourly_rate = request.form.get("hourly_rate")
@@ -36,15 +38,15 @@ def add_job(tradesman_id):
         rating = request.form.get("rating")
 
         try:
-            # Convert empty strings to None for optional fields
-            call_out_fee = int(call_out_fee) if call_out_fee else None
-            materials_fee = int(materials_fee) if materials_fee else None
-            hourly_rate = int(hourly_rate) if hourly_rate else None
-            hours_worked = float(hours_worked) if hours_worked else None
-            daily_rate = int(daily_rate) if daily_rate else None
-            days_worked = float(days_worked) if days_worked else None
-            total_cost = int(total_cost) if total_cost else None
-            rating = int(rating) if rating else None
+            # Convert empty strings to None for optional fields and cast to correct types
+            call_out_fee_int = int(call_out_fee) if call_out_fee else None
+            materials_fee_int = int(materials_fee) if materials_fee else None
+            hourly_rate_int = int(hourly_rate) if hourly_rate else None
+            hours_worked_float = float(hours_worked) if hours_worked else None
+            daily_rate_int = int(daily_rate) if daily_rate else None
+            days_worked_float = float(days_worked) if days_worked else None
+            total_cost_int = int(total_cost) if total_cost else None
+            rating_int = int(rating) if rating else None
             
             job_service.create_job(
                 user_id=user_id,
@@ -53,14 +55,14 @@ def add_job(tradesman_id):
                 description=description,
                 date_started=date_started,
                 date_finished=date_finished,
-                call_out_fee=call_out_fee,
-                materials_fee=materials_fee,
-                hourly_rate=hourly_rate,
-                hours_worked=hours_worked,
-                daily_rate=daily_rate,
-                days_worked=days_worked,
-                total_cost=total_cost,
-                rating=rating
+                call_out_fee=call_out_fee_int,
+                materials_fee=materials_fee_int,
+                hourly_rate=hourly_rate_int,
+                hours_worked=hours_worked_float,
+                daily_rate=daily_rate_int,
+                days_worked=days_worked_float,
+                total_cost=total_cost_int,
+                rating=rating_int
             )
             flash("Job added successfully!", "success")
         except Exception as e:
@@ -72,7 +74,7 @@ def add_job(tradesman_id):
 
 @jobs_bp.route("/add_quote/<int:tradesman_id>", methods=["GET", "POST"])
 @login_required
-def add_quote(tradesman_id):
+def add_quote(tradesman_id: int) -> Union[str, Response]:
     # Get tradesman information
     tradesman = tradesman_service.get_tradesman_by_id(tradesman_id)
     
@@ -82,10 +84,10 @@ def add_quote(tradesman_id):
 
     if request.method == "POST":
         user_id = session["user_id"]
-        date_requested = request.form.get("date_requested")
-        date_received = request.form.get("date_received")
-        title = request.form.get("title")
-        description = request.form.get("description")
+        date_requested = request.form.get("date_requested") or None
+        date_received = request.form.get("date_received") or None
+        title = request.form.get("title") or ""
+        description = request.form.get("description") or ""
         call_out_fee = request.form.get("call_out_fee")
         materials_fee = request.form.get("materials_fee")
         hourly_rate = request.form.get("hourly_rate")
@@ -96,14 +98,14 @@ def add_quote(tradesman_id):
         status = request.form.get("status", "pending")
 
         try:
-            # Convert empty strings to None for optional fields
-            call_out_fee = int(call_out_fee) if call_out_fee else None
-            materials_fee = int(materials_fee) if materials_fee else None
-            hourly_rate = int(hourly_rate) if hourly_rate else None
-            hours_estimated = float(hours_estimated) if hours_estimated else None
-            daily_rate = int(daily_rate) if daily_rate else None
-            days_estimated = float(days_estimated) if days_estimated else None
-            total_quote = int(total_quote) if total_quote else None
+            # Convert empty strings to None for optional fields and cast to correct types
+            call_out_fee_int = int(call_out_fee) if call_out_fee else None
+            materials_fee_int = int(materials_fee) if materials_fee else None
+            hourly_rate_int = int(hourly_rate) if hourly_rate else None
+            hours_estimated_float = float(hours_estimated) if hours_estimated else None
+            daily_rate_int = int(daily_rate) if daily_rate else None
+            days_estimated_float = float(days_estimated) if days_estimated else None
+            total_quote_int = int(total_quote) if total_quote else None
             
             job_service.create_quote(
                 user_id=user_id,
@@ -112,13 +114,13 @@ def add_quote(tradesman_id):
                 description=description,
                 date_requested=date_requested,
                 date_received=date_received,
-                call_out_fee=call_out_fee,
-                materials_fee=materials_fee,
-                hourly_rate=hourly_rate,
-                hours_estimated=hours_estimated,
-                daily_rate=daily_rate,
-                days_estimated=days_estimated,
-                total_quote=total_quote
+                call_out_fee=call_out_fee_int,
+                materials_fee=materials_fee_int,
+                hourly_rate=hourly_rate_int,
+                hours_estimated=hours_estimated_float,
+                daily_rate=daily_rate_int,
+                days_estimated=days_estimated_float,
+                total_quote=total_quote_int
             )
             flash("Quote added successfully!", "success")
         except Exception as e:
@@ -130,7 +132,7 @@ def add_quote(tradesman_id):
 
 @jobs_bp.route("/convert_quote_to_job/<int:quote_id>", methods=["POST"])
 @login_required
-def convert_quote_to_job(quote_id):
+def convert_quote_to_job(quote_id: int) -> Union[str, Response]:
     """Convert a quote to a job when accepted"""
     try:
         quote = job_service.get_job_by_id(quote_id)
@@ -146,11 +148,14 @@ def convert_quote_to_job(quote_id):
     except Exception as e:
         flash(f"An error occurred: {str(e)}", "error")
     
-    return redirect(url_for("tradesmen.view_tradesman", tradesman_id=quote['tradesman_id']))
+    if quote and 'tradesman_id' in quote:
+        return redirect(url_for("tradesmen.view_tradesman", tradesman_id=quote['tradesman_id']))
+    else:
+        return redirect(url_for("search.search_tradesmen"))
 
 @jobs_bp.route("/reject_quote/<int:quote_id>", methods=["POST"])
 @login_required
-def reject_quote(quote_id):
+def reject_quote(quote_id: int) -> Union[str, Response]:
     """Reject a quote"""
     try:
         quote = job_service.get_job_by_id(quote_id)
@@ -166,11 +171,14 @@ def reject_quote(quote_id):
     except Exception as e:
         flash(f"An error occurred: {str(e)}", "error")
     
-    return redirect(url_for("tradesmen.view_tradesman", tradesman_id=quote['tradesman_id']))
+    if quote and 'tradesman_id' in quote:
+        return redirect(url_for("tradesmen.view_tradesman", tradesman_id=quote['tradesman_id']))
+    else:
+        return redirect(url_for("search.search_tradesmen"))
 
 @jobs_bp.route('/view_quote/<int:quote_id>')
 @login_required
-def view_quote(quote_id):
+def view_quote(quote_id: int) -> Union[str, Response]:
     quote = job_service.get_job_by_id(quote_id)
     if not quote or quote['type'] != 'quote':
         flash("Quote not found.", "error")
@@ -180,7 +188,7 @@ def view_quote(quote_id):
 
 @jobs_bp.route('/view_job/<int:job_id>')
 @login_required
-def view_job(job_id):
+def view_job(job_id: int) -> Union[str, Response]:
     job = job_service.get_job_by_id(job_id)
     if not job or job['type'] != 'job':
         flash("Job not found.", "error")
@@ -190,7 +198,7 @@ def view_job(job_id):
 
 @jobs_bp.route('/edit_job/<int:job_id>', methods=['GET', 'POST'])
 @login_required
-def edit_job(job_id):
+def edit_job(job_id: int) -> Union[str, Response]:
     job = job_service.get_job_by_id(job_id)
     if not job or job['type'] != 'job':
         flash("Job not found.", "error")
@@ -198,13 +206,14 @@ def edit_job(job_id):
     
     if not job_service.can_user_edit_job(session["user_id"], job_id):
         flash("You don't have permission to edit this job.", "error")
-        return redirect(url_for("jobs.view_job", job_id=job_id))
+        return redirect(url_for("search.search_jobs"))
 
     if request.method == "POST":
-        date_started = request.form.get("date_started")
-        date_finished = request.form.get("date_finished")
-        title = request.form.get("title")
-        description = request.form.get("description")
+        # Get form data
+        title = request.form.get("title") or ""
+        description = request.form.get("description") or ""
+        date_started = request.form.get("date_started") or None
+        date_finished = request.form.get("date_finished") or None
         call_out_fee = request.form.get("call_out_fee")
         materials_fee = request.form.get("materials_fee")
         hourly_rate = request.form.get("hourly_rate")
@@ -215,30 +224,28 @@ def edit_job(job_id):
         rating = request.form.get("rating")
 
         try:
-            # Convert empty strings to None for optional fields
-            call_out_fee = int(call_out_fee) if call_out_fee else None
-            materials_fee = int(materials_fee) if materials_fee else None
-            hourly_rate = int(hourly_rate) if hourly_rate else None
-            hours_worked = float(hours_worked) if hours_worked else None
-            daily_rate = int(daily_rate) if daily_rate else None
-            days_worked = float(days_worked) if days_worked else None
-            total_cost = int(total_cost) if total_cost else None
-            rating = int(rating) if rating else None
-            
+            call_out_fee_int = int(call_out_fee) if call_out_fee else None
+            materials_fee_int = int(materials_fee) if materials_fee else None
+            hourly_rate_int = int(hourly_rate) if hourly_rate else None
+            hours_worked_float = float(hours_worked) if hours_worked else None
+            daily_rate_int = int(daily_rate) if daily_rate else None
+            days_worked_float = float(days_worked) if days_worked else None
+            total_cost_int = int(total_cost) if total_cost else None
+            rating_int = int(rating) if rating else None
             job_service.update_job(
                 job_id,
                 title=title,
                 description=description,
                 date_started=date_started,
                 date_finished=date_finished,
-                call_out_fee=call_out_fee,
-                materials_fee=materials_fee,
-                hourly_rate=hourly_rate,
-                hours_worked=hours_worked,
-                daily_rate=daily_rate,
-                days_worked=days_worked,
-                total_cost=total_cost,
-                rating=rating
+                call_out_fee=call_out_fee_int,
+                materials_fee=materials_fee_int,
+                hourly_rate=hourly_rate_int,
+                hours_worked=hours_worked_float,
+                daily_rate=daily_rate_int,
+                days_worked=days_worked_float,
+                total_cost=total_cost_int,
+                rating=rating_int
             )
             flash("Job updated successfully!", "success")
             return redirect(url_for("jobs.view_job", job_id=job_id))

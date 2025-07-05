@@ -164,7 +164,7 @@ class JobService:
             
         if rating:
             query += " AND j.rating >= ?"
-            params.append(int(rating))
+            params.append(str(rating))
             
         if added_by_user:
             query += " AND u.username = ?"
@@ -180,7 +180,7 @@ class JobService:
             
         query += " ORDER BY j.date_finished DESC NULLS LAST"
         
-        return self.db.execute_query(query, params)
+        return self.db.execute_query(query, tuple(params))
     
     def search_quotes(self, search_term: str = None, trade: str = None,
                      postcode: str = None, status: str = None) -> List[Dict[str, Any]]:
@@ -296,7 +296,7 @@ class JobService:
             ORDER BY u.username
         """
         results = self.db.execute_query(query)
-        return [dict(row) for row in results]
+        return [row['username'] for row in results]
     
     def get_unique_groups(self):
         """Get all unique groups for filtering"""
@@ -332,3 +332,23 @@ class JobService:
             LIMIT ?
         """
         return self.db.execute_query(query, (user_id, user_id, limit)) 
+
+    def get_job_status_counts(self, tradesman_id: int) -> Dict[str, int]:
+        """Get counts of jobs by status for a tradesman."""
+        query = """
+            SELECT status, COUNT(*) as count
+            FROM jobs
+            WHERE tradesman_id = ?
+            GROUP BY status
+        """
+        results = self.db.execute_query(query, (tradesman_id,))
+        counts: Dict[str, int] = {}
+        for row in results:
+            counts[row['status']] = row['count']
+        return counts
+
+    def get_job_titles_for_tradesman(self, tradesman_id: int) -> List[str]:
+        """Get all job titles for a tradesman."""
+        query = "SELECT title FROM jobs WHERE tradesman_id = ?"
+        results = self.db.execute_query(query, (tradesman_id,))
+        return [row['title'] for row in results] 
