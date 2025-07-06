@@ -253,6 +253,38 @@ def edit_job(job_id: int) -> Union[str, Response]:
             flash(f"An error occurred: {str(e)}", "error")
             return redirect(url_for("jobs.edit_job", job_id=job_id))
 
-    return render_template("edit_job.html", job=job)
+    return render_template("edit_job.html", job=job, can_delete=job_service.can_user_edit_job(session["user_id"], job_id))
+
+@jobs_bp.route("/delete_job/<int:job_id>")
+@login_required
+def delete_job(job_id: int) -> Union[str, Response]:
+    """Delete a job if the user has permission."""
+    try:
+        # Check if the job exists and belongs to the current user
+        can_delete = job_service.can_user_edit_job(session["user_id"], job_id)
+        job = job_service.get_job_by_id(job_id)
+        
+        if not job or not can_delete:
+            flash("Job not found or you don't have permission to delete it.", "error")
+            return redirect(url_for("search.search_jobs"))
+        
+        # Store tradesman_id for redirect
+        tradesman_id = job.get('tradesman_id')
+        
+        # Delete the job
+        if job_service.delete_job(job_id):
+            flash("Job deleted successfully!", "success")
+            # Redirect to tradesman view if we have the ID, otherwise to search
+            if tradesman_id:
+                return redirect(url_for("tradesmen.view_tradesman", tradesman_id=tradesman_id))
+            else:
+                return redirect(url_for("search.search_jobs"))
+        else:
+            flash("Failed to delete job.", "error")
+            return redirect(url_for("jobs.edit_job", job_id=job_id))
+            
+    except Exception as e:
+        flash(f"An error occurred while deleting the job: {str(e)}", "error")
+        return redirect(url_for("jobs.edit_job", job_id=job_id))
 
  
