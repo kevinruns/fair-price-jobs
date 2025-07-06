@@ -105,7 +105,7 @@ def edit_tradesman(tradesman_id: int) -> Union[str, Response]:
             return redirect(url_for("tradesmen.edit_tradesman", tradesman_id=tradesman_id))
 
     # If it's a GET request, render the form with current tradesman data
-    return render_template("edit_tradesman.html", tradesman=tradesman)
+    return render_template("edit_tradesman.html", tradesman=tradesman, can_delete=can_edit)
 
 @tradesmen_bp.route("/user_tradesmen/<int:user_id>")
 @login_required
@@ -155,5 +155,30 @@ def add_my_tradesman_to_group(group_id: int) -> Union[str, Response]:
     for t in user_tradesmen:
         t['in_group'] = tradesman_service.is_tradesman_in_group(group_id, t['id'])
     return render_template("add_my_tradesman_to_group.html", user_tradesmen=user_tradesmen, group=group)
+
+@tradesmen_bp.route("/delete_tradesman/<int:tradesman_id>")
+@login_required
+def delete_tradesman(tradesman_id: int) -> Union[str, Response]:
+    """Delete a tradesman if the user has permission."""
+    try:
+        # Check if the tradesman exists and belongs to the current user
+        can_delete = tradesman_service.can_user_edit_tradesman(session["user_id"], tradesman_id)
+        tradesman = tradesman_service.get_tradesman_by_id(tradesman_id)
+        
+        if not tradesman or not can_delete:
+            flash("Tradesman not found or you don't have permission to delete it.", "error")
+            return redirect(url_for("main.index"))
+        
+        # Delete the tradesman
+        if tradesman_service.delete_tradesman(tradesman_id):
+            flash("Tradesman deleted successfully!", "success")
+            return redirect(url_for("tradesmen.user_tradesmen", user_id=session["user_id"]))
+        else:
+            flash("Failed to delete tradesman.", "error")
+            return redirect(url_for("tradesmen.edit_tradesman", tradesman_id=tradesman_id))
+            
+    except Exception as e:
+        flash(f"An error occurred while deleting the tradesman: {str(e)}", "error")
+        return redirect(url_for("tradesmen.edit_tradesman", tradesman_id=tradesman_id))
 
  

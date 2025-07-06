@@ -24,12 +24,14 @@ class DatabaseService:
             if not hasattr(g, '_database'):
                 g._database = sqlite3.connect(self.database_path, isolation_level=None)
                 g._database.row_factory = sqlite3.Row
+                g._database.execute("PRAGMA foreign_keys = ON")
             return g._database
         except RuntimeError:
             # We're outside Flask context, create a direct connection
             if not hasattr(self, '_test_connection'):
                 self._test_connection = sqlite3.connect(self.database_path, isolation_level=None)
                 self._test_connection.row_factory = sqlite3.Row
+                self._test_connection.execute("PRAGMA foreign_keys = ON")
             return self._test_connection
     
     def close_connection(self):
