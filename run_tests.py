@@ -8,10 +8,11 @@ import sys
 import os
 import argparse
 from tests.test_app import run_tests, TestDatabaseService, TestUserService, TestGroupService, TestTradesmanService, TestJobService, TestIntegration
+from tests.test_email import TestEmailService, TestInvitationService, TestEmailIntegration
 
 def main():
     parser = argparse.ArgumentParser(description='Run Fair Price application tests')
-    parser.add_argument('--service', choices=['database', 'user', 'group', 'tradesman', 'job', 'integration'], 
+    parser.add_argument('--service', choices=['database', 'user', 'group', 'tradesman', 'job', 'integration', 'email'], 
                        help='Run tests for specific service only')
     parser.add_argument('--verbose', '-v', action='store_true', 
                        help='Verbose output')
@@ -31,14 +32,25 @@ def main():
             'group': TestGroupService,
             'tradesman': TestTradesmanService,
             'job': TestJobService,
-            'integration': TestIntegration
+            'integration': TestIntegration,
+            'email': [TestEmailService, TestInvitationService, TestEmailIntegration]
         }
         
-        test_class = service_map[args.service]
+        test_classes = service_map[args.service]
         print(f"Running tests for {args.service} service...")
         
         import unittest
-        suite = unittest.TestLoader().loadTestsFromTestCase(test_class)
+        suite = unittest.TestSuite()
+        
+        # Handle both single test class and list of test classes
+        if isinstance(test_classes, list):
+            for test_class in test_classes:
+                tests = unittest.TestLoader().loadTestsFromTestCase(test_class)
+                suite.addTests(tests)
+        else:
+            tests = unittest.TestLoader().loadTestsFromTestCase(test_classes)
+            suite.addTests(tests)
+        
         runner = unittest.TextTestRunner(verbosity=2 if args.verbose else 1)
         result = runner.run(suite)
         

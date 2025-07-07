@@ -87,6 +87,27 @@ def login() -> Response:
                 session["user_id"] = user['id']
                 session["username"] = user['username']
                 
+                # Check if there's a pending invitation to handle
+                pending_invitation = session.get('pending_invitation')
+                if pending_invitation:
+                    # Clear the pending invitation from session
+                    session.pop('pending_invitation', None)
+                    
+                    # Try to accept the invitation
+                    from app.services.invitation_service import InvitationService
+                    invitation_service = InvitationService()
+                    invitation = invitation_service.get_invitation_by_token(pending_invitation)
+                    
+                    if invitation:
+                        success = invitation_service.accept_invitation(pending_invitation, user['id'])
+                        if success:
+                            flash(f'Welcome to {invitation["group_name"]}!', 'success')
+                            return redirect(url_for('groups.view_group', group_id=invitation['group_id']))
+                        else:
+                            flash('Failed to accept invitation. You may already be a member of this group.', 'error')
+                    else:
+                        flash('Invalid or expired invitation.', 'error')
+                
                 # Redirect user to home page
                 return redirect("/")
             else:

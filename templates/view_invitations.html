@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Pending Invitations - {{ group.name }}
+{% endblock %}
+
+{% block main %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">Pending Invitations</h2>
+                    <a href="{{ url_for('groups.send_invitation', group_id=group.id) }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Send New Invitation
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>Group: <strong>{{ group.name }}</strong></h5>
+                        {% if group.description %}
+                            <p class="text-muted">{{ group.description }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    {% if invitations %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Email</th>
+                                        <th>Invited By</th>
+                                        <th>Sent On</th>
+                                        <th>Expires On</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for invitation in invitations %}
+                                        <tr>
+                                            <td>{{ invitation.email }}</td>
+                                            <td>{{ invitation.inviter_firstname }} {{ invitation.inviter_lastname }}</td>
+                                            <td>{{ invitation.created_at.split('T')[0] if invitation.created_at else 'Unknown' }}</td>
+                                            <td>{{ invitation.expires_at.split('T')[0] if invitation.expires_at else 'Unknown' }}</td>
+                                            <td>
+                                                <form method="post" action="{{ url_for('groups.cancel_invitation', invitation_id=invitation.id) }}" 
+                                                      style="display: inline;" onsubmit="return confirm('Are you sure you want to cancel this invitation?')">
+                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                        <i class="fas fa-times"></i> Cancel
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <p class="text-muted">No pending invitations for this group.</p>
+                            <a href="{{ url_for('groups.send_invitation', group_id=group.id) }}" class="btn btn-primary">
+                                Send First Invitation
+                            </a>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mt-4">
+                        <a href="{{ url_for('groups.view_group', group_id=group.id) }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Group
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -321,6 +321,42 @@ class TestGroupService(unittest.TestCase):
         member_count = self.group_service.get_group_member_count(group_id)
         self.assertEqual(member_count, 2)  # Still 2, pending doesn't count
 
+    def test_create_group_with_creator(self):
+        """Test creating a group with creator in a single transaction."""
+        # Create a test user first
+        user_id = self.user_service.create_user(
+            username='testuser',
+            firstname='Test',
+            lastname='User',
+            email='test@example.com',
+            postcode='12345',
+            password='password123'
+        )
+        
+        # Create group with creator
+        group_id = self.group_service.create_group_with_creator(
+            name='Test Group',
+            postcode='12345',
+            creator_user_id=user_id,
+            description='Test description'
+        )
+        
+        # Verify group was created
+        group = self.group_service.get_group_by_id(group_id)
+        self.assertIsNotNone(group)
+        self.assertEqual(group['name'], 'Test Group')
+        self.assertEqual(group['postcode'], '12345')
+        self.assertEqual(group['description'], 'Test description')
+        
+        # Verify creator was added to group
+        membership = self.group_service.get_user_group_membership(user_id, group_id)
+        self.assertIsNotNone(membership)
+        self.assertEqual(membership['status'], 'creator')
+        
+        # Verify group member count
+        member_count = self.group_service.get_group_member_count(group_id)
+        self.assertEqual(member_count, 1)
+
 
 class TestTradesmanService(unittest.TestCase):
     """Test tradesman service functionality"""

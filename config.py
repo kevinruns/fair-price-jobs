@@ -48,6 +48,13 @@ class Config:
     DEFAULT_PAGE_SIZE: int = 10
     MAX_PAGE_SIZE: int = 100
     
+    # OAuth Email settings
+    OAUTH_CLIENT_ID: Optional[str] = os.environ.get('OAUTH_CLIENT_ID')
+    OAUTH_CLIENT_SECRET: Optional[str] = os.environ.get('OAUTH_CLIENT_SECRET')
+    OAUTH_REFRESH_TOKEN: Optional[str] = os.environ.get('OAUTH_REFRESH_TOKEN')
+    FROM_EMAIL: Optional[str] = os.environ.get('FROM_EMAIL')
+    APP_URL: str = os.environ.get('APP_URL') or 'http://localhost:5000'
+    
     def __init__(self):
         """Initialize configuration with computed values."""
         # Set database path relative to project root

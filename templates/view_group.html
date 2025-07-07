@@ -51,6 +51,32 @@
             </div>
         </div>
 
+        {% if is_admin_or_creator %}
+            <!-- Admin/Creator Actions Section -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title text-primary">Group Management</h6>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a href="{{ url_for('groups.send_invitation', group_id=group['id']) }}" class="btn btn-success">
+                                    <i class="fas fa-envelope"></i> Send Invitation
+                                </a>
+                                <a href="{{ url_for('groups.view_invitations', group_id=group['id']) }}" class="btn btn-info">
+                                    <i class="fas fa-list"></i> View Invitations
+                                </a>
+                                {% if pending_requests_count > 0 %}
+                                    <a href="{{ url_for('groups.view_all_pending_requests') }}" class="btn btn-warning">
+                                        <i class="fas fa-clock"></i> Pending Requests ({{ pending_requests_count }})
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
         {% if is_member %}
             
             <!-- Group Members Section -->

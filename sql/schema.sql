@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS jobs;
 DROP TABLE IF EXISTS user_groups;
 DROP TABLE IF EXISTS group_tradesmen;
 DROP TABLE IF EXISTS user_tradesmen;
+DROP TABLE IF EXISTS group_invitations;
 -- DROP TABLE IF EXISTS  join_requests;
 
 
@@ -36,6 +37,20 @@ CREATE TABLE user_groups (
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     FOREIGN KEY (group_id) REFERENCES groups (id) ON DELETE CASCADE,
     UNIQUE (user_id, group_id)
+);
+
+-- Group invitations table for email invitations
+CREATE TABLE group_invitations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_id INTEGER NOT NULL,
+    invited_by_user_id INTEGER NOT NULL,
+    email TEXT NOT NULL,
+    token TEXT NOT NULL UNIQUE,
+    status TEXT NOT NULL CHECK(status IN ('pending', 'accepted', 'expired')) DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (group_id) REFERENCES groups (id) ON DELETE CASCADE,
+    FOREIGN KEY (invited_by_user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 -- tradesmen

@@ -18,8 +18,8 @@ def create_group() -> Union[str, Response]:
         postcode: str = request.form.get('group_postcode', '')
         description: str = request.form.get('group_description', '').strip() or None
         try:
-            group_id: int = group_service.create_group(name, postcode, description)
-            group_service.add_user_to_group(session['user_id'], group_id, status='creator')
+            # Use the new method that creates group and adds creator in a single transaction
+            group_id: int = group_service.create_group_with_creator(name, postcode, session['user_id'], description)
             
             flash('Group created successfully!', 'success')
             
@@ -170,5 +170,162 @@ def handle_request(request_id: int, action: str) -> Response:
         flash(f'An error occurred: {str(e)}', 'error')
     
     return redirect(request.referrer or url_for('main.index'))
+
+@groups_bp.route('/send_invitation/<int:group_id>', methods=['GET', 'POST'])
+@login_required
+def send_invitation(group_id: int) -> Union[str, Response]:
+    """Send an email invitation to join a group."""
+    # Check if user has permission to send invitations (admin or creator)
+    membership = group_service.get_user_group_membership(session['user_id'], group_id)
+    if not membership or membership['status'] not in ['admin', 'creator']:
+        flash('You do not have permission to send invitations for this group.', 'error')
+        return redirect(url_for('groups.view_group', group_id=group_id))
+    
+    group = group_service.get_group_by_id(group_id)
+    if not group:
+        flash('Group not found.', 'error')
+        return redirect(url_for('groups.search_groups'))
+    
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+        if not email:
+            flash('Please enter a valid email address.', 'error')
+            return redirect(url_for('groups.send_invitation', group_id=group_id))
+        
+        try:
+            from app.services.invitation_service import InvitationService
+            invitation_service = InvitationService()
+            
+            # Check if user with this email already exists and is in the group
+            from app.services.user_service import UserService
+            user_service = UserService()
+            existing_user = user_service.get_user_by_email(email)
+            
+            if existing_user:
+                existing_membership = group_service.get_user_group_membership(existing_user['id'], group_id)
+                if existing_membership:
+                    flash('A user with this email is already a member of this group.', 'warning')
+                    return redirect(url_for('groups.send_invitation', group_id=group_id))
+            
+            # Check email configuration before attempting to send
+            if not invitation_service.email_service.is_configured():
+                flash('Email configuration is incomplete. Please contact the administrator to set up email invitations.', 'error')
+                return redirect(url_for('groups.send_invitation', group_id=group_id))
+            
+            # Send invitation
+            success = invitation_service.send_invitation_email(group_id, session['user_id'], email)
+            
+            if success:
+                flash('Invitation sent successfully!', 'success')
+            else:
+                flash('Failed to send invitation. Please check your email configuration or try again later.', 'error')
+                
+        except Exception as e:
+            flash(f'An error occurred while sending invitation: {str(e)}', 'error')
+        
+        return redirect(url_for('groups.view_group', group_id=group_id))
+    
+    return render_template('send_invitation.html', group=group)
+
+@groups_bp.route('/view_invitations/<int:group_id>')
+@login_required
+def view_invitations(group_id: int) -> Union[str, Response]:
+    """View all pending invitations for a group."""
+    # Check if user has permission to view invitations (admin or creator)
+    membership = group_service.get_user_group_membership(session['user_id'], group_id)
+    if not membership or membership['status'] not in ['admin', 'creator']:
+        flash('You do not have permission to view invitations for this group.', 'error')
+        return redirect(url_for('groups.view_group', group_id=group_id))
+    
+    group = group_service.get_group_by_id(group_id)
+    if not group:
+        flash('Group not found.', 'error')
+        return redirect(url_for('groups.search_groups'))
+    
+    from app.services.invitation_service import InvitationService
+    invitation_service = InvitationService()
+    invitations = invitation_service.get_pending_invitations_for_group(group_id)
+    
+    return render_template('view_invitations.html', group=group, invitations=invitations)
+
+@groups_bp.route('/cancel_invitation/<int:invitation_id>', methods=['POST'])
+@login_required
+def cancel_invitation(invitation_id: int) -> Response:
+    """Cancel a pending invitation."""
+    try:
+        from app.services.invitation_service import InvitationService
+        invitation_service = InvitationService()
+        
+        success = invitation_service.cancel_invitation(invitation_id, session['user_id'])
+        
+        if success:
+            flash('Invitation cancelled successfully.', 'success')
+        else:
+            flash('Failed to cancel invitation or you do not have permission.', 'error')
+            
+    except Exception as e:
+        flash(f'An error occurred: {str(e)}', 'error')
+    
+    return redirect(request.referrer or url_for('main.index'))
+
+@groups_bp.route('/invitation/<token>')
+def invitation(token: str) -> Union[str, Response]:
+    """Handle invitation acceptance."""
+    from app.services.invitation_service import InvitationService
+    invitation_service = InvitationService()
+    
+    invitation = invitation_service.get_invitation_by_token(token)
+    if not invitation:
+        flash('Invalid or expired invitation.', 'error')
+        return redirect(url_for('auth.login'))
+    
+    # If user is not logged in, redirect to login with invitation token
+    if 'user_id' not in session:
+        # Store invitation token in session for after login
+        session['pending_invitation'] = token
+        flash('Please log in to accept this invitation.', 'info')
+        return redirect(url_for('auth.login'))
+    
+    # User is logged in, accept the invitation
+    success = invitation_service.accept_invitation(token, session['user_id'])
+    
+    if success:
+        flash(f'Welcome to {invitation["group_name"]}!', 'success')
+        return redirect(url_for('groups.view_group', group_id=invitation['group_id']))
+    else:
+        flash('Failed to accept invitation. You may already be a member of this group.', 'error')
+        return redirect(url_for('groups.search_groups'))
+
+@groups_bp.route('/test_email_config')
+@login_required
+def test_email_config():
+    """Test email configuration (for debugging)."""
+    try:
+        from app.services.email_service import EmailService
+        email_service = EmailService()
+        
+        # Check OAuth configuration
+        config_status = email_service.get_configuration_status()
+        
+        # Test connection
+        connection_test = email_service.test_connection()
+        
+        return f"""
+        <h2>Email Configuration Test</h2>
+        <h3>OAuth Configuration:</h3>
+        <ul>
+            <li>OAuth Configured: {config_status['oauth_configured']}</li>
+            <li>Client ID: {config_status['client_id']}</li>
+            <li>Client Secret: {config_status['client_secret']}</li>
+            <li>Refresh Token: {config_status['refresh_token']}</li>
+            <li>From Email: {config_status['from_email']}</li>
+            <li>App URL: {config_status['app_url']}</li>
+            <li>Access Token Valid: {config_status['access_token_valid']}</li>
+        </ul>
+        <h3>Connection Test:</h3>
+        <p>Connection {'SUCCESSFUL' if connection_test else 'FAILED'}</p>
+        """
+    except Exception as e:
+        return f"Error testing email configuration: {str(e)}"
 
  

@@ -17,6 +17,33 @@ class GroupService:
         query = "INSERT INTO groups (name, postcode, description) VALUES (?, ?, ?)"
         return self.db.execute_insert(query, (name, postcode, description))
 
+    def create_group_with_creator(self, name: str, postcode: str, creator_user_id: int, description: str = None) -> int:
+        """Create a group and add the creator in a single transaction."""
+        # Convert empty string to None
+        if description == '':
+            description = None
+        
+        # First create the group
+        group_id = self.db.execute_insert(
+            "INSERT INTO groups (name, postcode, description) VALUES (?, ?, ?)",
+            (name, postcode, description)
+        )
+        
+        if group_id:
+            # Then add the creator to the group
+            try:
+                self.db.execute_insert(
+                    "INSERT INTO user_groups (user_id, group_id, status) VALUES (?, ?, 'creator')",
+                    (creator_user_id, group_id)
+                )
+                return group_id
+            except Exception as e:
+                # If adding creator fails, delete the group to maintain consistency
+                self.db.execute_delete("DELETE FROM groups WHERE id = ?", (group_id,))
+                raise Exception(f"Failed to create group with creator: {e}")
+        else:
+            raise Exception("Failed to create group")
+
     def update_group(self, group_id: int, name: Optional[str] = None, postcode: Optional[str] = None) -> bool:
         update_fields = []
         params: list[Any] = []
