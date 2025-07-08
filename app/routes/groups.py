@@ -277,14 +277,14 @@ def invitation(token: str) -> Union[str, Response]:
     invitation = invitation_service.get_invitation_by_token(token)
     if not invitation:
         flash('Invalid or expired invitation.', 'error')
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('auth.register'))
     
-    # If user is not logged in, redirect to login with invitation token
+    # If user is not logged in, redirect to registration with invitation token
     if 'user_id' not in session:
-        # Store invitation token in session for after login
+        # Store invitation token in session for after registration
         session['pending_invitation'] = token
-        flash('Please log in to accept this invitation.', 'info')
-        return redirect(url_for('auth.login'))
+        # Redirect to registration with invitation info
+        return redirect(url_for('auth.register', invitation_token=token))
     
     # User is logged in, accept the invitation
     success = invitation_service.accept_invitation(token, session['user_id'])

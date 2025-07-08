@@ -134,6 +134,22 @@ def logout() -> Response:
 
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register() -> Response:
+    # Get invitation token from query parameter or session
+    invitation_token = request.args.get('invitation_token') or session.get('pending_invitation')
+    invitation_info = None
+    
+    # If there's an invitation token, get the invitation details
+    if invitation_token:
+        from app.services.invitation_service import InvitationService
+        invitation_service = InvitationService()
+        invitation_info = invitation_service.get_invitation_by_token(invitation_token)
+        
+        # If invitation is invalid, clear it and show normal registration
+        if not invitation_info:
+            session.pop('pending_invitation', None)
+            invitation_token = None
+            invitation_info = None
+    
     if request.method == "POST":
         # Define validators for registration
         validators = {
@@ -184,15 +200,15 @@ def register() -> Response:
             
         except ValidationError as e:
             flash(e.message, "error")
-            return make_response(render_template("register.html"))
+            return make_response(render_template("register.html", invitation_info=invitation_info))
         except DuplicateResourceError as e:
             flash(e.message, "error")
-            return make_response(render_template("register.html"))
+            return make_response(render_template("register.html", invitation_info=invitation_info))
         except Exception as e:
             flash("An error occurred during registration. Please try again.", "error")
-            return make_response(render_template("register.html"))
+            return make_response(render_template("register.html", invitation_info=invitation_info))
 
-    return make_response(render_template("register.html"))
+    return make_response(render_template("register.html", invitation_info=invitation_info))
 
 @auth_bp.route("/welcome/<username>")
 def welcome(username: str) -> str:

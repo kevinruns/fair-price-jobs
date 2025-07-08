@@ -99,10 +99,28 @@ class ProductionConfig(Config):
             raise ValueError("SECRET_KEY environment variable must be set in production")
         self.SECRET_KEY = secret_key
 
+class TestingConfig(Config):
+    """Testing configuration."""
+    DEBUG = True
+    LOG_LEVEL = 'DEBUG'
+    
+    # Testing-specific settings
+    DATABASE = ':memory:'  # Use in-memory database for testing
+    WTF_CSRF_ENABLED = False  # Disable CSRF for testing
+    SESSION_TYPE = 'filesystem'
+    
+    def __init__(self):
+        super().__init__()
+        # Allow database path override for testing
+        if os.environ.get('TEST_DATABASE'):
+            self.DATABASE = os.environ.get('TEST_DATABASE')
+            self.DATABASE_PATH = self.DATABASE
+
 # Configuration mapping
 config = {
     'development': DevelopmentConfig,
     'production': ProductionConfig,
+    'testing': TestingConfig,
     'default': DevelopmentConfig
 }
 
