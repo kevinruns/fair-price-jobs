@@ -232,12 +232,76 @@ class InvitationService:
             print(f"Error cancelling invitation: {e}")
             return False
     
-    def _mark_invitation_accepted(self, token: str) -> bool:
-        """Mark an invitation as accepted."""
-        query = "UPDATE group_invitations SET status = 'accepted' WHERE token = ?"
-        return self.db.execute_update(query, (token,)) > 0
+    def get_pending_invitations_by_email(self, email: str) -> List[Dict[str, Any]]:
+        """
+        Get all pending invitations for a specific email address.
+        
+        Args:
+            email: Email address to search for
+            
+        Returns:
+            list: List of pending invitations for this email
+        """
+        query = """
+            SELECT gi.*, g.name as group_name, g.description as group_description,
+                   u.username as inviter_username, u.firstname as inviter_firstname, 
+                   u.lastname as inviter_lastname
+            FROM group_invitations gi
+            JOIN groups g ON gi.group_id = g.id
+            JOIN users u ON gi.invited_by_user_id = u.id
+            WHERE gi.email = ? AND gi.status = 'pending'
+            ORDER BY gi.created_at DESC
+        """
+        invitations = self.db.execute_query(query, (email,))
+        
+        # Filter out expired invitations
+        valid_invitations = []
+        for invitation in invitations:
+            expires_at = datetime.datetime.fromisoformat(invitation['expires_at'])
+            if datetime.datetime.now() <= expires_at:
+                valid_invitations.append(invitation)
+            else:
+                # Mark as expired
+                self._mark_invitation_expired(invitation['token'])
+        
+        return valid_invitations
     
+    def accept_all_pending_invitations_for_user(self, user_id: int, email: str) -> List[Dict[str, Any]]:
+        """
+        Accept all pending invitations for a user by their email address.
+        
+        Args:
+            user_id: ID of the user
+            email: Email address of the user
+            
+        Returns:
+            list: List of groups the user was added to
+        """
+        try:
+            pending_invitations = self.get_pending_invitations_by_email(email)
+            accepted_groups = []
+            
+            for invitation in pending_invitations:
+                success = self.accept_invitation(invitation['token'], user_id)
+                if success:
+                    accepted_groups.append({
+                        'group_id': invitation['group_id'],
+                        'group_name': invitation['group_name'],
+                        'inviter_name': f"{invitation['inviter_firstname']} {invitation['inviter_lastname']}"
+                    })
+            
+            return accepted_groups
+            
+        except Exception as e:
+            print(f"Error accepting pending invitations for user {user_id}: {e}")
+            return []
+
     def _mark_invitation_expired(self, token: str) -> bool:
         """Mark an invitation as expired."""
         query = "UPDATE group_invitations SET status = 'expired' WHERE token = ?"
+        return self.db.execute_update(query, (token,)) > 0
+
+    def _mark_invitation_accepted(self, token: str) -> bool:
+        """Mark an invitation as accepted."""
+        query = "UPDATE group_invitations SET status = 'accepted' WHERE token = ?"
         return self.db.execute_update(query, (token,)) > 0 

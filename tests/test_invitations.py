@@ -109,6 +109,57 @@ class TestInvitations:
         success = self.invitation_service.accept_invitation(token, self.user2_id)
         assert success == True  # Should still succeed and mark invitation as accepted
     
+    def test_get_pending_invitations_by_email(self):
+        """Test getting pending invitations by email address"""
+        # Create invitation for specific email
+        self.invitation_service.create_invitation(
+            self.group_id, self.user1_id, "test@example.com"
+        )
+        
+        # Get pending invitations for that email
+        invitations = self.invitation_service.get_pending_invitations_by_email("test@example.com")
+        assert len(invitations) == 1
+        assert invitations[0]['email'] == "test@example.com"
+        assert invitations[0]['group_id'] == self.group_id
+    
+    def test_accept_all_pending_invitations_for_user(self):
+        """Test accepting all pending invitations for a new user"""
+        # Create invitation for a new email
+        self.invitation_service.create_invitation(
+            self.group_id, self.user1_id, "newuser@example.com"
+        )
+        
+        # Create another invitation for the same email (different group)
+        group2_id = self.group_service.create_group("Test Group 2", "12345", "Second Test Group")
+        self.group_service.add_user_to_group(self.user1_id, group2_id, "creator")
+        self.invitation_service.create_invitation(
+            group2_id, self.user1_id, "newuser@example.com"
+        )
+        
+        # Create a new user with that email
+        new_user_id = self.user_service.create_user(
+            "newuser", "New", "User", "newuser@example.com", "12345", "password123"
+        )
+        
+        # Accept all pending invitations for this user
+        accepted_groups = self.invitation_service.accept_all_pending_invitations_for_user(
+            new_user_id, "newuser@example.com"
+        )
+        
+        # Should be added to both groups
+        assert len(accepted_groups) == 2
+        group_names = [group['group_name'] for group in accepted_groups]
+        assert "Test Group" in group_names
+        assert "Test Group 2" in group_names
+        
+        # Verify user is actually a member of both groups
+        membership1 = self.group_service.get_user_group_membership(new_user_id, self.group_id)
+        membership2 = self.group_service.get_user_group_membership(new_user_id, group2_id)
+        assert membership1 is not None
+        assert membership2 is not None
+        assert membership1['status'] == 'member'
+        assert membership2['status'] == 'member'
+    
     def test_get_pending_invitations_for_group(self):
         """Test getting pending invitations for a group"""
         # Create multiple invitations

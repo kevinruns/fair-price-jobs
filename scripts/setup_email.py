@@ -194,12 +194,16 @@ def main():
     env_path = Path('.env')
     if not env_path.exists():
         print("⚠️  No .env file found. Creating one from template...")
-        if Path('docs/production.env.example').exists():
+        if Path('docs/development.env.example').exists():
+            import shutil
+            shutil.copy('docs/development.env.example', '.env')
+            print("✅ Created .env file from development template")
+        elif Path('docs/production.env.example').exists():
             import shutil
             shutil.copy('docs/production.env.example', '.env')
-            print("✅ Created .env file from template")
+            print("✅ Created .env file from production template")
         else:
-            print("❌ production.env.example not found. Please create a .env file manually.")
+            print("❌ No environment template found. Please create a .env file manually.")
             return
     
     # Get OAuth configuration

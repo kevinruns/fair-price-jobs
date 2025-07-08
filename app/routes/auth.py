@@ -167,7 +167,19 @@ def register() -> Response:
                 password=validated_data['password']
             )
             
-            flash("Registration successful.", "success")
+            # Check for and accept any pending invitations for this email
+            from app.services.invitation_service import InvitationService
+            invitation_service = InvitationService()
+            accepted_groups = invitation_service.accept_all_pending_invitations_for_user(
+                user_id, validated_data['email']
+            )
+            
+            if accepted_groups:
+                group_names = [group['group_name'] for group in accepted_groups]
+                flash(f"Registration successful! You have been automatically added to: {', '.join(group_names)}", "success")
+            else:
+                flash("Registration successful.", "success")
+            
             return redirect(url_for("auth.welcome", username=validated_data['username']))
             
         except ValidationError as e:
