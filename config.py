@@ -24,6 +24,11 @@ class Config:
     DATABASE: str = os.environ.get('DATABASE') or 'application.db'
     DATABASE_PATH: Optional[str] = None
     
+    # File upload settings
+    MAX_CONTENT_LENGTH: int = 16 * 1024 * 1024  # 16MB max file size
+    UPLOAD_FOLDER: str = os.environ.get('UPLOAD_FOLDER') or 'uploads'
+    ALLOWED_EXTENSIONS: set = {'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx', 'txt'}
+    
     # Session settings
     SESSION_PERMANENT: bool = False
     SESSION_TYPE: str = 'filesystem'
@@ -69,6 +74,10 @@ class Config:
         # Ensure session directory exists
         session_dir = Path(self.SESSION_FILE_DIR)
         session_dir.mkdir(exist_ok=True)
+        
+        # Ensure upload directory exists
+        upload_dir = Path(self.UPLOAD_FOLDER)
+        upload_dir.mkdir(exist_ok=True)
 
 class DevelopmentConfig(Config):
     """Development configuration."""

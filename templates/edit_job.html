@@ -10,12 +10,12 @@
             <p class="text-muted mb-0">
                 <strong>Tradesman:</strong> 
                 <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=job.tradesman_id) }}" class="text-decoration-none">
-                    {{ job.tradesman_name }} - {{ job.trade }}
+                    {{ job.tradesman_name }}
                 </a>
             </p>
         </div>
     </div>
-            <form action="{{ url_for('jobs.edit_job', job_id=job.id) }}" method="post">
+            <form action="{{ url_for('jobs.edit_job', job_id=job.id) }}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <!-- Description Row -->
@@ -154,6 +154,32 @@
                             <input type="number" min="1" max="5" class="form-control" id="rating" name="rating" 
                                    placeholder="Optional" value="{{ job.rating if job.rating else '' }}">
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Upload Row -->
+        <div class="row align-items-center mb-4">
+            <div class="col-sm-6">
+                <div class="row align-items-center">
+                    <label for="quote_file" class="col-sm-6 col-form-label">Quote File</label>
+                    <div class="col-sm-6">
+                        {% if job.quote_file %}
+                            <a href="{{ url_for('main.uploaded_file', filename=job.quote_file) }}" target="_blank">View Current File</a><br>
+                        {% endif %}
+                        <input type="file" class="form-control" id="quote_file" name="quote_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="row align-items-center">
+                    <label for="job_file" class="col-sm-6 col-form-label">Job File</label>
+                    <div class="col-sm-6">
+                        {% if job.job_file %}
+                            <a href="{{ url_for('main.uploaded_file', filename=job.job_file) }}" target="_blank">View Current File</a><br>
+                        {% endif %}
+                        <input type="file" class="form-control" id="job_file" name="job_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
                     </div>
                 </div>
             </div>

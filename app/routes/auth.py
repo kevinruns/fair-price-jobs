@@ -5,7 +5,7 @@ from functools import wraps
 from typing import Callable, Any, Dict, Optional, Union
 from typing import cast
 
-from helpers import login_required
+from app.helpers import login_required
 from app.services.user_service import UserService
 from app.validators import validate_form, StringValidator, EmailValidator, PasswordValidator
 from app.exceptions import AuthenticationError, ValidationError, DuplicateResourceError

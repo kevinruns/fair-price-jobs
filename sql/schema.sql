@@ -109,6 +109,8 @@ CREATE TABLE jobs (
     total_quote INTEGER NULL CHECK (total_quote IS NULL OR total_quote >= 0),
     rating INTEGER NULL CHECK (rating IS NULL OR (rating >= 1 AND rating <= 5)),
     status TEXT CHECK (status IN ('pending', 'accepted', 'declined')) DEFAULT 'pending',
+    quote_file TEXT NULL,
+    job_file TEXT NULL,
     FOREIGN KEY (tradesman_id) REFERENCES tradesmen (id) ON DELETE CASCADE
 );
 

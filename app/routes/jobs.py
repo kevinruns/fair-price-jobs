@@ -1,9 +1,14 @@
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for, current_app, abort
 from werkzeug.wrappers.response import Response
 from typing import Optional, List, Dict, Any, Union
-from helpers import login_required
+from app.helpers import login_required
 from app.services.job_service import JobService
 from app.services.tradesman_service import TradesmanService
+from app.services.file_service import FileService
+from pathlib import Path
+import os
+import uuid
+from werkzeug.utils import secure_filename
 
 # Create Blueprint
 jobs_bp = Blueprint('jobs', __name__)
@@ -37,6 +42,20 @@ def add_job(tradesman_id: int) -> Union[str, Response]:
         total_cost = request.form.get("total_cost")
         rating = request.form.get("rating")
 
+        # Handle file uploads
+        quote_file = None
+        job_file = None
+        
+        if 'quote_file' in request.files:
+            quote_file_obj = request.files['quote_file']
+            if quote_file_obj and quote_file_obj.filename:
+                quote_file = FileService.save_file(quote_file_obj, 'quotes')
+        
+        if 'job_file' in request.files:
+            job_file_obj = request.files['job_file']
+            if job_file_obj and job_file_obj.filename:
+                job_file = FileService.save_file(job_file_obj, 'jobs')
+
         try:
             # Convert empty strings to None for optional fields and cast to correct types
             call_out_fee_int = int(call_out_fee) if call_out_fee else None
@@ -62,7 +81,9 @@ def add_job(tradesman_id: int) -> Union[str, Response]:
                 daily_rate=daily_rate_int,
                 days_worked=days_worked_float,
                 total_cost=total_cost_int,
-                rating=rating_int
+                rating=rating_int,
+                quote_file=quote_file,
+                job_file=job_file
             )
             flash("Job added successfully!", "success")
         except Exception as e:
@@ -223,6 +244,26 @@ def edit_job(job_id: int) -> Union[str, Response]:
         total_cost = request.form.get("total_cost")
         rating = request.form.get("rating")
 
+        # Handle file uploads
+        quote_file = job.get('quote_file')  # Keep existing file if no new one uploaded
+        job_file = job.get('job_file')      # Keep existing file if no new one uploaded
+        
+        if 'quote_file' in request.files:
+            quote_file_obj = request.files['quote_file']
+            if quote_file_obj and quote_file_obj.filename:
+                # Delete old file if it exists
+                if quote_file:
+                    FileService.delete_file(quote_file)
+                quote_file = FileService.save_file(quote_file_obj, 'quotes')
+        
+        if 'job_file' in request.files:
+            job_file_obj = request.files['job_file']
+            if job_file_obj and job_file_obj.filename:
+                # Delete old file if it exists
+                if job_file:
+                    FileService.delete_file(job_file)
+                job_file = FileService.save_file(job_file_obj, 'jobs')
+
         try:
             call_out_fee_int = int(call_out_fee) if call_out_fee else None
             materials_fee_int = int(materials_fee) if materials_fee else None
@@ -245,7 +286,9 @@ def edit_job(job_id: int) -> Union[str, Response]:
                 daily_rate=daily_rate_int,
                 days_worked=days_worked_float,
                 total_cost=total_cost_int,
-                rating=rating_int
+                rating=rating_int,
+                quote_file=quote_file,
+                job_file=job_file
             )
             flash("Job updated successfully!", "success")
             return redirect(url_for("jobs.view_job", job_id=job_id))
@@ -286,5 +329,16 @@ def delete_job(job_id: int) -> Union[str, Response]:
     except Exception as e:
         flash(f"An error occurred while deleting the job: {str(e)}", "error")
         return redirect(url_for("jobs.edit_job", job_id=job_id))
+
+@jobs_bp.route('/uploads/<path:filename>')
+@login_required
+def uploaded_file(filename):
+    """Serve uploaded files."""
+    # Security check - ensure filename doesn't contain path traversal
+    if '..' in filename or filename.startswith('/'):
+        abort(404)
+    
+    upload_folder = current_app.config['UPLOAD_FOLDER']
+    return current_app.send_static_file(f'uploads/{filename}')
 
  

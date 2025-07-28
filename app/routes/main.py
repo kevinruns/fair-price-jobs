@@ -1,12 +1,15 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session, current_app, abort
 from werkzeug.wrappers.response import Response
-from typing import Any, Dict, List, Union
-from helpers import login_required
+from typing import Any, Dict, List, Union, Optional
+from app.helpers import login_required
 from app.services.user_service import UserService
 from app.services.group_service import GroupService
 from app.services.tradesman_service import TradesmanService
 from app.services.job_service import JobService
+from app.services.file_service import FileService
 from config import get_config
+from pathlib import Path
+import os
 
 main_bp = Blueprint('main', __name__)
 
@@ -50,17 +53,32 @@ def index() -> Union[str, Response]:
 def initialize_db() -> Union[str, tuple[str, int]]:
     """Initialize the database with schema."""
     from app.services.database import get_db_service
-    from pathlib import Path
     
     config = get_config()
     db_service = get_db_service()
     schema_path = Path(__file__).parent.parent.parent / 'sql' / 'schema.sql'
+    add_file_fields_path = Path(__file__).parent.parent.parent / 'sql' / 'add_file_fields.sql'
     
     try:
         with open(schema_path, 'r') as f:
             db_service.get_connection().cursor().executescript(f.read())
+        with open(add_file_fields_path, 'r') as f:
+            db_service.get_connection().cursor().executescript(f.read())
         return 'Database initialized successfully.'
     except Exception as e:
         return f'Error initializing database: {e}', 500
+
+@main_bp.route('/uploads/<path:filename>')
+@login_required
+def uploaded_file(filename):
+    """Serve uploaded files."""
+    from flask import send_from_directory
+    
+    # Security check - ensure filename doesn't contain path traversal
+    if '..' in filename or filename.startswith('/'):
+        abort(404)
+    
+    upload_folder = current_app.config['UPLOAD_FOLDER']
+    return send_from_directory(upload_folder, filename)
 
  

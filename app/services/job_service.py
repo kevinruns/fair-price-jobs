@@ -1,5 +1,6 @@
 from typing import Optional, List, Dict, Any
 from app.services.database import get_db_service
+from app.services.file_service import FileService
 
 class JobService:
     """Service class for job and quote-related database operations."""
@@ -11,6 +12,10 @@ class JobService:
         """Get job by ID with related information."""
         query = """
             SELECT j.*, 
+                   CASE 
+                       WHEN t.first_name IS NOT NULL THEN t.first_name || ' ' || t.family_name
+                       ELSE t.family_name
+                   END as tradesman_name,
                    t.first_name, t.family_name, t.company_name, t.trade,
                    u.username as added_by_username,
                    u.id as added_by_user_id
@@ -26,7 +31,8 @@ class JobService:
                    call_out_fee: int = None, materials_fee: int = None,
                    hourly_rate: int = None, hours_worked: float = None,
                    daily_rate: int = None, days_worked: float = None,
-                   total_cost: int = None, rating: int = None) -> int:
+                   total_cost: int = None, rating: int = None,
+                   quote_file: str = None, job_file: str = None) -> int:
         """Create a new job and return the job ID."""
         query = """
             INSERT INTO jobs (
@@ -34,15 +40,15 @@ class JobService:
                 date_started, date_finished, date_requested, date_received,
                 call_out_fee, materials_fee, hourly_rate, hours_worked,
                 hours_estimated, daily_rate, days_worked, days_estimated,
-                total_cost, total_quote, rating, status
+                total_cost, total_quote, rating, status, quote_file, job_file
             )
-            VALUES (?, ?, 'job', ?, ?, ?, ?, NULL, NULL, ?, ?, ?, ?, NULL, ?, ?, NULL, ?, NULL, ?, 'accepted')
+            VALUES (?, ?, 'job', ?, ?, ?, ?, NULL, NULL, ?, ?, ?, ?, NULL, ?, ?, NULL, ?, NULL, ?, 'accepted', ?, ?)
         """
         return self.db.execute_insert(query, (
             user_id, tradesman_id, title, description,
             date_started, date_finished, call_out_fee, materials_fee,
             hourly_rate, hours_worked, daily_rate, days_worked,
-            total_cost, rating
+            total_cost, rating, quote_file, job_file
         ))
     
     def create_quote(self, user_id: int, tradesman_id: int, title: str, description: str,
@@ -50,22 +56,22 @@ class JobService:
                      call_out_fee: int = None, materials_fee: int = None,
                      hourly_rate: int = None, hours_estimated: float = None,
                      daily_rate: int = None, days_estimated: float = None,
-                     total_quote: int = None) -> int:
+                     total_quote: int = None, quote_file: str = None) -> int:
         """Create a new quote and return the quote ID."""
         query = """
             INSERT INTO jobs (
                 user_id, tradesman_id, type, title, description,
                 date_requested, date_received, call_out_fee, materials_fee,
                 hourly_rate, hours_estimated, daily_rate, days_estimated,
-                total_quote
+                total_quote, quote_file
             )
-            VALUES (?, ?, 'quote', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, 'quote', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
         return self.db.execute_insert(query, (
             user_id, tradesman_id, title, description,
             date_requested, date_received, call_out_fee, materials_fee,
             hourly_rate, hours_estimated, daily_rate, days_estimated,
-            total_quote
+            total_quote, quote_file
         ))
     
     def update_job(self, job_id: int, **kwargs) -> bool:
@@ -73,7 +79,8 @@ class JobService:
         allowed_fields = [
             'title', 'description', 'date_started', 'date_finished',
             'call_out_fee', 'materials_fee', 'hourly_rate', 'hours_worked',
-            'daily_rate', 'days_worked', 'total_cost', 'rating'
+            'daily_rate', 'days_worked', 'total_cost', 'rating',
+            'quote_file', 'job_file'
         ]
         update_fields = []
         params = []
@@ -95,7 +102,8 @@ class JobService:
         allowed_fields = [
             'title', 'description', 'date_requested', 'date_received',
             'call_out_fee', 'materials_fee', 'hourly_rate', 'hours_estimated',
-            'daily_rate', 'days_estimated', 'total_quote', 'status'
+            'daily_rate', 'days_estimated', 'total_quote', 'status',
+            'quote_file'
         ]
         update_fields = []
         params = []
@@ -113,7 +121,16 @@ class JobService:
         return self.db.execute_update(query, tuple(params)) > 0
     
     def delete_job(self, job_id: int) -> bool:
-        """Delete a job or quote."""
+        """Delete a job or quote and associated files."""
+        # Get job info to delete associated files
+        job = self.get_job_by_id(job_id)
+        if job:
+            # Delete associated files
+            if job.get('quote_file'):
+                FileService.delete_file(job['quote_file'])
+            if job.get('job_file'):
+                FileService.delete_file(job['job_file'])
+        
         query = "DELETE FROM jobs WHERE id = ?"
         return self.db.execute_delete(query, (job_id,)) > 0
     

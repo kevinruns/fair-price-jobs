@@ -23,6 +23,9 @@ def create_app(config_name: str = None):
     # Get configuration
     config = get_config(config_name)
     
+    # DEBUG: Print which database is being used
+    print(f"Using database: {config.DATABASE_PATH}")
+    
     # Create Flask app
     app = Flask(__name__)
     

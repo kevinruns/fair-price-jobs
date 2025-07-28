@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, session, flash, redirect, url_for, request
 from werkzeug.wrappers.response import Response
 from typing import Any, Dict, List, Optional, Union
-from helpers import login_required
+from app.helpers import login_required
 from app.services.user_service import UserService
 from app.services.group_service import GroupService
 from app.services.tradesman_service import TradesmanService

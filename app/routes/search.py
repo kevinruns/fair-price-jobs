@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, session, flash, redirect, url_for, Response
 from typing import Any, Dict, List, Optional, Union
-from helpers import login_required
+from app.helpers import login_required
 from app.services.tradesman_service import TradesmanService
 from app.services.job_service import JobService
 from app.services.group_service import GroupService
@@ -32,24 +32,39 @@ def search_jobs_quotes() -> str:
     quotes: List[Dict[str, Any]] = []
     combined_results: List[Dict[str, Any]] = []
     
+    # Initialize form data variables
+    search_term = ''
+    selected_trade = ''
+    selected_rating = ''
+    selected_user = ''
+    selected_group = ''
+    include_jobs = 'on'
+    include_quotes = 'on'
+    
     if request.method == 'POST':
-        search_term = request.form.get('search_term')
-        trade = request.form.get('trade')
-        rating = request.form.get('rating')
-        added_by_user = request.form.get('added_by_user')
-        group = request.form.get('group')
-        include_jobs = request.form.get('include_jobs', 'on') == 'on'
-        include_quotes = request.form.get('include_quotes', 'on') == 'on'
+        search_term = request.form.get('search_term', '')
+        trade = request.form.get('trade', '')
+        rating = request.form.get('rating', '')
+        added_by_user = request.form.get('added_by_user', '')
+        group = request.form.get('group', '')
+        include_jobs = request.form.get('include_jobs', 'on')
+        include_quotes = request.form.get('include_quotes', 'on')
+        
+        # Update selected values for form persistence
+        selected_trade = trade
+        selected_rating = rating
+        selected_user = added_by_user
+        selected_group = group
         
         # Search for jobs if requested
-        if include_jobs:
+        if include_jobs == 'on':
             jobs = job_service.search_jobs(search_term, trade, rating, added_by_user, group)
             for job in jobs:
                 job['type'] = 'job'
                 combined_results.append(job)
         
         # Search for quotes if requested
-        if include_quotes:
+        if include_quotes == 'on':
             quotes = job_service.search_quotes(search_term, trade, None, None)
             for quote in quotes:
                 quote['type'] = 'quote'
@@ -68,13 +83,13 @@ def search_jobs_quotes() -> str:
                          trades=trades, 
                          users=users, 
                          groups=groups,
-                         search_term=request.form.get('search_term', ''),
-                         selected_trade=request.form.get('trade', ''),
-                         selected_rating=request.form.get('rating', ''),
-                         selected_user=request.form.get('added_by_user', ''),
-                         selected_group=request.form.get('group', ''),
-                         include_jobs=request.form.get('include_jobs', 'on'),
-                         include_quotes=request.form.get('include_quotes', 'on'))
+                         search_term=search_term,
+                         selected_trade=selected_trade,
+                         selected_rating=selected_rating,
+                         selected_user=selected_user,
+                         selected_group=selected_group,
+                         include_jobs=include_jobs,
+                         include_quotes=include_quotes)
 
 @search_bp.route('/search_groups', methods=['GET', 'POST'])
 @login_required
