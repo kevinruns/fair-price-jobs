@@ -103,8 +103,8 @@
                     <thead>
                         <tr>
                             <th>Type</th>
-                            <th>Trade</th>
                             <th>Title</th>
+                            <th>Trade</th>
                             <th>Tradesman</th>
                             <th>Status</th>
                             <th>Cost/Quote</th>
@@ -120,12 +120,12 @@
                                         {{ result.type|title }}
                                     </span>
                                 </td>
-                                <td>{{ result.trade }}</td>
                                 <td>
                                     <a href="{{ url_for('jobs.view_job', job_id=result.id) }}" class="text-decoration-none">
                                         <span class="fw-semibold text-primary">{{ result.title }}</span>
                                     </a>
                                 </td>
+                                <td>{{ result.trade }}</td>
                                 <td>
                                     <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=result.tradesman_id) }}" class="text-decoration-none">
                                         {% if result.first_name %}

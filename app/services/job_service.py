@@ -204,7 +204,8 @@ class JobService:
         """Search quotes with optional filters."""
         query = """
             SELECT j.*, t.first_name, t.family_name, t.trade,
-                   u.username as added_by_username, u.firstname, u.lastname
+                   u.username as added_by_username, u.firstname, u.lastname,
+                   u.id as added_by_user_id
             FROM jobs j
             JOIN tradesmen t ON j.tradesman_id = t.id
             JOIN users u ON j.user_id = u.id

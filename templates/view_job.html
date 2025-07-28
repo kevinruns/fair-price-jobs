@@ -31,8 +31,8 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-8">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
             <div class="card mb-4">
                 <div class="card-header">
                     <h5 class="mb-0">Job Details</h5>
@@ -68,9 +68,51 @@
                     </div>
                 </div>
             </div>
+            
+            {% if job.quote_file %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Quote File</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>File:</strong></div>
+                        <div class="col-sm-8">
+                            {% set filename_parts = job.quote_file.split('_', 1) %}
+                            {% set original_filename = filename_parts[1] if filename_parts|length > 1 else job.quote_file %}
+                            <a href="{{ url_for('main.uploaded_file', filename=job.quote_file) }}" target="_blank" class="text-decoration-none">
+                                <i class="fas fa-file"></i> {{ original_filename }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Invoice File</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>File:</strong></div>
+                        <div class="col-sm-8">
+                            {% if job.job_file %}
+                                {% set filename_parts = job.job_file.split('_', 1) %}
+                                {% set original_filename = filename_parts[1] if filename_parts|length > 1 else job.job_file %}
+                                <a href="{{ url_for('main.uploaded_file', filename=job.job_file) }}" target="_blank" class="text-decoration-none">
+                                    <i class="fas fa-file"></i> {{ original_filename }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">Not uploaded</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card mb-4">
                 <div class="card-header">
                     <h5 class="mb-0">Cost Breakdown</h5>
