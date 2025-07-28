@@ -93,13 +93,13 @@
             {% endif %}
         </div>
 
-        <!-- Recently Completed Jobs Section -->
+        <!-- Recently Completed Jobs & Quotes Section -->
         <div class="border border-3 rounded-3 p-3 mb-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2>Recently Completed Jobs</h2>
+                <h2>Recently Completed Jobs & Quotes</h2>
                 <div class="d-flex gap-2">
-                    <a href="{{ url_for('search.search_jobs') }}" class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-search"></i> Search Jobs
+                    <a href="{{ url_for('search.search_jobs_quotes') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-search"></i> Search Jobs & Quotes
                     </a>
                     <a href="{{ url_for('search.search_tradesmen', message='To add a job, first select or create the tradesman') }}" class="btn btn-success btn-sm">
                         <i class="fas fa-plus"></i> Add Job

@@ -192,7 +192,7 @@ def view_job(job_id: int) -> Union[str, Response]:
     job = job_service.get_job_by_id(job_id)
     if not job or job['type'] != 'job':
         flash("Job not found.", "error")
-        return redirect(url_for("search.search_jobs"))
+        return redirect(url_for("search.search_jobs_quotes"))
     
     return render_template("view_job.html", job=job)
 
@@ -202,11 +202,11 @@ def edit_job(job_id: int) -> Union[str, Response]:
     job = job_service.get_job_by_id(job_id)
     if not job or job['type'] != 'job':
         flash("Job not found.", "error")
-        return redirect(url_for("search.search_jobs"))
+        return redirect(url_for("search.search_jobs_quotes"))
     
     if not job_service.can_user_edit_job(session["user_id"], job_id):
         flash("You don't have permission to edit this job.", "error")
-        return redirect(url_for("search.search_jobs"))
+        return redirect(url_for("search.search_jobs_quotes"))
 
     if request.method == "POST":
         # Get form data
@@ -266,7 +266,7 @@ def delete_job(job_id: int) -> Union[str, Response]:
         
         if not job or not can_delete:
             flash("Job not found or you don't have permission to delete it.", "error")
-            return redirect(url_for("search.search_jobs"))
+            return redirect(url_for("search.search_jobs_quotes"))
         
         # Store tradesman_id for redirect
         tradesman_id = job.get('tradesman_id')
@@ -278,7 +278,7 @@ def delete_job(job_id: int) -> Union[str, Response]:
             if tradesman_id:
                 return redirect(url_for("tradesmen.view_tradesman", tradesman_id=tradesman_id))
             else:
-                return redirect(url_for("search.search_jobs"))
+                return redirect(url_for("search.search_jobs_quotes"))
         else:
             flash("Failed to delete job.", "error")
             return redirect(url_for("jobs.edit_job", job_id=job_id))
