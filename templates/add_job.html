@@ -13,7 +13,7 @@
             </h4>
         </div>
     </div>
-    <form action="{{ url_for('jobs.add_job', tradesman_id=tradesman_id) }}" method="post">
+    <form action="{{ url_for('jobs.add_job', tradesman_id=tradesman_id) }}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
 
@@ -46,7 +46,7 @@
                     <label for="date_started" class="col-sm-6 col-form-label fw-bold">Date Started</label>
                     <div class="col-sm-6">
                         <div class="input-container-sm">
-                            <input type="date" class="form-control" id="date_started" name="date_started" required>
+                            <input type="date" class="form-control" id="date_started" name="date_started">
                         </div>
                     </div>
                 </div>
@@ -161,6 +161,30 @@
                 </div>
             </div>
 
+        </div>
+
+        <!-- Quote/Invoice Upload Row -->
+        <div class="row align-items-center mb-4">
+            <div class="col-sm-6">
+                <div class="row align-items-center">
+                    <label for="quote_file" class="col-sm-6 col-form-label">Upload Quote (PDF, JPG, PNG)</label>
+                    <div class="col-sm-6">
+                        <div class="input-container-sm">
+                            <input type="file" class="form-control" id="quote_file" name="quote_file" accept=".pdf,.jpg,.jpeg,.png">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="row align-items-center">
+                    <label for="invoice_file" class="col-sm-6 col-form-label">Upload Invoice (PDF, JPG, PNG)</label>
+                    <div class="col-sm-6">
+                        <div class="input-container-sm">
+                            <input type="file" class="form-control" id="invoice_file" name="invoice_file" accept=".pdf,.jpg,.jpeg,.png">
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Buttons Row -->

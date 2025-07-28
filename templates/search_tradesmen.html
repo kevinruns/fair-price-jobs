@@ -92,6 +92,7 @@
                             <th>Jobs</th>
                             <th>Added By</th>
                             <th>Rating</th>
+                            <th>Add Job</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -114,7 +115,7 @@
                                 </td>
                                 <td>{{ tradesman.job_count }}</td>
                                 <td>
-                                                                            <a href="{{ url_for('profile.user_profile', user_id=tradesman.added_by_user_id) }}" class="text-decoration-none">
+                                    <a href="{{ url_for('profile.user_profile', user_id=tradesman.added_by_user_id) }}" class="text-decoration-none">
                                         <span class="text-info">{{ tradesman.added_by_username }}</span>
                                     </a>
                                 </td>
@@ -124,6 +125,11 @@
                                     {% else %}
                                         No ratings
                                     {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('jobs.add_job', tradesman_id=tradesman.id) }}" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-plus"></i> Add Job
+                                    </a>
                                 </td>
                             </tr>
                         {% endfor %}

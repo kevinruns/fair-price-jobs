@@ -16,13 +16,14 @@ group_service = GroupService()
 @search_bp.route('/search_tradesmen', methods=['GET', 'POST'])
 @login_required
 def search_tradesmen() -> str:
+    message = request.args.get('message')
     tradesmen: List[Dict[str, Any]] = []
     if request.method == 'POST':
         search_term = request.form.get('search_term')
         trade = request.form.get('trade')
         postcode = request.form.get('postcode')
         tradesmen = tradesman_service.search_tradesmen(search_term, trade, postcode)
-    return render_template('search_tradesmen.html', tradesmen=tradesmen)
+    return render_template('search_tradesmen.html', tradesmen=tradesmen, message=message)
 
 @search_bp.route('/search_jobs', methods=['GET', 'POST'])
 @login_required
