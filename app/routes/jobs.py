@@ -118,6 +118,13 @@ def add_quote(tradesman_id: int) -> Union[str, Response]:
         total_quote = request.form.get("total_quote")
         status = request.form.get("status", "pending")
 
+        # Handle file upload
+        quote_file = None
+        if 'quote_file' in request.files:
+            quote_file_obj = request.files['quote_file']
+            if quote_file_obj and quote_file_obj.filename:
+                quote_file = FileService.save_file(quote_file_obj, 'quotes')
+
         try:
             # Convert empty strings to None for optional fields and cast to correct types
             call_out_fee_int = int(call_out_fee) if call_out_fee else None
@@ -141,7 +148,8 @@ def add_quote(tradesman_id: int) -> Union[str, Response]:
                 hours_estimated=hours_estimated_float,
                 daily_rate=daily_rate_int,
                 days_estimated=days_estimated_float,
-                total_quote=total_quote_int
+                total_quote=total_quote_int,
+                quote_file=quote_file
             )
             flash("Quote added successfully!", "success")
         except Exception as e:

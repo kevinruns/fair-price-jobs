@@ -13,7 +13,7 @@
             </h4>
         </div>
     </div>
-    <form action="{{ url_for('jobs.add_quote', tradesman_id=tradesman_id) }}" method="post">
+    <form action="{{ url_for('jobs.add_quote', tradesman_id=tradesman_id) }}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <!-- Description Row -->
@@ -156,6 +156,20 @@
                                 <option value="accepted">Accepted</option>
                                 <option value="declined">Declined</option>
                             </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quote File Upload Row -->
+        <div class="row align-items-center mb-4">
+            <div class="col-sm-6">
+                <div class="row align-items-center">
+                    <label for="quote_file" class="col-sm-6 col-form-label">Upload Quote File (PDF, JPG, PNG, DOC, etc.)</label>
+                    <div class="col-sm-6">
+                        <div class="input-container-sm">
+                            <input type="file" class="form-control" id="quote_file" name="quote_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
                         </div>
                     </div>
                 </div>

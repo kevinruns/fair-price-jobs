@@ -92,7 +92,7 @@
                             <th>Jobs</th>
                             <th>Added By</th>
                             <th>Rating</th>
-                            <th>Add Job</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -127,9 +127,14 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a href="{{ url_for('jobs.add_job', tradesman_id=tradesman.id) }}" class="btn btn-primary btn-sm">
-                                        <i class="fas fa-plus"></i> Add Job
-                                    </a>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('jobs.add_job', tradesman_id=tradesman.id) }}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-plus"></i> Add Job
+                                        </a>
+                                        <a href="{{ url_for('jobs.add_quote', tradesman_id=tradesman.id) }}" class="btn btn-success btn-sm">
+                                            <i class="fas fa-file-invoice"></i> Add Quote
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         {% endfor %}
