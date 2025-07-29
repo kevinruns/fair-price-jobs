@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% from "macros.html" import rating_badge, display_name %}
 
 {% block main %}
 <div class="container-fluid p-4">
@@ -10,7 +11,7 @@
                     <p class="text-muted mb-2">
                         <strong>Tradesman:</strong> 
                         <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=job.tradesman_id) }}" class="text-decoration-none">
-                            {{ job.tradesman_name }} - {{ job.trade }}
+                            {{ display_name(job.first_name, job.family_name, job.company_name) }} - {{ job.trade }}
                         </a>
                     </p>
                     <p class="text-muted mb-0">
@@ -56,13 +57,9 @@
                     <div class="row mb-3">
                         <div class="col-sm-4"><strong>Rating:</strong></div>
                         <div class="col-sm-8">
+                            {{ rating_badge(job.rating) }}
                             {% if job.rating %}
-                                <span class="badge bg-{% if job.rating >= 4 %}success{% elif job.rating >= 3 %}warning{% else %}danger{% endif %}">
-                                    {{ job.rating }}/5
-                                </span>
                                 <span class="ms-2">{{ "⭐" * job.rating }}</span>
-                            {% else %}
-                                <span class="badge bg-secondary">No Rating</span>
                             {% endif %}
                         </div>
                     </div>
@@ -104,71 +101,12 @@
                                     <i class="fas fa-file"></i> {{ original_filename }}
                                 </a>
                             {% else %}
-                                <span class="text-muted">Not uploaded</span>
+                                <span class="text-muted">No invoice file uploaded</span>
                             {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="col-md-3">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Cost Breakdown</h5>
-                </div>
-                <div class="card-body">
-                    {% if job.call_out_fee %}
-                    <div class="row mb-2">
-                        <div class="col-6">Call Out Fee:</div>
-                        <div class="col-6 text-end">€{{ job.call_out_fee }}</div>
-                    </div>
-                    {% endif %}
-                    
-                    {% if job.materials_fee %}
-                    <div class="row mb-2">
-                        <div class="col-6">Materials Fee:</div>
-                        <div class="col-6 text-end">€{{ job.materials_fee }}</div>
-                    </div>
-                    {% endif %}
-                    
-                    {% if job.hourly_rate and job.hours_worked %}
-                    <div class="row mb-2">
-                        <div class="col-6">Hourly Rate:</div>
-                        <div class="col-6 text-end">€{{ job.hourly_rate }}/hr</div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-6">Hours Worked:</div>
-                        <div class="col-6 text-end">{{ job.hours_worked }} hrs</div>
-                    </div>
-                    {% endif %}
-                    
-                    {% if job.daily_rate and job.days_worked %}
-                    <div class="row mb-2">
-                        <div class="col-6">Daily Rate:</div>
-                        <div class="col-6 text-end">€{{ job.daily_rate }}/day</div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-6">Days Worked:</div>
-                        <div class="col-6 text-end">{{ job.days_worked }} days</div>
-                    </div>
-                    {% endif %}
-                    
-                    <hr>
-                    <div class="row mb-0">
-                        <div class="col-6"><strong>Total Cost:</strong></div>
-                        <div class="col-6 text-end"><strong>€{{ job.total_cost }}</strong></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row">
-        <div class="col">
-            <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=job.tradesman_id) }}" class="btn btn-secondary">
-                Back to Tradesman
-            </a>
         </div>
     </div>
 </div>

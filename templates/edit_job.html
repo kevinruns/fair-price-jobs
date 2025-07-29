@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% from "macros.html" import form_field, form_field_pair, rating_badge, display_name %}
 
 {% block main %}
 <div class="container-fluid p-4 bg-light rounded">
@@ -8,158 +9,42 @@
                 Edit Job: {{ job.title }}
             </h4>
             <p class="text-muted mb-0">
-                <strong>Tradesman:</strong> 
+                <strong>Tradesman:</strong>
                 <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=job.tradesman_id) }}" class="text-decoration-none">
-                    {{ job.tradesman_name }}
+                    {{ display_name(job.first_name, job.family_name, job.company_name) }}
                 </a>
             </p>
         </div>
     </div>
-            <form action="{{ url_for('jobs.edit_job', job_id=job.id) }}" method="post" enctype="multipart/form-data">
+    <form action="{{ url_for('jobs.edit_job', job_id=job.id) }}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-        <!-- Description Row -->
-        <div class="row align-items-center mb-4">
-            <label for="title" class="col-sm-2 col-form-label fw-bold">Job Description</label>
-            <div class="col-sm-10">
-                <div class="input-container">
-                    <textarea class="form-control" id="title" name="title" rows="1"
-                    placeholder="e.g. Tile bathroom" required>{{ job.title }}</textarea>
-                </div>
-            </div>
-        </div>
+        {{ form_field("Job Description", "title", "title", job.title, "textarea", "e.g. Tile bathroom", true, rows=1) }}
+        {{ form_field("Details", "description", "description", job.description, "textarea", "Size of job, complexity, how many people worked on it", true, rows=3) }}
 
-        <!-- Description Row -->
-        <div class="row align-items-center mb-4">
-            <label for="description" class="col-sm-2 col-form-label fw-bold">Details</label>
-            <div class="col-sm-10">
-                <div class="input-container">
-                    <textarea class="form-control" id="description" name="description" rows="3" 
-                    placeholder="Size of job, complexity, how many people worked on it" required>{{ job.description }}</textarea>
-                </div>
-            </div>
-        </div>
+        {{ form_field_pair(
+            "Date Started", "date_started", "date_started", job.date_started, "date", "", false, "", "",
+            "Date Finished", "date_finished", "date_finished", job.date_finished, "date", "", false, "", ""
+        ) }}
 
-        <!-- Date Started and Date Finished Row -->
-        <div class="row align-items-center mb-4">
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="date_started" class="col-sm-6 col-form-label fw-bold">Date Started</label>
-                    <div class="col-sm-6">
-                        <div class="input-container-sm">
-                            <input type="date" class="form-control" id="date_started" name="date_started" 
-                                   value="{{ job.date_started if job.date_started else '' }}">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="date_finished" class="col-sm-6 col-form-label fw-bold">Date Finished</label>
-                    <div class="col-sm-6">
-                        <div class="input-container-sm">
-                            <input type="date" class="form-control" id="date_finished" name="date_finished" 
-                                   value="{{ job.date_finished if job.date_finished else '' }}">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {{ form_field_pair(
+            "Call Out Fee €", "call_out_fee", "call_out_fee", job.call_out_fee, "number", "Optional", false, "0.01", "",
+            "Materials Fee €", "materials_fee", "materials_fee", job.materials_fee, "number", "Optional", false, "0.01", ""
+        ) }}
 
-        <!-- Call Out Fee and Materials Fee Row -->
-        <div class="row align-items-center mb-4">
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="call_out_fee" class="col-sm-6 col-form-label">Call Out Fee €</label>
-                    <div class="col-sm-6">
-                        <div class="input-container-sm">
-                            <input type="number" step="0.01" class="form-control" id="call_out_fee" name="call_out_fee" 
-                                   placeholder="Optional" value="{{ job.call_out_fee if job.call_out_fee else '' }}">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="materials_fee" class="col-sm-6 col-form-label">Materials Fee €</label>
-                    <div class="col-sm-6">
-                        <div class="input-container-sm">
-                            <input type="number" step="0.01" class="form-control" id="materials_fee" name="materials_fee" 
-                                   placeholder="Optional" value="{{ job.materials_fee if job.materials_fee else '' }}">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {{ form_field_pair(
+            "Hourly Rate €", "hourly_rate", "hourly_rate", job.hourly_rate, "number", "Optional", false, "0.01", "",
+            "Hours Worked", "hours_worked", "hours_worked", job.hours_worked, "number", "Optional", false, "0.5", ""
+        ) }}
 
-        <!-- Hourly Rate and Hours Worked Row -->
-        <div class="row align-items-center mb-4">
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="hourly_rate" class="col-sm-6 col-form-label">Hourly Rate €</label>
-                    <div class="col-sm-6">
-                        <div class="input-container-sm">
-                            <input type="number" step="0.01" class="form-control" id="hourly_rate" name="hourly_rate" 
-                                   placeholder="Optional" value="{{ job.hourly_rate if job.hourly_rate else '' }}">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="hours_worked" class="col-sm-6 col-form-label">Hours Worked</label>
-                    <div class="col-sm-6">
-                        <div class="input-container-sm">
-                            <input type="number" step="0.5" class="form-control" id="hours_worked" name="hours_worked" 
-                                   placeholder="Optional" value="{{ job.hours_worked if job.hours_worked else '' }}">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {{ form_field_pair(
+            "Daily Rate €", "daily_rate", "daily_rate", job.daily_rate, "number", "Optional", false, "0.01", "",
+            "Days Worked", "days_worked", "days_worked", job.days_worked, "number", "Optional", false, "0.5", ""
+        ) }}
 
-        <!-- Daily Rate and Days Worked Row -->
-        <div class="row align-items-center mb-4">
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="daily_rate" class="col-sm-6 col-form-label">Daily Rate €</label>
-                    <div class="col-sm-6">
-                        <div class="input-container-sm">
-                            <input type="number" step="0.01" class="form-control" id="daily_rate" name="daily_rate" 
-                                   placeholder="Optional" value="{{ job.daily_rate if job.daily_rate else '' }}">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="days_worked" class="col-sm-6 col-form-label">Days Worked</label>
-                    <div class="col-sm-6">
-                        <div class="input-container-sm">
-                            <input type="number" step="0.5" class="form-control" id="days_worked" name="days_worked" 
-                                   placeholder="Optional" value="{{ job.days_worked if job.days_worked else '' }}">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {{ form_field("Rating (1-5)", "rating", "rating", job.rating, "number", "Optional", false, "", 1, 5) }}
 
-        <!-- Rating Row -->
-        <div class="row align-items-center mb-4">
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="rating" class="col-sm-6 col-form-label fw-bold">Rating (1-5)</label>
-                    <div class="col-sm-6">
-                        <div class="input-container-sm">
-                            <input type="number" min="1" max="5" class="form-control" id="rating" name="rating" 
-                                   placeholder="Optional" value="{{ job.rating if job.rating else '' }}">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- File Upload Row -->
+        <!-- File Upload Section -->
         <div class="row align-items-center mb-4">
             <div class="col-sm-6">
                 <div class="row align-items-center">
@@ -217,7 +102,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="d-flex justify-content-center gap-3">
-                    <button type="submit" class="btn btn-primary" style="width: 200px;">Update Job</button>
+                    <button type="submit" class="btn btn-primary" style="width: 200px;">Save Changes</button>
                     <a href="{{ url_for('jobs.view_job', job_id=job.id) }}" class="btn btn-secondary" style="width: 200px;">Cancel</a>
                 </div>
             </div>
@@ -243,23 +128,4 @@
     }
 </script>
 {% endif %}
-
-<script>
-    // Handle file input changes to show selected filename
-    document.getElementById('quote_file')?.addEventListener('change', function() {
-        const fileName = this.files[0]?.name;
-        const nameSpan = document.getElementById('quote_file_name');
-        if (nameSpan) {
-            nameSpan.textContent = fileName ? `Selected: ${fileName}` : '';
-        }
-    });
-
-    document.getElementById('job_file')?.addEventListener('change', function() {
-        const fileName = this.files[0]?.name;
-        const nameSpan = document.getElementById('job_file_name');
-        if (nameSpan) {
-            nameSpan.textContent = fileName ? `Selected: ${fileName}` : '';
-        }
-    });
-</script>
 {% endblock %} 

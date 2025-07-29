@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% from "macros.html" import display_name, rating_badge %}
 
 {% block title %}
     Search Tradesmen
@@ -100,40 +101,30 @@
                             <tr>
                                 <td>
                                     <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}" class="text-decoration-none">
-                                        <span class="fw-semibold text-primary">{{ tradesman.first_name }} {{ tradesman.family_name }}</span>
+                                        {{ display_name(tradesman.first_name, tradesman.family_name, tradesman.company_name) }}
                                     </a>
                                 </td>
                                 <td>{{ tradesman.trade }}</td>
                                 <td>{{ tradesman.postcode }}</td>
-                                <td>📞 {{ tradesman.phone_number }}</td>
-                                <td>
-                                    {% if tradesman.email %}
-                                        ✉️ {{ tradesman.email }}
-                                    {% else %}
-                                        -
-                                    {% endif %}
-                                </td>
-                                <td>{{ tradesman.job_count }}</td>
+                                <td>{{ tradesman.phone_number }}</td>
+                                <td>{{ tradesman.email }}</td>
+                                <td><span class="badge bg-info">{{ tradesman.job_count }}</span></td>
                                 <td>
                                     <a href="{{ url_for('profile.user_profile', user_id=tradesman.added_by_user_id) }}" class="text-decoration-none">
                                         <span class="text-info">{{ tradesman.added_by_username }}</span>
                                     </a>
                                 </td>
-                                <td>
-                                    {% if tradesman.avg_rating %}
-                                        {{ "%.1f"|format(tradesman.avg_rating) }} ⭐
-                                    {% else %}
-                                        No ratings
-                                    {% endif %}
-                                </td>
+                                <td>{{ rating_badge(tradesman.avg_rating, none_text="No Rating") }}</td>
                                 <td>
                                     <div class="btn-group" role="group">
-                                        <a href="{{ url_for('jobs.add_job', tradesman_id=tradesman.id) }}" class="btn btn-primary btn-sm">
-                                            <i class="fas fa-plus"></i> Add Job
+                                        <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ url_for('jobs.add_quote', tradesman_id=tradesman.id) }}" class="btn btn-success btn-sm">
-                                            <i class="fas fa-file-invoice"></i> Add Quote
-                                        </a>
+                                        {% if tradesman.can_edit %}
+                                            <a href="{{ url_for('tradesmen.edit_tradesman', tradesman_id=tradesman.id) }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        {% endif %}
                                     </div>
                                 </td>
                             </tr>
@@ -144,6 +135,11 @@
         {% elif request.method == "POST" %}
             <div class="alert alert-info">
                 No tradesmen found matching your search criteria.
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <p class="text-muted">Search for tradesmen by name, trade, or location.</p>
+                <p class="text-muted small">You can filter by trade type, postcode, and who added them.</p>
             </div>
         {% endif %}
     </div>

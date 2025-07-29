@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% from "macros.html" import rating_badge, job_type_badge, display_name, date_display %}
 
 {% block title %}
     Search Jobs & Quotes
@@ -115,11 +116,7 @@
                     <tbody>
                         {% for result in results %}
                             <tr>
-                                <td>
-                                    <span class="badge bg-{% if result.type == 'job' %}primary{% else %}warning{% endif %}">
-                                        {{ result.type|title }}
-                                    </span>
-                                </td>
+                                <td>{{ job_type_badge(result.type) }}</td>
                                 <td>
                                     {% if result.type == 'job' %}
                                         <a href="{{ url_for('jobs.view_job', job_id=result.id) }}" class="text-decoration-none">
@@ -134,23 +131,12 @@
                                 <td>{{ result.trade }}</td>
                                 <td>
                                     <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=result.tradesman_id) }}" class="text-decoration-none">
-                                        {% if result.first_name %}
-                                            {{ result.first_name }} {{ result.family_name }}
-                                        {% else %}
-                                            {{ result.family_name }}
-                                        {% endif %}
-                                        {% if result.company_name %}
-                                            <small class="text-muted d-block">{{ result.company_name }}</small>
-                                        {% endif %}
+                                        {{ display_name(result.first_name, result.family_name, result.company_name) }}
                                     </a>
                                 </td>
                                 <td>
                                     {% if result.type == 'job' %}
-                                        {% if result.date_finished %}
-                                            <span class="text-success">Completed</span>
-                                        {% else %}
-                                            <span class="text-warning">In Progress</span>
-                                        {% endif %}
+                                        {{ date_display(result.type, result.date_finished, result.date_received) }}
                                     {% else %}
                                         <span class="badge bg-{% if result.status == 'accepted' %}success{% elif result.status == 'rejected' %}danger{% else %}secondary{% endif %}">
                                             {{ result.status|title if result.status else 'Pending' }}
@@ -164,15 +150,7 @@
                                         £{{ result.total_quote }}
                                     {% endif %}
                                 </td>
-                                <td>
-                                    {% if result.rating %}
-                                        <span class="badge bg-{% if result.rating >= 4 %}success{% elif result.rating >= 3 %}warning{% else %}danger{% endif %}">
-                                            {{ result.rating }}/5
-                                        </span>
-                                    {% else %}
-                                        <span class="badge bg-secondary">None</span>
-                                    {% endif %}
-                                </td>
+                                <td>{{ rating_badge(result.rating) }}</td>
                                 <td>
                                     <a href="{{ url_for('profile.user_profile', user_id=result.added_by_user_id) }}" class="text-decoration-none">
                                         <span class="text-info">{{ result.added_by_username }}</span>

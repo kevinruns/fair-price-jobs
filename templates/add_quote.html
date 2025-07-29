@@ -1,191 +1,33 @@
 {% extends "layout.html" %}
+{% from "macros.html" import form_field, form_field_pair, rating_badge, display_name %}
 
 {% block main %}
 <div class="container-fluid p-4 bg-light rounded">
-    <div class="row mb-4">
-        <div class="col">
-            <h4 class="mb-0">
-                {% if tradesman.first_name %}
-                    {{ tradesman.first_name }} {{ tradesman.family_name }}
-                {% else %}
-                    {{ tradesman.family_name }}
-                {% endif %} - {{ tradesman.trade }}
-            </h4>
-        </div>
-    </div>
-    <form action="{{ url_for('jobs.add_quote', tradesman_id=tradesman_id) }}" method="post" enctype="multipart/form-data">
+    <form action="{{ url_for('quotes.add_quote', tradesman_id=tradesman_id) }}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-        <!-- Description Row -->
-        <div class="row align-items-center mb-4">
-            <label for="title" class="col-sm-2 col-form-label fw-bold">Quote Description</label>
-            <div class="col-sm-10">
-                <div class="input-container">
-                    <textarea class="form-control" id="title" name="title" rows="1"
-                    placeholder="e.g. Tile bathroom" required></textarea>
-                </div>
-            </div>
-        </div>
+        {{ form_field("Quote Description", "title", "title", "", "textarea", "e.g. Replace boiler", true, rows=1) }}
+        {{ form_field("Details", "description", "description", "", "textarea", "Details about the quote", true, rows=3) }}
 
-        <!-- Description Row -->
-        <div class="row align-items-center mb-4">
-            <label for="description" class="col-sm-2 col-form-label fw-bold">Details</label>
-            <div class="col-sm-10">
-                <div class="input-container">
-                    <textarea class="form-control" id="description" name="description" rows="3" 
-                    placeholder="Size of job, complexity, how many people will work on it" required></textarea>
-                </div>
-            </div>
-        </div>
+        {{ form_field_pair(
+            "Date Received", "date_received", "date_received", "", "date", "", false, "", "",
+            "Quote Amount €", "total_quote", "total_quote", "", "number", "Total", true, "0.01", ""
+        ) }}
 
-        <!-- Date Requested and Date Received Row -->
+        {{ form_field("Rating (1-5)", "rating", "rating", "", "number", "Optional", false, "", 1, 5) }}
+
         <div class="row align-items-center mb-4">
-                                <div class="col-sm-6">
-                        <div class="row align-items-center">
-                            <label for="date_requested" class="col-sm-6 col-form-label">Date Requested</label>
-                            <div class="col-sm-6">
-                                <div class="input-container-sm">
-                                    <input type="date" class="form-control" id="date_requested" name="date_requested">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
             <div class="col-sm-6">
                 <div class="row align-items-center">
-                    <label for="date_received" class="col-sm-6 col-form-label fw-bold">Date Received</label>
+                    <label for="quote_file" class="col-sm-6 col-form-label">Quote File</label>
                     <div class="col-sm-6">
-                        <div class="input-container-sm">
-                            <input type="date" class="form-control" id="date_received" name="date_received" required>
-                        </div>
+                        <input type="file" class="form-control" id="quote_file" name="quote_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Call Out Fee and Materials Fee Row -->
-        <div class="row align-items-center mb-4">
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="call_out_fee" class="col-sm-6 col-form-label">Call Out Fee €</label>
-                    <div class="col-sm-6">
-                        <div class="input-container-sm">
-                            <input type="number" step="0.01" class="form-control" id="call_out_fee" name="call_out_fee" placeholder="Optional">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="materials_fee" class="col-sm-6 col-form-label">Materials Fee €</label>
-                    <div class="col-sm-6">
-                        <div class="input-container-sm">
-                            <input type="number" step="0.01" class="form-control" id="materials_fee" name="materials_fee" placeholder="Optional">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Hourly Rate and Hours Estimated Row -->
-        <div class="row align-items-center mb-4">
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="hourly_rate" class="col-sm-6 col-form-label">Hourly Rate €</label>
-                    <div class="col-sm-6">
-                        <div class="input-container-sm">
-                            <input type="number" step="0.01" class="form-control" id="hourly_rate" name="hourly_rate" placeholder="Optional">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="hours_estimated" class="col-sm-6 col-form-label">Hours Estimated</label>
-                    <div class="col-sm-6">
-                        <div class="input-container-sm">
-                            <input type="number" step="0.5" class="form-control" id="hours_estimated" name="hours_estimated" placeholder="Optional">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Daily Rate and Days Estimated Row -->
-        <div class="row align-items-center mb-4">
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="daily_rate" class="col-sm-6 col-form-label">Daily Rate €</label>
-                    <div class="col-sm-6">
-                        <div class="input-container-sm">
-                            <input type="number" step="0.01" class="form-control" id="daily_rate" name="daily_rate" placeholder="Optional">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="days_estimated" class="col-sm-6 col-form-label">Days Estimated</label>
-                    <div class="col-sm-6">
-                        <div class="input-container-sm">
-                            <input type="number" step="0.5" class="form-control" id="days_estimated" name="days_estimated" placeholder="Optional">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Total Quote and Status Row -->
-        <div class="row align-items-center mb-4">
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="total_quote" class="col-sm-6 col-form-label fw-bold">Total Quote €</label>
-                    <div class="col-sm-6">
-                        <div class="input-container-sm">
-                            <input type="number" step="0.01" class="form-control" id="total_quote" name="total_quote" required>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="status" class="col-sm-6 col-form-label fw-bold">Status</label>
-                    <div class="col-sm-6">
-                        <div class="input-container-sm">
-                            <select class="form-select" id="status" name="status" required>
-                                <option value="pending" selected>Pending</option>
-                                <option value="accepted">Accepted</option>
-                                <option value="declined">Declined</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quote File Upload Row -->
-        <div class="row align-items-center mb-4">
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="quote_file" class="col-sm-6 col-form-label">Upload Quote File (PDF, JPG, PNG, DOC, etc.)</label>
-                    <div class="col-sm-6">
-                        <div class="input-container-sm">
-                            <input type="file" class="form-control" id="quote_file" name="quote_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Buttons Row -->
-        <div class="row">
-            <div class="col-12">
-                <div class="d-flex justify-content-center gap-3">
-                    <button type="submit" class="btn btn-primary" style="width: 200px;">Add Quote</button>
-                    <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman_id) }}" class="btn btn-secondary" style="width: 200px;">Back to Tradesman</a>
-                </div>
-            </div>
-        </div>
+        <button type="submit" class="btn btn-primary">Add Quote</button>
     </form>
 </div>
-
 {% endblock %} 

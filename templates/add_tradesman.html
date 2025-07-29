@@ -1,91 +1,21 @@
 {% extends "layout.html" %}
+{% from "macros.html" import form_field %}
 
 {% block main %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <form action="{{ url_for('tradesmen.add_tradesman') }}" method="post">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <div class="mb-3 row">
-                    <label for="trade" class="col-sm-3 col-form-label text-start">Trade</label>
-                    <div class="col-sm-9">
-                        <select class="form-select" id="trade" name="trade" required>
-                            <option value="" selected disabled>Choose a trade...</option>
-                            <option value="Building Contractor">Building Contractor</option>
-                            <option value="Bathroom Installer">Bathroom Installer</option>
-                            <option value="Bricklayer">Bricklayer</option>
-                            <option value="Carpenter">Carpenter</option>
-                            <option value="Cleaner">Cleaner</option>
-                            <option value="Drywall Installer">Drywall Installer</option>
-                            <option value="Electrician">Electrician</option>
-                            <option value="Kitchen Installer">Kitchen Installer</option>
-                            <option value="Flooring Specialist">Flooring Specialist</option>
-                            <option value="General Handyman">General Handyman</option>
-                            <option value="Glazier">Glazier</option>
-                            <option value="HVAC Technician">HVAC Technician</option>
-                            <option value="Landscaper">Landscaper</option>
-                            <option value="Locksmith">Locksmith</option>
-                            <option value="Painter & Decorator">Painter & Decorator</option>
-                            <option value="Pest Control Technician">Pest Control Technician</option>
-                            <option value="Plasterer">Plasterer</option>
-                            <option value="Plumber">Plumber</option>
-                            <option value="Pool Technician">Pool Technician</option>
-                            <option value="Roofer">Roofer</option>
-                            <option value="Security System Installer">Security System Installer</option>
-                            <option value="Tiler">Tiler</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="mb-3 row">
-                    <label for="first_name" class="col-sm-3 col-form-label text-start">First Name</label>
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" id="first_name" name="first_name">
-                    </div>
-                </div>
-                <div class="mb-3 row">
-                    <label for="family_name" class="col-sm-3 col-form-label text-start">Family Name</label>
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" id="family_name" name="family_name" required>
-                    </div>
-                </div>
-                <div class="mb-3 row">
-                    <label for="company_name" class="col-sm-3 col-form-label text-start">Company Name</label>
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" id="company_name" name="company_name">
-                    </div>
-                </div>
-                <div class="mb-3 row">
-                    <label for="address" class="col-sm-3 col-form-label text-start">Address</label>
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" id="address" name="address" required>
-                    </div>
-                </div>
-                <div class="mb-3 row">
-                    <label for="postcode" class="col-sm-3 col-form-label text-start">Postcode</label>
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" id="postcode" name="postcode" required>
-                    </div>
-                </div>
-                <div class="mb-3 row">
-                    <label for="phone_number" class="col-sm-3 col-form-label text-start">Phone Number</label>
-                    <div class="col-sm-9">
-                        <input type="tel" class="form-control" id="phone_number" name="phone_number" required>
-                    </div>
-                </div>
-                <div class="mb-3 row">
-                    <label for="email" class="col-sm-3 col-form-label text-start">Email</label>
-                    <div class="col-sm-9">
-                        <input type="email" class="form-control" id="email" name="email">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-9 offset-sm-3">
-                        <button type="submit" class="btn btn-primary btn-sm me-4">Add Tradesman</button>
-                        <a href="{{ url_for('main.index') }}" class="btn btn-secondary btn-sm">Back to Home</a>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+<div class="container-fluid p-4 bg-light rounded">
+    <h4 class="mb-4">Add Tradesman</h4>
+    <form action="{{ url_for('tradesmen.add_tradesman') }}" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        {{ form_field("First Name", "first_name", "first_name", "", "text", "First Name", true) }}
+        {{ form_field("Family Name", "family_name", "family_name", "", "text", "Family Name", true) }}
+        {{ form_field("Company Name", "company_name", "company_name", "", "text", "Company Name") }}
+        {{ form_field("Trade", "trade", "trade", "", "text", "Trade", true) }}
+        {{ form_field("Postcode", "postcode", "postcode", "", "text", "Postcode") }}
+        {{ form_field("Phone Number", "phone_number", "phone_number", "", "text", "Phone Number") }}
+        {{ form_field("Email", "email", "email", "", "email", "Email") }}
+
+        <button type="submit" class="btn btn-primary">Add Tradesman</button>
+    </form>
 </div>
 {% endblock %}

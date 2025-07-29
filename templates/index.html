@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% from "macros.html" import rating_badge, section_header, display_name, empty_state, status_badge, job_type_badge, date_display %}
 
 {% block title %}
     Home
@@ -6,25 +7,16 @@
 
 {% block main %}
     <div class="container">
-        
-        <div class="row mb-4">
-            <div class="col">
-            </div>
-        </div>
-
         <!-- Top Rated Tradesmen Section -->
         <div class="border border-3 rounded-3 p-3 mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2>Top Rated Tradesmen</h2>
-                <div class="d-flex gap-2">
-                    <a href="{{ url_for('search.search_tradesmen') }}" class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-search"></i> Search Tradesmen
-                    </a>
-                    <a href="{{ url_for('tradesmen.add_tradesman') }}" class="btn btn-success btn-sm">
-                        <i class="fas fa-plus"></i> Add Tradesman
-                    </a>
-                </div>
-            </div>
+            {{ section_header(
+                "Top Rated Tradesmen",
+                url_for('search.search_tradesmen'),
+                url_for('tradesmen.add_tradesman'),
+                "Add Tradesman",
+                "Search Tradesmen"
+            ) }}
+            
             {% if tradesmen %}
                 <div class="table-responsive">
                     <table class="table table-striped">
@@ -44,33 +36,14 @@
                                     <td>
                                         <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}" class="text-decoration-none">
                                             <span class="fw-semibold text-primary">
-                                                {% if tradesman.first_name %}
-                                                    {{ tradesman.first_name }} {{ tradesman.family_name }}
-                                                {% else %}
-                                                    {{ tradesman.family_name }}
-                                                {% endif %}
+                                                {{ display_name(tradesman.first_name, tradesman.family_name, tradesman.company_name) }}
                                             </span>
-                                            {% if tradesman.company_name %}
-                                                <small class="text-muted d-block">{{ tradesman.company_name }}</small>
-                                            {% endif %}
                                         </a>
                                     </td>
                                     <td>{{ tradesman.trade }}</td>
-                                    <td>
-                                        {% if tradesman.avg_rating %}
-                                            <span class="badge bg-{% if tradesman.avg_rating >= 4 %}success{% elif tradesman.avg_rating >= 3 %}warning{% else %}danger{% endif %}">
-                                                {{ "%.1f"|format(tradesman.avg_rating) }}/5
-                                            </span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">No Rating</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-info">{{ tradesman.job_count }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-warning">{{ tradesman.quote_count }}</span>
-                                    </td>
+                                    <td>{{ rating_badge(tradesman.avg_rating, none_text="No Rating") }}</td>
+                                    <td><span class="badge bg-info">{{ tradesman.job_count }}</span></td>
+                                    <td><span class="badge bg-warning">{{ tradesman.quote_count }}</span></td>
                                     <td>
                                         <a href="{{ url_for('profile.user_profile', user_id=tradesman.added_by_user_id) }}" class="text-decoration-none">
                                             <span class="text-info">{{ tradesman.added_by_username }}</span>
@@ -82,26 +55,23 @@
                     </table>
                 </div>
             {% else %}
-                <div class="text-center py-4">
-                    <p class="text-muted">No rated tradesmen found.</p>
-                    <p class="text-muted small">Top-rated tradesmen will appear here when you or your group members add tradesmen and complete jobs with ratings.</p>
-                </div>
+                {{ empty_state(
+                    "No rated tradesmen found.",
+                    "Top-rated tradesmen will appear here when you or your group members add tradesmen and complete jobs with ratings."
+                ) }}
             {% endif %}
         </div>
 
         <!-- Recently Completed Jobs & Quotes Section -->
         <div class="border border-3 rounded-3 p-3 mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2>Recent Jobs & Quotes</h2>
-                <div class="d-flex gap-2">
-                    <a href="{{ url_for('search.search_jobs_quotes') }}" class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-search"></i> Search Jobs & Quotes
-                    </a>
-                    <a href="{{ url_for('search.search_tradesmen', message='To add a job, first select or create the tradesman') }}" class="btn btn-success btn-sm">
-                        <i class="fas fa-plus"></i> Add Job or Quote
-                    </a>
-                </div>
-            </div>
+            {{ section_header(
+                "Recent Jobs & Quotes",
+                url_for('search.search_jobs_quotes'),
+                url_for('search.search_tradesmen', message='To add a job, first select or create the tradesman'),
+                "Add Job or Quote",
+                "Search Jobs & Quotes"
+            ) }}
+            
             {% if recent_jobs %}
                 <div class="table-responsive">
                     <table class="table table-striped">
@@ -119,67 +89,25 @@
                         </thead>
                         <tbody>
                             {% for job in recent_jobs %}
+                                {% set job_url = url_for('jobs.view_job', job_id=job.id) if job.type == 'job' else url_for('jobs.view_quote', quote_id=job.id) %}
+                                {% set cost_field = job.total_cost if job.type == 'job' else job.total_quote %}
+                                
                                 <tr>
+                                    <td>{{ job_type_badge(job.type) }}</td>
                                     <td>
-                                        <span class="badge bg-{% if job.type == 'job' %}primary{% else %}warning{% endif %}">
-                                            {{ job.type|title }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        {% if job.type == 'job' %}
-                                            <a href="{{ url_for('jobs.view_job', job_id=job.id) }}" class="text-decoration-none">
-                                                <span class="fw-semibold text-primary">{{ job.title }}</span>
-                                            </a>
-                                        {% else %}
-                                            <a href="{{ url_for('jobs.view_quote', quote_id=job.id) }}" class="text-decoration-none">
-                                                <span class="fw-semibold text-primary">{{ job.title }}</span>
-                                            </a>
-                                        {% endif %}
+                                        <a href="{{ job_url }}" class="text-decoration-none">
+                                            <span class="fw-semibold text-primary">{{ job.title }}</span>
+                                        </a>
                                     </td>
                                     <td>
                                         <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=job.tradesman_id) }}" class="text-decoration-none">
-                                            {% if job.first_name %}
-                                                {{ job.first_name }} {{ job.family_name }}
-                                            {% else %}
-                                                {{ job.family_name }}
-                                            {% endif %}
-                                            {% if job.company_name %}
-                                                <small class="text-muted d-block">{{ job.company_name }}</small>
-                                            {% endif %}
+                                            {{ display_name(job.first_name, job.family_name, job.company_name) }}
                                         </a>
                                     </td>
                                     <td>{{ job.trade }}</td>
-                                    <td>
-                                        {% if job.type == 'job' %}
-                                            {% if job.date_finished %}
-                                                <span class="text-success">{{ job.date_finished }}</span>
-                                            {% else %}
-                                                <span class="text-warning">In Progress</span>
-                                            {% endif %}
-                                        {% else %}
-                                            {% if job.date_received %}
-                                                <span class="text-info">{{ job.date_received }}</span>
-                                            {% else %}
-                                                <span class="text-warning">Pending</span>
-                                            {% endif %}
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if job.type == 'job' %}
-                                            €{{ job.total_cost }}
-                                        {% else %}
-                                            €{{ job.total_quote }}
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if job.rating %}
-                                            <span class="badge bg-{% if job.rating >= 4 %}success{% elif job.rating >= 3 %}warning{% else %}danger{% endif %}">
-                                                {{ job.rating }}/5
-                                            </span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">None</span>
-                                        {% endif %}
-                                    </td>
+                                    <td>{{ date_display(job.type, job.date_finished, job.date_received) }}</td>
+                                    <td>€{{ cost_field }}</td>
+                                    <td>{{ rating_badge(job.rating) }}</td>
                                     <td>
                                         <a href="{{ url_for('profile.user_profile', user_id=job.added_by_user_id) }}" class="text-decoration-none">
                                             <span class="text-info">{{ job.added_by_username }}</span>
@@ -191,26 +119,23 @@
                     </table>
                 </div>
             {% else %}
-                <div class="text-center py-4">
-                    <p class="text-muted">No recently completed jobs found.</p>
-                    <p class="text-muted small">Jobs will appear here when you or members of your groups complete work with tradesmen.</p>
-                </div>
+                {{ empty_state(
+                    "No recently completed jobs found.",
+                    "Jobs will appear here when you or members of your groups complete work with tradesmen."
+                ) }}
             {% endif %}
         </div>
 
         <!-- My Groups Section -->
         <div class="border border-3 rounded-3 p-3 mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2>My Groups</h2>
-                <div class="d-flex gap-2">
-                    <a href="{{ url_for('groups.search_groups') }}" class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-search"></i> Find Group
-                    </a>
-                    <a href="{{ url_for('groups.create_group') }}" class="btn btn-success btn-sm">
-                        <i class="fas fa-plus"></i> Create Group
-                    </a>
-                </div>
-            </div>
+            {{ section_header(
+                "My Groups",
+                url_for('groups.search_groups'),
+                url_for('groups.create_group'),
+                "Create Group",
+                "Find Group"
+            ) }}
+            
             {% if my_groups %}
                 <div class="table-responsive">
                     <table class="table table-striped">
@@ -231,14 +156,8 @@
                                         </a>
                                     </td>
                                     <td>{{ group.postcode }}</td>
-                                    <td>
-                                        <span class="badge bg-info">{{ group.member_count }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-{% if group.status == 'creator' %}primary{% elif group.status == 'admin' %}warning{% else %}success{% endif %}">
-                                            {{ group.status|title }}
-                                        </span>
-                                    </td>
+                                    <td><span class="badge bg-info">{{ group.member_count }}</span></td>
+                                    <td>{{ status_badge(group.status) }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -248,13 +167,12 @@
                     <a href="{{ url_for('groups.search_groups') }}" class="btn btn-outline-primary btn-sm">View All Groups</a>
                 </div>
             {% else %}
-                <div class="text-center py-4">
-                    <p class="text-muted">You haven't joined any groups yet.</p>
-                    <p class="text-muted small">Join or create groups to collaborate with others and share tradesmen recommendations.</p>
-                </div>
+                {{ empty_state(
+                    "You haven't joined any groups yet.",
+                    "Join or create groups to collaborate with others and share tradesmen recommendations."
+                ) }}
             {% endif %}
         </div>
-
     </div>
 {% endblock %}
 
