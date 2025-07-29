@@ -71,11 +71,7 @@ def view_group(group_id: int) -> Union[str, Response]:
             else:
                 success = group_service.add_user_to_group(session['user_id'], group_id)
                 if success:
-                    tradesmen_added: int = group_service.add_user_tradesmen_to_group(session['user_id'], group_id)
-                    if tradesmen_added > 0:
-                        flash(f'Join request sent. {tradesmen_added} of your tradesmen have been automatically added to the group.', 'success')
-                    else:
-                        flash('Join request sent.', 'success')
+                    flash('Join request sent.', 'success')
                 else:
                     flash('You already have a request for this group.', 'warning')
             return redirect(url_for('groups.view_group', group_id=group_id))

@@ -153,8 +153,9 @@ class TradesmanService:
         """Get all tradesmen associated with a specific user."""
         query = """
             SELECT t.*, 
-                   COUNT(j.id) as job_count,
-                   AVG(j.rating) as avg_rating,
+                   COUNT(CASE WHEN j.type = 'job' THEN j.id END) as job_count,
+                   COUNT(CASE WHEN j.type = 'quote' THEN j.id END) as quote_count,
+                   AVG(CASE WHEN j.type = 'job' THEN j.rating END) as avg_rating,
                    ut.date_added,
                    u.username as added_by_username,
                    u.id as added_by_user_id

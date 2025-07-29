@@ -34,8 +34,8 @@
                                 <th>Trade</th>
                                 <th>Rating</th>
                                 <th>Jobs</th>
+                                <th>Quotes</th>
                                 <th>Added By</th>
-                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -69,16 +69,12 @@
                                         <span class="badge bg-info">{{ tradesman.job_count }}</span>
                                     </td>
                                     <td>
+                                        <span class="badge bg-warning">{{ tradesman.quote_count }}</span>
+                                    </td>
+                                    <td>
                                         <a href="{{ url_for('profile.user_profile', user_id=tradesman.added_by_user_id) }}" class="text-decoration-none">
                                             <span class="text-info">{{ tradesman.added_by_username }}</span>
                                         </a>
-                                    </td>
-                                    <td>
-                                        {% if tradesman.is_my_tradesman %}
-                                            <span class="badge bg-success">My Tradesman</span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">Group Member</span>
-                                        {% endif %}
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -102,7 +98,7 @@
                         <i class="fas fa-search"></i> Search Jobs & Quotes
                     </a>
                     <a href="{{ url_for('search.search_tradesmen', message='To add a job, first select or create the tradesman') }}" class="btn btn-success btn-sm">
-                        <i class="fas fa-plus"></i> Add Job
+                        <i class="fas fa-plus"></i> Add Job or Quote
                     </a>
                 </div>
             </div>
@@ -111,11 +107,12 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Job Title</th>
+                                <th>Type</th>
+                                <th>Title</th>
                                 <th>Tradesman</th>
                                 <th>Trade</th>
-                                <th>Completed</th>
-                                <th>Cost</th>
+                                <th>Date</th>
+                                <th>Cost/Quote</th>
                                 <th>Rating</th>
                                 <th>Added By</th>
                             </tr>
@@ -124,9 +121,20 @@
                             {% for job in recent_jobs %}
                                 <tr>
                                     <td>
-                                        <a href="{{ url_for('jobs.view_job', job_id=job.id) }}" class="text-decoration-none">
-                                            <span class="fw-semibold text-primary">{{ job.title }}</span>
-                                        </a>
+                                        <span class="badge bg-{% if job.type == 'job' %}primary{% else %}warning{% endif %}">
+                                            {{ job.type|title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if job.type == 'job' %}
+                                            <a href="{{ url_for('jobs.view_job', job_id=job.id) }}" class="text-decoration-none">
+                                                <span class="fw-semibold text-primary">{{ job.title }}</span>
+                                            </a>
+                                        {% else %}
+                                            <a href="{{ url_for('jobs.view_quote', quote_id=job.id) }}" class="text-decoration-none">
+                                                <span class="fw-semibold text-primary">{{ job.title }}</span>
+                                            </a>
+                                        {% endif %}
                                     </td>
                                     <td>
                                         <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=job.tradesman_id) }}" class="text-decoration-none">
@@ -142,13 +150,27 @@
                                     </td>
                                     <td>{{ job.trade }}</td>
                                     <td>
-                                        {% if job.date_finished %}
-                                            <span class="text-success">{{ job.date_finished }}</span>
+                                        {% if job.type == 'job' %}
+                                            {% if job.date_finished %}
+                                                <span class="text-success">{{ job.date_finished }}</span>
+                                            {% else %}
+                                                <span class="text-warning">In Progress</span>
+                                            {% endif %}
                                         {% else %}
-                                            <span class="text-warning">In Progress</span>
+                                            {% if job.date_received %}
+                                                <span class="text-info">{{ job.date_received }}</span>
+                                            {% else %}
+                                                <span class="text-warning">Pending</span>
+                                            {% endif %}
                                         {% endif %}
                                     </td>
-                                    <td>€{{ job.total_cost }}</td>
+                                    <td>
+                                        {% if job.type == 'job' %}
+                                            €{{ job.total_cost }}
+                                        {% else %}
+                                            €{{ job.total_quote }}
+                                        {% endif %}
+                                    </td>
                                     <td>
                                         {% if job.rating %}
                                             <span class="badge bg-{% if job.rating >= 4 %}success{% elif job.rating >= 3 %}warning{% else %}danger{% endif %}">

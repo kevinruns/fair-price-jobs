@@ -121,9 +121,15 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="{{ url_for('jobs.view_job', job_id=result.id) }}" class="text-decoration-none">
-                                        <span class="fw-semibold text-primary">{{ result.title }}</span>
-                                    </a>
+                                    {% if result.type == 'job' %}
+                                        <a href="{{ url_for('jobs.view_job', job_id=result.id) }}" class="text-decoration-none">
+                                            <span class="fw-semibold text-primary">{{ result.title }}</span>
+                                        </a>
+                                    {% else %}
+                                        <a href="{{ url_for('jobs.view_quote', quote_id=result.id) }}" class="text-decoration-none">
+                                            <span class="fw-semibold text-primary">{{ result.title }}</span>
+                                        </a>
+                                    {% endif %}
                                 </td>
                                 <td>{{ result.trade }}</td>
                                 <td>

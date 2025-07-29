@@ -166,20 +166,48 @@
                     <label for="quote_file" class="col-sm-6 col-form-label">Quote File</label>
                     <div class="col-sm-6">
                         {% if job.quote_file %}
-                            <a href="{{ url_for('main.uploaded_file', filename=job.quote_file) }}" target="_blank">View Current File</a><br>
+                            <div class="d-flex align-items-center gap-2">
+                                {% set filename_parts = job.quote_file.split('_', 1) %}
+                                {% set original_filename = filename_parts[1] if filename_parts|length > 1 else job.quote_file %}
+                                <a href="{{ url_for('main.uploaded_file', filename=job.quote_file) }}" target="_blank" class="text-decoration-none">
+                                    {{ original_filename }}
+                                </a>
+                                <div class="file-input-wrapper">
+                                    <input type="file" class="form-control" id="quote_file" name="quote_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt" style="display: none;">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('quote_file').click()">
+                                        <i class="fas fa-upload"></i> Replace
+                                    </button>
+                                    <span id="quote_file_name" class="ms-2 small text-muted"></span>
+                                </div>
+                            </div>
+                        {% else %}
+                            <input type="file" class="form-control" id="quote_file" name="quote_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
                         {% endif %}
-                        <input type="file" class="form-control" id="quote_file" name="quote_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
                     </div>
                 </div>
             </div>
             <div class="col-sm-6">
                 <div class="row align-items-center">
-                    <label for="job_file" class="col-sm-6 col-form-label">Job File</label>
+                    <label for="job_file" class="col-sm-6 col-form-label">Invoice</label>
                     <div class="col-sm-6">
                         {% if job.job_file %}
-                            <a href="{{ url_for('main.uploaded_file', filename=job.job_file) }}" target="_blank">View Current File</a><br>
+                            <div class="d-flex align-items-center gap-2">
+                                {% set filename_parts = job.job_file.split('_', 1) %}
+                                {% set original_filename = filename_parts[1] if filename_parts|length > 1 else job.job_file %}
+                                <a href="{{ url_for('main.uploaded_file', filename=job.job_file) }}" target="_blank" class="text-decoration-none">
+                                    {{ original_filename }}
+                                </a>
+                                <div class="file-input-wrapper">
+                                    <input type="file" class="form-control" id="job_file" name="job_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt" style="display: none;">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('job_file').click()">
+                                        <i class="fas fa-upload"></i> Replace
+                                    </button>
+                                    <span id="job_file_name" class="ms-2 small text-muted"></span>
+                                </div>
+                            </div>
+                        {% else %}
+                            <input type="file" class="form-control" id="job_file" name="job_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
                         {% endif %}
-                        <input type="file" class="form-control" id="job_file" name="job_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
                     </div>
                 </div>
             </div>
@@ -215,4 +243,23 @@
     }
 </script>
 {% endif %}
+
+<script>
+    // Handle file input changes to show selected filename
+    document.getElementById('quote_file')?.addEventListener('change', function() {
+        const fileName = this.files[0]?.name;
+        const nameSpan = document.getElementById('quote_file_name');
+        if (nameSpan) {
+            nameSpan.textContent = fileName ? `Selected: ${fileName}` : '';
+        }
+    });
+
+    document.getElementById('job_file')?.addEventListener('change', function() {
+        const fileName = this.files[0]?.name;
+        const nameSpan = document.getElementById('job_file_name');
+        if (nameSpan) {
+            nameSpan.textContent = fileName ? `Selected: ${fileName}` : '';
+        }
+    });
+</script>
 {% endblock %} 

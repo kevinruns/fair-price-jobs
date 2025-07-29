@@ -166,7 +166,7 @@ class JobService:
             FROM jobs j
             JOIN tradesmen t ON j.tradesman_id = t.id
             JOIN users u ON j.user_id = u.id
-            WHERE 1=1
+            WHERE j.type = 'job'
         """
         params = []
         
@@ -329,7 +329,7 @@ class JobService:
         return [dict(row) for row in results]
     
     def get_recent_completed_jobs_for_user(self, user_id: int, limit: int = 10) -> List[Dict[str, Any]]:
-        """Get recently completed jobs for user or users in their groups"""
+        """Get recent jobs and quotes for user or users in their groups"""
         query = """
             SELECT j.*, 
                    t.first_name, t.family_name, t.company_name, t.trade,
@@ -345,11 +345,18 @@ class JobService:
                        SELECT group_id FROM user_groups 
                        WHERE user_id = ? AND status IN ('member', 'admin', 'creator')
                    )))
-            AND j.date_finished IS NOT NULL
-            ORDER BY j.date_finished DESC
+            AND (
+                j.type = 'job' OR
+                (j.type = 'quote' AND j.date_received IS NOT NULL)
+            )
+            ORDER BY 
+                CASE 
+                    WHEN j.type = 'job' THEN COALESCE(j.date_finished, j.date_started, j.date_requested)
+                    WHEN j.type = 'quote' THEN j.date_received 
+                END DESC
             LIMIT ?
         """
-        return self.db.execute_query(query, (user_id, user_id, limit)) 
+        return self.db.execute_query(query, (user_id, user_id, limit))
 
     def get_job_status_counts(self, tradesman_id: int) -> Dict[str, int]:
         """Get counts of jobs by status for a tradesman."""

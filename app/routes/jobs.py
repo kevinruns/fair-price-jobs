@@ -213,7 +213,79 @@ def view_quote(quote_id: int) -> Union[str, Response]:
         flash("Quote not found.", "error")
         return redirect(url_for("search.search_tradesmen"))
     
-    return render_template("view_quote.html", quote=quote)
+    can_edit = job_service.can_user_edit_job(session["user_id"], quote_id)
+    return render_template("view_quote.html", quote=quote, can_edit=can_edit)
+
+@jobs_bp.route('/edit_quote/<int:quote_id>', methods=['GET', 'POST'])
+@login_required
+def edit_quote(quote_id: int) -> Union[str, Response]:
+    quote = job_service.get_job_by_id(quote_id)
+    if not quote or quote['type'] != 'quote':
+        flash("Quote not found.", "error")
+        return redirect(url_for("search.search_jobs_quotes"))
+    
+    if not job_service.can_user_edit_job(session["user_id"], quote_id):
+        flash("You don't have permission to edit this quote.", "error")
+        return redirect(url_for("search.search_jobs_quotes"))
+
+    if request.method == "POST":
+        # Get form data
+        title = request.form.get("title") or ""
+        description = request.form.get("description") or ""
+        date_requested = request.form.get("date_requested") or None
+        date_received = request.form.get("date_received") or None
+        call_out_fee = request.form.get("call_out_fee")
+        materials_fee = request.form.get("materials_fee")
+        hourly_rate = request.form.get("hourly_rate")
+        hours_estimated = request.form.get("hours_estimated")
+        daily_rate = request.form.get("daily_rate")
+        days_estimated = request.form.get("days_estimated")
+        total_quote = request.form.get("total_quote")
+        status = request.form.get("status", "pending")
+
+        # Handle file upload
+        quote_file = quote.get('quote_file')  # Keep existing file if no new one uploaded
+        
+        if 'quote_file' in request.files:
+            quote_file_obj = request.files['quote_file']
+            if quote_file_obj and quote_file_obj.filename:
+                # Delete old file if it exists
+                if quote_file:
+                    FileService.delete_file(quote_file)
+                quote_file = FileService.save_file(quote_file_obj, 'quotes')
+
+        try:
+            call_out_fee_int = int(call_out_fee) if call_out_fee else None
+            materials_fee_int = int(materials_fee) if materials_fee else None
+            hourly_rate_int = int(hourly_rate) if hourly_rate else None
+            hours_estimated_float = float(hours_estimated) if hours_estimated else None
+            daily_rate_int = int(daily_rate) if daily_rate else None
+            days_estimated_float = float(days_estimated) if days_estimated else None
+            total_quote_int = int(total_quote) if total_quote else None
+            
+            job_service.update_quote(
+                quote_id,
+                title=title,
+                description=description,
+                date_requested=date_requested,
+                date_received=date_received,
+                call_out_fee=call_out_fee_int,
+                materials_fee=materials_fee_int,
+                hourly_rate=hourly_rate_int,
+                hours_estimated=hours_estimated_float,
+                daily_rate=daily_rate_int,
+                days_estimated=days_estimated_float,
+                total_quote=total_quote_int,
+                status=status,
+                quote_file=quote_file
+            )
+            flash("Quote updated successfully!", "success")
+            return redirect(url_for("jobs.view_quote", quote_id=quote_id))
+        except Exception as e:
+            flash(f"An error occurred: {str(e)}", "error")
+            return redirect(url_for("jobs.edit_quote", quote_id=quote_id))
+
+    return render_template("edit_quote.html", quote=quote, can_delete=job_service.can_user_edit_job(session["user_id"], quote_id))
 
 @jobs_bp.route('/view_job/<int:job_id>')
 @login_required

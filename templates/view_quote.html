@@ -4,13 +4,24 @@
 <div class="container-fluid p-4">
     <div class="row mb-4">
         <div class="col">
-            <h2 class="text-primary fw-bold mb-3">{{ quote.title }}</h2>
-            <p class="text-muted mb-0">
-                <strong>Tradesman:</strong> 
-                <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=quote.tradesman_id) }}" class="text-decoration-none">
-                    {{ quote.tradesman_name }} - {{ quote.trade }}
-                </a>
-            </p>
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h2 class="text-primary fw-bold mb-3">{{ quote.title }}</h2>
+                    <p class="text-muted mb-0">
+                        <strong>Tradesman:</strong> 
+                        <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=quote.tradesman_id) }}" class="text-decoration-none">
+                            {{ quote.tradesman_name }} - {{ quote.trade }}
+                        </a>
+                    </p>
+                </div>
+                {% if can_edit %}
+                <div>
+                    <a href="{{ url_for('jobs.edit_quote', quote_id=quote.id) }}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Edit Quote
+                    </a>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 
