@@ -1,4 +1,4 @@
-{# Rating badge macro with flexible display options #}
+{# Rating badge macro with flexible display options #}}
 {% macro rating_badge(rating, show_none=true, none_text="None") %}
     {% if rating %}
         <span class="badge bg-{% if rating >= 4 %}success{% elif rating >= 3 %}warning{% else %}danger{% endif %}">
@@ -9,98 +9,115 @@
     {% endif %}
 {% endmacro %}
 
-{# Section header with consistent styling #}
+{# Section header with consistent styling #}}
 {% macro section_header(title, search_url, add_url, add_text, search_text="Search") %}
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>{{ title }}</h2>
-        <div class="d-flex gap-2">
-            <a href="{{ search_url }}" class="btn btn-outline-primary btn-sm">
+        <div>
+            <a href="{{ search_url }}" class="btn btn-outline-primary me-2">
                 <i class="fas fa-search"></i> {{ search_text }}
             </a>
-            <a href="{{ add_url }}" class="btn btn-success btn-sm">
+            <a href="{{ add_url }}" class="btn btn-success">
                 <i class="fas fa-plus"></i> {{ add_text }}
             </a>
         </div>
     </div>
 {% endmacro %}
 
-{# Display name with company name if available #}
+{# Display name with company fallback #}}
 {% macro display_name(first_name, family_name, company_name) %}
-    {% if first_name %}
-        {{ first_name }} {{ family_name }}
-    {% else %}
-        {{ family_name }}
-    {% endif %}
     {% if company_name %}
-        <small class="text-muted d-block">{{ company_name }}</small>
+        {{ company_name }}
+    {% else %}
+        {{ first_name }} {{ family_name }}
     {% endif %}
 {% endmacro %}
 
-{# Empty state with consistent styling #}
-{% macro empty_state(message, help_text) %}
-    <div class="text-center py-4">
+{# Empty state with customizable message #}}
+{% macro empty_state(message) %}
+    <div class="text-center py-5">
+        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
         <p class="text-muted">{{ message }}</p>
-        <p class="text-muted small">{{ help_text }}</p>
     </div>
 {% endmacro %}
 
-{# Status badge with color coding #}
-{% macro status_badge(status, text=None) %}
-    <span class="badge bg-{% if status == 'creator' %}primary{% elif status == 'admin' %}warning{% else %}success{% endif %}">
-        {{ text or status|title }}
-    </span>
+{# Status badge with color coding #}}
+{% macro status_badge(status) %}
+    {% set status_colors = {
+        'completed': 'success',
+        'in_progress': 'warning', 
+        'pending': 'info',
+        'cancelled': 'danger'
+    } %}
+    <span class="badge bg-{{ status_colors.get(status, 'secondary' ) }}">
+        {{ status.replace('_', ' ').title() }}</span>
 {% endmacro %}
 
-{# Job type badge #}
+{# Job type badge #}}
 {% macro job_type_badge(job_type) %}
-    <span class="badge bg-{% if job_type == 'job' %}primary{% else %}warning{% endif %}">
-        {{ job_type|title }}
-    </span>
+    {% set type_colors = {
+        'job': 'primary',
+        'quote': 'info'
+    } %}
+    <span class="badge bg-{{ type_colors.get(job_type, 'secondary' ) }}">
+        {{ job_type.title() }}</span>
 {% endmacro %}
 
-{# Date display with status colors #}
-{% macro date_display(job_type, date_finished, date_received) %}
-    {% if job_type == 'job' %}
-        {% if date_finished %}
-            <span class="text-success">{{ date_finished }}</span>
+{# Date display with formatting #}}
+{% macro date_display(date, format="%d/%m/%Y") %}
+    {% if date %}
+        {% if date is string %}
+            {{ date }}
         {% else %}
-            <span class="text-warning">In Progress</span>
-        {% endif %}
+            {{ date.strftime(format) }}{% endif %}
     {% else %}
-        {% if date_received %}
-            <span class="text-info">{{ date_received }}</span>
-        {% else %}
-            <span class="text-warning">Pending</span>
-        {% endif %}
+        Not set
     {% endif %}
 {% endmacro %}
 
-{# Form field macro for consistent form styling #}
-{% macro form_field(label, field_id, field_name, value="", field_type="text", placeholder="", required=false, step="", min="", max="", rows="1", cols="", accept="", class="form-control") %}
+{# Form field macro for single input fields #}}
+{% macro form_field(label, field_id, field_name, value="", field_type="text", placeholder="", required=false, rows=1, step="", min="", max="") %}
     <div class="row align-items-center mb-4">
         <label for="{{ field_id }}" class="col-sm-2 col-form-label fw-bold">{{ label }}</label>
         <div class="col-sm-10">
             <div class="input-container">
                 {% if field_type == "textarea" %}
-                    <textarea class="{{ class }}" id="{{ field_id }}" name="{{ field_name }}" rows="{{ rows }}" 
-                              placeholder="{{ placeholder }}" {% if required %}required{% endif %}>{{ value }}</textarea>
+                    <textarea 
+                        class="form-control" 
+                        id="{{ field_id }}" 
+                        name="{{ field_name }}" 
+                        placeholder="{{ placeholder }}"
+                        {% if required %}required{% endif %}
+                        rows="{{ rows }}"
+                    >{{ value }}</textarea>
                 {% elif field_type == "file" %}
-                    <input type="file" class="{{ class }}" id="{{ field_id }}" name="{{ field_name }}" 
-                           accept="{{ accept }}" {% if required %}required{% endif %}>
+                    <input 
+                        type="file" 
+                        class="form-control" 
+                        id="{{ field_id }}" 
+                        name="{{ field_name }}"
+                        {% if required %}required{% endif %}
+                    >
                 {% else %}
-                    <input type="{{ field_type }}" class="{{ class }}" id="{{ field_id }}" name="{{ field_name }}" 
-                           value="{{ value }}" placeholder="{{ placeholder }}" 
-                           {% if step %}step="{{ step }}"{% endif %}
-                           {% if min %}min="{{ min }}"{% endif %}
-                           {% if max %}max="{{ max }}"{% endif %}
-                           {% if required %}required{% endif %}>
+                    <input 
+                        type="{{ field_type }}" 
+                        class="form-control" 
+                        id="{{ field_id }}" 
+                        name="{{ field_name }}" 
+                        value="{{ value }}"
+                        placeholder="{{ placeholder }}"
+                        {% if required %}required{% endif %}
+                        {% if step %}step="{{ step }}"{% endif %}
+                        {% if min %}min="{{ min }}"{% endif %}
+                        {% if max %}max="{{ max }}"{% endif %}
+                    >
                 {% endif %}
             </div>
         </div>
     </div>
 {% endmacro %}
 
-{# Form field pair macro for side-by-side fields #}
+{# Form field pair macro for side-by-side fields #}}
 {% macro form_field_pair(
     label1, field_id1, field_name1,
     label2, field_id2, field_name2,
@@ -110,33 +127,46 @@
     <div class="row align-items-center mb-4">
         <div class="col-sm-6">
             <div class="row align-items-center">
-                <label for="{{ field_id1 }}" class="col-sm-6 col-form-label {% if required1 %}fw-bold{% endif %}">{{ label1 }}</label>
-                <div class="col-sm-6">
-                    <div class="input-container-sm">
-                        <input type="{{ field_type1 }}" class="form-control" id="{{ field_id1 }}" name="{{ field_name1 }}"
-                               value="{{ value1 }}" placeholder="{{ placeholder1 }}"
-                               {% if step1 %}step="{{ step1 }}"{% endif %}
-                               {% if min1 %}min="{{ min1 }}"{% endif %}
-                               {% if max1 %}max="{{ max1 }}"{% endif %}
-                               {% if required1 %}required{% endif %}>
+                <label for="{{ field_id1 }}" class="col-sm-4 col-form-label fw-bold">{{ label1 }}</label>
+                <div class="col-sm-8">
+                    <div class="input-container">
+                        <input 
+                            type="{{ field_type1 }}" 
+                            class="form-control" 
+                            id="{{ field_id1 }}" 
+                            name="{{ field_name1 }}" 
+                            value="{{ value1 }}"
+                            placeholder="{{ placeholder1 }}"
+                            {% if required1 %}required{% endif %}
+                            {% if step1 %}step="{{ step1 }}"{% endif %}
+                            {% if min1 %}min="{{ min1 }}"{% endif %}
+                            {% if max1 %}max="{{ max1 }}"{% endif %}
+                        >
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-sm-6">
             <div class="row align-items-center">
-                <label for="{{ field_id2 }}" class="col-sm-6 col-form-label {% if required2 %}fw-bold{% endif %}">{{ label2 }}</label>
-                <div class="col-sm-6">
-                    <div class="input-container-sm">
-                        <input type="{{ field_type2 }}" class="form-control" id="{{ field_id2 }}" name="{{ field_name2 }}"
-                               value="{{ value2 }}" placeholder="{{ placeholder2 }}"
-                               {% if step2 %}step="{{ step2 }}"{% endif %}
-                               {% if min2 %}min="{{ min2 }}"{% endif %}
-                               {% if max2 %}max="{{ max2 }}"{% endif %}
-                               {% if required2 %}required{% endif %}>
+                <label for="{{ field_id2 }}" class="col-sm-4 col-form-label fw-bold">{{ label2 }}</label>
+                <div class="col-sm-8">
+                    <div class="input-container">
+                        <input 
+                            type="{{ field_type2 }}" 
+                            class="form-control" 
+                            id="{{ field_id2 }}" 
+                            name="{{ field_name2 }}" 
+                            value="{{ value2 }}"
+                            placeholder="{{ placeholder2 }}"
+                            {% if required2 %}required{% endif %}
+                            {% if step2 %}step="{{ step2 }}"{% endif %}
+                            {% if min2 %}min="{{ min2 }}"{% endif %}
+                            {% if max2 %}max="{{ max2 }}"{% endif %}
+                        >
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 {% endmacro %} 

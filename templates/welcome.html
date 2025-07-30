@@ -6,7 +6,7 @@
 
 {% block main %}
     <h1>Welcome, {{ username }}!</h1>
-    <p>Thank you for registering with our service.</p>
-    <p>You can now <a href="{{ url_for('auth.login') }}">log in</a> to access your account.</p>
+    <p>{{ _('Thank you for registering with our service.' ) }}</p>
+    <p>{{ _('You can now' ) }}<a href="{{ url_for('auth.login' ) }}">{{ _('log in' ) }}</a>{{ _('to access your account.' ) }}</p>
     
 {% endblock %}

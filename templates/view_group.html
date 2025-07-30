@@ -2,22 +2,22 @@
 {% from "macros.html" import status_badge %}
 
 {% block main %}
-<div class="container">
+    <div class="container">
     <table class="table">
-        <thead>
-            <tr>
-                <th>Member</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for member in members %}
-            <tr>
+                    <thead>
+                        <tr>
+                <th>{{ _('Member' ) }}</th>
+                            <th>{{ _('Status' ) }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in members %}
+                            <tr>
                 <td>{{ member.username }}</td>
                 <td>{{ status_badge(member.status) }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+    </div>
 {% endblock %}

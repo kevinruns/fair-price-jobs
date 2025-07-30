@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% block title %}Translation Test{% endblock %}
+
+{% block main %}
+<div class="container mt-5">
+    <h2>Translation Test</h2>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Template Translations:</h3>
+            <ul>
+                <li>Home: {{ _('Home') }}</li>
+                <li>Jobs & Quotes: {{ _('Jobs & Quotes') }}</li>
+                <li>Tradesmen: {{ _('Tradesmen') }}</li>
+                <li>Groups: {{ _('Groups') }}</li>
+                <li>Log Out: {{ _('Log Out') }}</li>
+            </ul>
+        </div>
+        
+        <div class="col-md-6">
+            <h3>Current State:</h3>
+            <ul>
+                <li>Session Language: {{ session.get('language', 'None') }}</li>
+                <li>Available Languages: {{ config.LANGUAGES.keys() | list }}</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <h3>Test Language Switching:</h3>
+        <a href="/set_language/fr" class="btn btn-primary">Switch to French</a>
+        <a href="/set_language/en" class="btn btn-secondary">Switch to English</a>
+        <a href="/test_template_translation" class="btn btn-info">Refresh Test Page</a>
+    </div>
+</div>
+{% endblock %}

@@ -60,94 +60,67 @@ class Config:
     FROM_EMAIL: Optional[str] = os.environ.get('FROM_EMAIL')
     APP_URL: str = os.environ.get('APP_URL') or 'http://localhost:5000'
     
+    # Internationalization settings
+    LANGUAGES = {
+        'en': 'English',
+        'fr': 'Français', 
+        'es': 'Español',
+        'de': 'Deutsch',
+        'it': 'Italiano'
+    }
+    DEFAULT_LANGUAGE = 'en'
+    BABEL_DEFAULT_LOCALE = 'en'
+    BABEL_DEFAULT_TIMEZONE = 'UTC'
+    
     def __init__(self):
-        """Initialize configuration with computed values."""
-        # Set database path relative to project root
-        if not self.DATABASE_PATH:
-            project_root = Path(__file__).parent
-            self.DATABASE_PATH = str(project_root / self.DATABASE)
-        
-        # Ensure log directory exists
-        log_dir = Path(self.LOG_FILE).parent
-        log_dir.mkdir(exist_ok=True)
-        
-        # Ensure session directory exists
-        session_dir = Path(self.SESSION_FILE_DIR)
-        session_dir.mkdir(exist_ok=True)
-        
-        # Ensure upload directory exists
-        upload_dir = Path(self.UPLOAD_FOLDER)
-        upload_dir.mkdir(exist_ok=True)
+        # Set database path
+        if self.DATABASE_PATH is None:
+            self.DATABASE_PATH = self.DATABASE
 
 class DevelopmentConfig(Config):
     """Development configuration."""
-    DEBUG = True
-    LOG_LEVEL = 'DEBUG'
-    
-    # Development-specific settings
-    DATABASE = 'development.db'
-    SESSION_TYPE = 'filesystem'
+    DEBUG: bool = True
+    DATABASE: str = 'development.db'
+    LOG_LEVEL: str = 'DEBUG'
 
 class ProductionConfig(Config):
     """Production configuration."""
-    DEBUG = False
-    LOG_LEVEL = 'WARNING'
-    
-    # Production-specific settings
-    DATABASE = os.environ.get('DATABASE') or 'production.db'
-    
-    # Security settings for production
-    SESSION_PERMANENT = True
-    SESSION_TIMEOUT = 86400  # 24 hours
-    
-    # Ensure secret key is set in production
-    def __init__(self):
-        super().__init__()
-        secret_key = os.environ.get('SECRET_KEY')
-        if not secret_key:
-            raise ValueError("SECRET_KEY environment variable must be set in production")
-        self.SECRET_KEY = secret_key
+    DEBUG: bool = False
+    DATABASE: str = 'production.db'
+    LOG_LEVEL: str = 'WARNING'
+    SESSION_PERMANENT: bool = True
+    SESSION_TIMEOUT: int = 86400  # 24 hours
+    PASSWORD_MIN_LENGTH: int = 8
+    MAX_LOGIN_ATTEMPTS: int = 3
 
 class TestingConfig(Config):
     """Testing configuration."""
-    DEBUG = True
-    LOG_LEVEL = 'DEBUG'
-    
-    # Testing-specific settings
-    DATABASE = ':memory:'  # Use in-memory database for testing
-    WTF_CSRF_ENABLED = False  # Disable CSRF for testing
-    SESSION_TYPE = 'filesystem'
-    
-    def __init__(self):
-        super().__init__()
-        # Allow database path override for testing
-        if os.environ.get('TEST_DATABASE'):
-            self.DATABASE = os.environ.get('TEST_DATABASE')
-            self.DATABASE_PATH = self.DATABASE
-
-# Configuration mapping
-config = {
-    'development': DevelopmentConfig,
-    'production': ProductionConfig,
-    'testing': TestingConfig,
-    'default': DevelopmentConfig
-}
+    TESTING: bool = True
+    DEBUG: bool = True
+    DATABASE: str = ':memory:'
+    WTF_CSRF_ENABLED: bool = False
+    LOG_LEVEL: str = 'DEBUG'
 
 def get_config(config_name: Optional[str] = None) -> Config:
     """
-    Get configuration based on environment.
+    Get configuration based on environment or config name.
     
     Args:
         config_name: Configuration name ('development', 'production', 'testing')
-                    If None, uses FLASK_ENV environment variable
     
     Returns:
         Configuration instance
     """
     if config_name is None:
-        config_name = os.environ.get('FLASK_ENV', 'default')
+        config_name = os.environ.get('FLASK_ENV', 'development')
     
-    config_class = config.get(config_name, config['default'])
+    configs = {
+        'development': DevelopmentConfig,
+        'production': ProductionConfig,
+        'testing': TestingConfig
+    }
+    
+    config_class = configs.get(config_name, DevelopmentConfig)
     return config_class()
 
 # Convenience function for getting database path

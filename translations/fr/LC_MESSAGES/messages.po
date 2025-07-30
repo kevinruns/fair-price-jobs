@@ -1,0 +1,788 @@
+# French translations for PROJECT.
+# Copyright (C) 2025 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-07-29 21:29+0200\n"
+"PO-Revision-Date: 2025-07-29 21:00+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: fr\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: app/routes/main.py:28
+msgid "User not logged in."
+msgstr "Utilisateur non connecté."
+
+#: app/routes/main.py:65
+msgid "Language changed successfully."
+msgstr "Langue changée avec succès."
+
+#: app/routes/main.py:68
+msgid "Invalid language selected."
+msgstr "Langue invalide sélectionnée."
+
+#: app/routes/main.py:93
+msgid "Database initialized successfully!"
+msgstr "Base de données initialisée avec succès!"
+
+#: app/routes/main.py:95
+#, python-brace-format
+msgid "Error initializing database: {}"
+msgstr "Erreur lors de l'initialisation de la base de données: {}"
+
+#: templates/500.html:7 templates/errors/500.html:7
+msgid "500"
+msgstr "500"
+
+#: templates/500.html:8 templates/errors/500.html:8
+msgid "Internal Server Error"
+msgstr "Erreur Interne du Serveur"
+
+#: templates/500.html:9 templates/errors/500.html:9
+msgid "Something went wrong on our end. Please try again later."
+msgstr "Quelque chose s'est mal passé de notre côté. Veuillez réessayer plus tard."
+
+#: templates/500.html:13 templates/errors/400.html:13
+#: templates/errors/404.html:13 templates/errors/409.html:13
+#: templates/errors/500.html:13
+msgid "Error:"
+msgstr "Erreur:"
+
+#: templates/500.html:18 templates/errors/400.html:18
+#: templates/errors/404.html:18 templates/errors/409.html:18
+#: templates/errors/500.html:18
+msgid "Return to Home"
+msgstr "Retour à l'Accueil"
+
+#: templates/500.html:19 templates/errors/400.html:19
+#: templates/errors/404.html:19 templates/errors/409.html:19
+#: templates/errors/500.html:19
+msgid "Go Back"
+msgstr "Retour"
+
+#: templates/add_job.html:45 templates/add_quote.html:22
+#: templates/edit_job.html:51 templates/edit_quote.html:23
+#: templates/view_job.html:72 templates/view_quote.html:76
+#, fuzzy
+msgid "Quote File"
+msgstr "Devis"
+
+#: templates/add_job.html:53 templates/edit_job.html:76
+msgid "Invoice"
+msgstr ""
+
+#: templates/add_job.html:65
+#, fuzzy
+msgid "Add Job"
+msgstr "Ajouté par"
+
+#: templates/add_job.html:66 templates/edit_job.html:106
+#: templates/edit_profile.html:54 templates/send_invitation.html:36
+msgid "Cancel"
+msgstr "Annuler"
+
+#: templates/add_quote.html:30
+#, fuzzy
+msgid "Add Quote"
+msgstr "Ajouter un travail ou un devis"
+
+#: templates/add_tradesman.html:6 templates/add_tradesman.html:18
+msgid "Add Tradesman"
+msgstr "Ajouter un artisan"
+
+#: templates/create_group.html:8
+#, fuzzy
+msgid "Create a New Group"
+msgstr "Créer un groupe"
+
+#: templates/create_group.html:20
+msgid "Create Group"
+msgstr "Créer un groupe"
+
+#: templates/edit_job.html:12 templates/view_job.html:12
+#: templates/view_quote.html:12
+#, fuzzy
+msgid "Tradesman:"
+msgstr "Artisan"
+
+#: templates/edit_job.html:105 templates/edit_profile.html:55
+#: templates/edit_quote.html:48 templates/edit_tradesman.html:18
+msgid "Save Changes"
+msgstr "Enregistrer les Modifications"
+
+#: templates/edit_profile.html:11
+msgid "Edit Profile"
+msgstr "Modifier le Profil"
+
+#: templates/edit_profile.html:18 templates/user_profile.html:25
+#, fuzzy
+msgid "Username:"
+msgstr "Nom"
+
+#: templates/edit_profile.html:21
+msgid "Username cannot be changed"
+msgstr ""
+
+#: templates/edit_profile.html:26 templates/user_profile.html:29
+msgid "First Name:"
+msgstr "Prénom:"
+
+#: templates/edit_profile.html:33 templates/user_profile.html:33
+msgid "Last Name:"
+msgstr "Nom de famille:"
+
+#: templates/edit_profile.html:40 templates/user_profile.html:37
+#: templates/view_tradesman.html:32
+msgid "Email:"
+msgstr "Email:"
+
+#: templates/edit_profile.html:47 templates/user_profile.html:41
+#: templates/view_tradesman.html:30
+#, fuzzy
+msgid "Postcode:"
+msgstr "Code postal"
+
+#: templates/edit_tradesman.html:6 templates/view_tradesman.html:111
+#, fuzzy
+msgid "Edit Tradesman"
+msgstr "Ajouter un artisan"
+
+#: templates/group_members.html:9 templates/search_groups.html:68
+#: templates/view_group.html:9
+#, fuzzy
+msgid "Member"
+msgstr "Membres"
+
+#: templates/group_members.html:10 templates/search_groups.html:46
+#: templates/search_jobs_quotes.html:110 templates/view_group.html:10
+#: templates/view_tradesman.html:80
+#, fuzzy
+msgid "Status"
+msgstr "Votre statut"
+
+#: templates/layout.html:26
+msgid "Fair Price Jobs"
+msgstr "Emplois à Prix Juste"
+
+#: templates/layout.html:34
+msgid "Home"
+msgstr "Accueil"
+
+#: templates/layout.html:37
+msgid "Jobs & Quotes"
+msgstr "Rechercher des travaux et devis"
+
+#: templates/layout.html:40 templates/user_profile.html:51
+msgid "Tradesmen"
+msgstr "Artisan"
+
+#: templates/layout.html:43 templates/user_profile.html:57
+msgid "Groups"
+msgstr "Mes groupes"
+
+#: templates/layout.html:62
+msgid "Log Out"
+msgstr "Déconnexion"
+
+#: templates/layout.html:68 templates/register.html:20
+#: templates/register.html:50
+msgid "Register"
+msgstr "S'inscrire"
+
+#: templates/layout.html:71 templates/login.html:16
+msgid "Log In"
+msgstr "Se connecter"
+
+#: templates/register.html:14
+msgid "Please register to continue and automatically join the group."
+msgstr ""
+
+#: templates/search_groups.html:42
+msgid "Group Name"
+msgstr "Nom du groupe"
+
+#: templates/search_groups.html:43 templates/search_tradesmen.html:46
+msgid "Postcode"
+msgstr "Code postal"
+
+#: templates/search_groups.html:44
+msgid "Description"
+msgstr ""
+
+#: templates/search_groups.html:45
+msgid "Members"
+msgstr "Membres"
+
+#: templates/search_groups.html:62
+msgid "No description"
+msgstr ""
+
+#: templates/search_groups.html:70
+msgid "Admin"
+msgstr ""
+
+#: templates/search_groups.html:72
+#, fuzzy
+msgid "Creator"
+msgstr "Créer un groupe"
+
+#: templates/search_groups.html:74
+msgid "Pending"
+msgstr ""
+
+#: templates/search_jobs.html:7 templates/search_jobs.html:18
+#, fuzzy
+msgid "Search Jobs"
+msgstr "Rechercher des travaux et devis"
+
+#: templates/search_jobs.html:24 templates/search_jobs.html:84
+#: templates/search_jobs_quotes.html:29 templates/search_jobs_quotes.html:108
+#: templates/search_tradesmen.html:34 templates/search_tradesmen.html:89
+#: templates/user_tradesmen.html:21
+msgid "Trade"
+msgstr "Métier"
+
+#: templates/search_jobs.html:26 templates/search_jobs_quotes.html:31
+#: templates/search_tradesmen.html:36
+#, fuzzy
+msgid "All Trades"
+msgstr "Ajouter un artisan"
+
+#: templates/search_jobs.html:36 templates/search_jobs_quotes.html:41
+#, fuzzy
+msgid "Min Rating"
+msgstr "Note"
+
+#: templates/search_jobs.html:38 templates/search_jobs_quotes.html:43
+msgid "Any"
+msgstr ""
+
+#: templates/search_jobs.html:39 templates/search_jobs_quotes.html:44
+msgid "5★"
+msgstr ""
+
+#: templates/search_jobs.html:40 templates/search_jobs_quotes.html:45
+msgid "4★+"
+msgstr ""
+
+#: templates/search_jobs.html:41 templates/search_jobs_quotes.html:46
+msgid "3★+"
+msgstr ""
+
+#: templates/search_jobs.html:42 templates/search_jobs_quotes.html:47
+msgid "2★+"
+msgstr ""
+
+#: templates/search_jobs.html:43 templates/search_jobs_quotes.html:48
+msgid "1★+"
+msgstr ""
+
+#: templates/search_jobs.html:48 templates/search_jobs.html:90
+#: templates/search_jobs_quotes.html:53 templates/search_jobs_quotes.html:113
+#: templates/search_tradesmen.html:52 templates/search_tradesmen.html:94
+msgid "Added By"
+msgstr "Ajouté par"
+
+#: templates/search_jobs.html:50 templates/search_jobs_quotes.html:55
+#: templates/search_tradesmen.html:54
+msgid "All Users"
+msgstr ""
+
+#: templates/search_jobs.html:60 templates/search_jobs_quotes.html:65
+#: templates/search_tradesmen.html:64
+#: templates/view_all_pending_requests.html:21
+#, fuzzy
+msgid "Group"
+msgstr "Mes groupes"
+
+#: templates/search_jobs.html:62 templates/search_jobs_quotes.html:67
+#: templates/search_tradesmen.html:66
+#, fuzzy
+msgid "All Groups"
+msgstr "Voir tous les groupes"
+
+#: templates/search_jobs.html:72 templates/search_jobs_quotes.html:94
+#: templates/search_tradesmen.html:28 templates/search_tradesmen.html:76
+msgid "Search"
+msgstr "Rechercher"
+
+#: templates/search_jobs.html:73 templates/search_jobs_quotes.html:95
+#: templates/search_tradesmen.html:77
+msgid "Clear"
+msgstr ""
+
+#: templates/search_jobs.html:85
+#, fuzzy
+msgid "Job Title"
+msgstr "Titre"
+
+#: templates/search_jobs.html:86 templates/search_jobs_quotes.html:109
+msgid "Tradesman"
+msgstr "Artisan"
+
+#: templates/search_jobs.html:87
+msgid "Completed"
+msgstr ""
+
+#: templates/search_jobs.html:88
+msgid "Cost"
+msgstr ""
+
+#: templates/search_jobs.html:89 templates/search_jobs_quotes.html:112
+#: templates/search_tradesmen.html:95 templates/user_tradesmen.html:26
+#: templates/view_tradesman.html:50
+msgid "Rating"
+msgstr "Note"
+
+#: templates/search_jobs.html:111
+msgid "In Progress"
+msgstr ""
+
+#: templates/search_jobs.html:132
+msgid "Search for completed jobs by keywords in the job title."
+msgstr ""
+
+#: templates/search_jobs.html:133
+msgid "You can also filter by trade type and minimum rating."
+msgstr ""
+
+#: templates/search_jobs_quotes.html:11 templates/search_jobs_quotes.html:23
+msgid "Search Jobs & Quotes"
+msgstr "Rechercher des travaux et devis"
+
+#: templates/search_jobs_quotes.html:106
+msgid "Type"
+msgstr "Type"
+
+#: templates/search_jobs_quotes.html:107
+msgid "Title"
+msgstr "Titre"
+
+#: templates/search_jobs_quotes.html:111
+msgid "Cost/Quote"
+msgstr "Coût/Devis"
+
+#: templates/search_jobs_quotes.html:170
+msgid "Search for jobs and quotes by keywords in the title."
+msgstr ""
+
+#: templates/search_jobs_quotes.html:171
+msgid ""
+"You can filter by trade type, minimum rating, and choose to include jobs,"
+" quotes, or both."
+msgstr ""
+
+#: templates/search_tradesmen.html:11
+msgid "Search Tradesmen"
+msgstr "Rechercher des artisans"
+
+#: templates/search_tradesmen.html:88 templates/user_tradesmen.html:22
+msgid "Name"
+msgstr "Nom"
+
+#: templates/search_tradesmen.html:90 templates/user_tradesmen.html:24
+msgid "Location"
+msgstr ""
+
+#: templates/search_tradesmen.html:91
+msgid "Phone"
+msgstr ""
+
+#: templates/search_tradesmen.html:92
+#: templates/view_all_pending_requests.html:23
+#: templates/view_invitations.html:31 templates/view_requests.html:33
+msgid "Email"
+msgstr ""
+
+#: templates/search_tradesmen.html:93 templates/user_tradesmen.html:25
+#: templates/view_tradesman.html:43
+msgid "Jobs"
+msgstr "Travaux"
+
+#: templates/search_tradesmen.html:96 templates/user_tradesmen.html:28
+#: templates/view_all_pending_requests.html:24
+#: templates/view_invitations.html:35 templates/view_requests.html:34
+#, fuzzy
+msgid "Actions"
+msgstr "Note"
+
+#: templates/search_tradesmen.html:141
+msgid "Search for tradesmen by name, trade, or location."
+msgstr ""
+
+#: templates/search_tradesmen.html:142
+msgid "You can filter by trade type, postcode, and who added them."
+msgstr ""
+
+#: templates/send_invitation.html:13 templates/send_invitation.html:37
+msgid "Send Invitation"
+msgstr ""
+
+#: templates/send_invitation.html:17
+msgid "Invite someone to join:"
+msgstr ""
+
+#: templates/send_invitation.html:26
+msgid "Email Address"
+msgstr ""
+
+#: templates/user_profile.html:12
+msgid "User Profile"
+msgstr ""
+
+#: templates/user_profile.html:23
+msgid "Personal Information"
+msgstr ""
+
+#: templates/user_profile.html:46
+msgid "Activity Summary"
+msgstr ""
+
+#: templates/user_profile.html:63
+msgid "Quick Actions"
+msgstr ""
+
+#: templates/user_tradesmen.html:23
+msgid "Contact"
+msgstr ""
+
+#: templates/user_tradesmen.html:27
+#, fuzzy
+msgid "Added On"
+msgstr "Ajouté par"
+
+#: templates/user_tradesmen.html:60
+msgid "View"
+msgstr "Voir"
+
+#: templates/user_tradesmen.html:62
+msgid "Edit"
+msgstr "Modifier"
+
+#: templates/user_tradesmen.html:77
+msgid "Back to Home"
+msgstr ""
+
+#: templates/view_all_pending_requests.html:8
+msgid "Pending Join Requests"
+msgstr ""
+
+#: templates/view_all_pending_requests.html:22
+#, fuzzy
+msgid "Username"
+msgstr "Nom"
+
+#: templates/view_all_pending_requests.html:53
+msgid "No permission"
+msgstr ""
+
+#: templates/view_invitations.html:13
+msgid "Pending Invitations"
+msgstr ""
+
+#: templates/view_invitations.html:20
+#, fuzzy
+msgid "Group:"
+msgstr "Mes groupes"
+
+#: templates/view_invitations.html:32
+msgid "Invited By"
+msgstr ""
+
+#: templates/view_invitations.html:33
+msgid "Sent On"
+msgstr ""
+
+#: templates/view_invitations.html:34
+msgid "Expires On"
+msgstr ""
+
+#: templates/view_invitations.html:60
+msgid "No pending invitations for this group."
+msgstr ""
+
+#: templates/view_job.html:18 templates/view_quote.html:18
+#, fuzzy
+msgid "Added by:"
+msgstr "Ajouté par"
+
+#: templates/view_job.html:39
+msgid "Job Details"
+msgstr ""
+
+#: templates/view_job.html:43 templates/view_quote.html:43
+msgid "Description:"
+msgstr ""
+
+#: templates/view_job.html:48
+msgid "Date Started:"
+msgstr ""
+
+#: templates/view_job.html:53
+msgid "Date Finished:"
+msgstr ""
+
+#: templates/view_job.html:58 templates/view_quote.html:67
+#, fuzzy
+msgid "Rating:"
+msgstr "Note"
+
+#: templates/view_job.html:76 templates/view_job.html:95
+#: templates/view_quote.html:80
+#, fuzzy
+msgid "File:"
+msgstr "Titre"
+
+#: templates/view_job.html:91
+msgid "Invoice File"
+msgstr ""
+
+#: templates/view_job.html:104
+msgid "No invoice file uploaded"
+msgstr ""
+
+#: templates/view_quote.html:39
+#, fuzzy
+msgid "Quote Details"
+msgstr "Devis"
+
+#: templates/view_quote.html:48
+msgid "Date Requested:"
+msgstr ""
+
+#: templates/view_quote.html:53
+msgid "Date Received:"
+msgstr ""
+
+#: templates/view_quote.html:58
+#, fuzzy
+msgid "Status:"
+msgstr "Votre statut"
+
+#: templates/view_quote.html:95
+msgid "Cost Breakdown"
+msgstr ""
+
+#: templates/view_quote.html:100
+msgid "Call Out Fee:"
+msgstr ""
+
+#: templates/view_quote.html:107
+msgid "Materials Fee:"
+msgstr ""
+
+#: templates/view_quote.html:114
+msgid "Hourly Rate:"
+msgstr ""
+
+#: templates/view_quote.html:121
+msgid "Daily Rate:"
+msgstr ""
+
+#: templates/view_quote.html:128
+#, fuzzy
+msgid "Total Quote:"
+msgstr "Coût/Devis"
+
+#: templates/view_requests.html:32
+#, fuzzy
+msgid "User Name"
+msgstr "Nom du groupe"
+
+#: templates/view_requests.html:44
+msgid "Accept"
+msgstr ""
+
+#: templates/view_requests.html:45
+msgid "Reject"
+msgstr ""
+
+#: templates/view_requests.html:54
+msgid "No further requests"
+msgstr ""
+
+#: templates/view_tradesman.html:28
+msgid "Contact Details"
+msgstr ""
+
+#: templates/view_tradesman.html:29
+msgid "Address:"
+msgstr ""
+
+#: templates/view_tradesman.html:31
+msgid "Phone Number:"
+msgstr ""
+
+#: templates/view_tradesman.html:47
+#, fuzzy
+msgid "Job"
+msgstr "Travaux"
+
+#: templates/view_tradesman.html:48
+msgid "Finished"
+msgstr ""
+
+#: templates/view_tradesman.html:49
+msgid "Total Cost"
+msgstr ""
+
+#: templates/view_tradesman.html:69
+msgid "No jobs entered yet for this tradesman."
+msgstr ""
+
+#: templates/view_tradesman.html:73
+msgid "Quotes"
+msgstr "Devis"
+
+#: templates/view_tradesman.html:77
+#, fuzzy
+msgid "Quote"
+msgstr "Devis"
+
+#: templates/view_tradesman.html:78
+msgid "Received"
+msgstr ""
+
+#: templates/view_tradesman.html:79
+#, fuzzy
+msgid "Total Quote"
+msgstr "Coût/Devis"
+
+#: templates/view_tradesman.html:103
+msgid "No quotes entered yet for this tradesman."
+msgstr ""
+
+#: templates/view_tradesman.html:108
+#, fuzzy
+msgid "Add New Job"
+msgstr "Ajouté par"
+
+#: templates/view_tradesman.html:109
+#, fuzzy
+msgid "Add New Quote"
+msgstr "Ajouter un travail ou un devis"
+
+#: templates/welcome.html:9
+msgid "Thank you for registering with our service."
+msgstr ""
+
+#: templates/welcome.html:10
+msgid "You can now"
+msgstr ""
+
+#: templates/welcome.html:10
+msgid "log in"
+msgstr ""
+
+#: templates/welcome.html:10
+msgid "to access your account."
+msgstr ""
+
+#: templates/errors/400.html:7
+msgid "400"
+msgstr ""
+
+#: templates/errors/400.html:8
+msgid "Bad Request"
+msgstr ""
+
+#: templates/errors/400.html:9
+msgid "The request could not be processed due to invalid data."
+msgstr ""
+
+#: templates/errors/404.html:7
+msgid "404"
+msgstr ""
+
+#: templates/errors/404.html:8
+msgid "Page Not Found"
+msgstr ""
+
+#: templates/errors/404.html:9
+msgid "The page you're looking for doesn't exist or has been moved."
+msgstr ""
+
+#: templates/errors/409.html:7
+msgid "409"
+msgstr ""
+
+#: templates/errors/409.html:8
+msgid "Conflict"
+msgstr ""
+
+#: templates/errors/409.html:9
+msgid "The request conflicts with the current state of the resource."
+msgstr ""
+
+msgid "Search"
+msgstr "Se connecter"
+
+msgid "None"
+msgstr "Aucun"
+
+msgid "Not set"
+msgstr "Non défini"
+
+msgid "Job"
+msgstr "Travail"
+
+msgid "Quote"
+msgstr "Devis"
+
+msgid "Top Rated Tradesmen"
+msgstr "Artisans les mieux notés"
+
+msgid ""
+"No rated tradesmen found. Top-rated "
+"tradesmen will appear here when you "
+"or your group members add tradesmen "
+"and complete jobs with ratings."
+msgstr ""
+"Aucun artisan noté trouvé. Les artisans"
+" les mieux notés apparaîtront ici "
+"lorsque vous ou les membres de "
+"votre groupe ajouterez des artisans et"
+" terminerez des travaux avec des "
+"notes."
+
+msgid "Recent Jobs & Quotes"
+msgstr "Travaux et devis récents"
+
+#~ msgid "Date"
+#~ msgstr "Date"
+
+msgid ""
+"No recently completed jobs found. Jobs"
+" will appear here when you or "
+"members of your groups complete work "
+"with tradesmen."
+msgstr ""
+"Aucun travail récemment terminé trouvé. "
+"Les travaux apparaîtront ici lorsque "
+"vous ou les membres de vos groupes"
+" terminerez des travaux avec des "
+"artisans."
+
+msgid "Find Group"
+msgstr "Trouver un groupe"
+
+msgid ""
+"You haven't joined any groups yet. "
+"Join or create groups to collaborate "
+"with others and share tradesmen "
+"recommendations."
+msgstr ""
+"Vous n'avez pas encore rejoint de "
+"groupes. Rejoignez ou créez des groupes"
+" pour collaborer avec d'autres et "
+"partager des recommandations d'artisans."
+

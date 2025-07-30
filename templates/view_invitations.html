@@ -10,14 +10,14 @@
         <div class="col-md-10">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h2 class="mb-0">Pending Invitations</h2>
+                    <h2 class="mb-0">{{ _('Pending Invitations' ) }}</h2>
                     <a href="{{ url_for('groups.send_invitation', group_id=group.id) }}" class="btn btn-primary">
                         <i class="fas fa-plus"></i> Send New Invitation
                     </a>
                 </div>
                 <div class="card-body">
                     <div class="mb-4">
-                        <h5>Group: <strong>{{ group.name }}</strong></h5>
+                        <h5>{{ _('Group:' ) }}<strong>{{ group.name }}</strong></h5>
                         {% if group.description %}
                             <p class="text-muted">{{ group.description }}</p>
                         {% endif %}
@@ -28,11 +28,11 @@
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Email</th>
-                                        <th>Invited By</th>
-                                        <th>Sent On</th>
-                                        <th>Expires On</th>
-                                        <th>Actions</th>
+                                        <th>{{ _('Email' ) }}</th>
+                                        <th>{{ _('Invited By' ) }}</th>
+                                        <th>{{ _('Sent On' ) }}</th>
+                                        <th>{{ _('Expires On' ) }}</th>
+                                        <th>{{ _('Actions' ) }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -57,7 +57,7 @@
                         </div>
                     {% else %}
                         <div class="text-center py-4">
-                            <p class="text-muted">No pending invitations for this group.</p>
+                            <p class="text-muted">{{ _('No pending invitations for this group.' ) }}</p>
                             <a href="{{ url_for('groups.send_invitation', group_id=group.id) }}" class="btn btn-primary">
                                 Send First Invitation
                             </a>

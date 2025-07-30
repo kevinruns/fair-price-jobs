@@ -6,43 +6,30 @@
     <div class="row mb-4">
         <div class="col">
             <h4 class="mb-0">
-                {% if tradesman %}{{ display_name(tradesman.first_name, tradesman.family_name, tradesman.company_name) }} - {{ tradesman.trade }}{% endif %}
+                {% if tradesman %}{{ display_name(tradesman.first_name, tradesman.family_name, tradesman.company_name) }}- {{ tradesman.trade }}{% endif %}
             </h4>
         </div>
     </div>
     <form action="{{ url_for('jobs.add_job', tradesman_id=tradesman_id) }}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-        {{ form_field("Job Description", "title", "title", "", "textarea", "e.g. Tile bathroom", true, rows=1) }}
-        {{ form_field("Details", "description", "description", "", "textarea", "Size of job, complexity, how many people worked on it", true, rows=3) }}
-
-        {{ form_field_pair(
+        {{ form_field("Job Description", "title", "title", "", "textarea", "e.g. Tile bathroom", true, rows=1) }}{{ form_field("Details", "description", "description", "", "textarea", "Size of job, complexity, how many people worked on it", true, rows=3) }}{{ form_field_pair(
             "Date Started", "date_started", "date_started", "", "date", "", false, "", "",
             "Date Finished", "date_finished", "date_finished", "", "date", "", true, "", ""
-        ) }}
-
-        {{ form_field_pair(
+        ) }}{{ form_field_pair(
             "Call Out Fee €", "call_out_fee", "call_out_fee", "", "number", "Optional", false, "0.01", "",
             "Materials Fee €", "materials_fee", "materials_fee", "", "number", "Optional", false, "0.01", ""
-        ) }}
-
-        {{ form_field_pair(
+        ) }}{{ form_field_pair(
             "Hourly Rate €", "hourly_rate", "hourly_rate", "", "number", "Optional", false, "0.01", "",
             "Hours Worked", "hours_worked", "hours_worked", "", "number", "Optional", false, "0.5", ""
-        ) }}
-
-        {{ form_field_pair(
+        ) }}{{ form_field_pair(
             "Daily Rate €", "daily_rate", "daily_rate", "", "number", "Optional", false, "0.01", "",
             "Days Worked", "days_worked", "days_worked", "", "number", "Optional", false, "0.5", ""
-        ) }}
-
-        {{ form_field("Rating (1-5)", "rating", "rating", "", "number", "Optional", false, "", 1, 5) }}
-
-        <!-- File Upload Section -->
+        ) }}{{ form_field("Rating (1-5)", "rating", "rating", "", "number", "Optional", false, "", 1, 5) }}<!-- File Upload Section -->
         <div class="row align-items-center mb-4">
             <div class="col-sm-6">
                 <div class="row align-items-center">
-                    <label for="quote_file" class="col-sm-6 col-form-label">Quote File</label>
+                    <label for="quote_file" class="col-sm-6 col-form-label">{{ _('Quote File' ) }}</label>
                     <div class="col-sm-6">
                         <input type="file" class="form-control" id="quote_file" name="quote_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
                     </div>
@@ -50,7 +37,7 @@
             </div>
             <div class="col-sm-6">
                 <div class="row align-items-center">
-                    <label for="job_file" class="col-sm-6 col-form-label">Invoice</label>
+                    <label for="job_file" class="col-sm-6 col-form-label">{{ _('Invoice' ) }}</label>
                     <div class="col-sm-6">
                         <input type="file" class="form-control" id="job_file" name="job_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
                     </div>
@@ -62,8 +49,8 @@
         <div class="row">
             <div class="col-12">
                 <div class="d-flex justify-content-center gap-3">
-                    <button type="submit" class="btn btn-primary" style="width: 200px;">Add Job</button>
-                    <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman_id) }}" class="btn btn-secondary" style="width: 200px;">Cancel</a>
+                    <button type="submit" class="btn btn-primary" style="width: 200px;">{{ _('Add Job' ) }}</button>
+                    <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman_id) }}" class="btn btn-secondary" style="width: 200px;">{{ _('Cancel' ) }}</a>
                 </div>
             </div>
         </div>

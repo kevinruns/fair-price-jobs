@@ -6,20 +6,13 @@
     <form action="{{ url_for('quotes.add_quote', tradesman_id=tradesman_id) }}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-        {{ form_field("Quote Description", "title", "title", "", "textarea", "e.g. Replace boiler", true, rows=1) }}
-        {{ form_field("Details", "description", "description", "", "textarea", "Details about the quote", true, rows=3) }}
-
-        {{ form_field_pair(
+        {{ form_field("Quote Description", "title", "title", "", "textarea", "e.g. Replace boiler", true, rows=1) }}{{ form_field("Details", "description", "description", "", "textarea", "Details about the quote", true, rows=3) }}{{ form_field_pair(
             "Date Received", "date_received", "date_received", "", "date", "", false, "", "",
             "Quote Amount €", "total_quote", "total_quote", "", "number", "Total", true, "0.01", ""
-        ) }}
-
-        {{ form_field("Rating (1-5)", "rating", "rating", "", "number", "Optional", false, "", 1, 5) }}
-
-        <div class="row align-items-center mb-4">
+        ) }}{{ form_field("Rating (1-5)", "rating", "rating", "", "number", "Optional", false, "", 1, 5) }}<div class="row align-items-center mb-4">
             <div class="col-sm-6">
                 <div class="row align-items-center">
-                    <label for="quote_file" class="col-sm-6 col-form-label">Quote File</label>
+                    <label for="quote_file" class="col-sm-6 col-form-label">{{ _('Quote File' ) }}</label>
                     <div class="col-sm-6">
                         <input type="file" class="form-control" id="quote_file" name="quote_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
                     </div>
@@ -27,7 +20,7 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary">Add Quote</button>
+        <button type="submit" class="btn btn-primary">{{ _('Add Quote' ) }}</button>
     </form>
 </div>
 {% endblock %} 

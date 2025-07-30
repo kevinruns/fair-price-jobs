@@ -1,7 +1,8 @@
 # Configure application
-from flask import Flask, g, render_template
+from flask import Flask, g, render_template, request, session, current_app, redirect, url_for, flash, Response
 from flask_session import Session
 from flask_wtf.csrf import CSRFProtect
+from flask_babel import Babel
 import os
 import logging
 from logging.handlers import RotatingFileHandler
@@ -9,6 +10,33 @@ from pathlib import Path
 
 # Import configuration
 from config import get_config
+
+# Create Babel instance at module level
+babel = Babel()
+
+# Define locale selector function at module level
+def locale_selector():
+    """Modern locale selection with clean fallbacks."""
+    # Skip locale detection for static files
+    if request.path.startswith('/static/'):
+        return current_app.config['DEFAULT_LANGUAGE']
+    
+    # 1. URL parameter (primary, immediate)
+    if language := request.args.get('lang'):
+        if language in current_app.config['LANGUAGES']:
+            return language
+    
+    # 2. User preference cookie (persistence across visits)
+    if language := request.cookies.get('preferred_language'):
+        if language in current_app.config['LANGUAGES']:
+            return language
+    
+    # 3. Browser preference (respectful)
+    if language := request.accept_languages.best_match(current_app.config['LANGUAGES'].keys()):
+        return language
+    
+    # 4. Default
+    return current_app.config['DEFAULT_LANGUAGE']
 
 def create_app(config_name: str = None):
     """
@@ -66,11 +94,9 @@ def setup_logging(app: Flask, config):
     ))
     file_handler.setLevel(getattr(logging, config.LOG_LEVEL))
     
-    # Add handlers to app logger
+    # Add handler to app logger
     app.logger.addHandler(file_handler)
     app.logger.setLevel(getattr(logging, config.LOG_LEVEL))
-    
-    # Log application startup
     app.logger.info('Application startup')
 
 def setup_extensions(app: Flask, config):
@@ -80,6 +106,26 @@ def setup_extensions(app: Flask, config):
     
     # Initialize session
     Session(app)
+    
+    # Initialize Babel for internationalization with locale selector
+    babel.init_app(app, locale_selector=locale_selector)
+    
+    # Add context processor to make config available in templates
+    @app.context_processor
+    def inject_config():
+        return dict(config=app.config)
+    
+    # Add context processor to make _() function available in templates
+    @app.context_processor
+    def inject_gettext():
+        from flask_babel import gettext
+        return dict(_=gettext)
+    
+    # Add context processor to make current locale available in templates
+    @app.context_processor
+    def inject_current_locale():
+        from flask_babel import get_locale
+        return dict(current_locale=str(get_locale()))
 
 def register_blueprints(app: Flask):
     """Register Flask blueprints."""
@@ -107,23 +153,21 @@ def register_error_handlers(app: Flask):
     register_app_error_handlers(app)
 
 def register_database_teardown(app: Flask):
-    """Register database teardown function."""
-    # Import database service
+    """Register database teardown context."""
     from app.services.database import get_db_service
-
+    
     @app.teardown_appcontext
-    def close_connection(exception):
-        """Close database connection on app context teardown."""
-        get_db_service().close_connection()
+    def close_db(error):
+        db_service = get_db_service()
+        db_service.close_connection()
 
-# Create the application instance
+# Create app instance
 app = create_app()
 
-# Legacy function for backward compatibility
-def get_db():
-    """Legacy function for backward compatibility."""
-    from app.services.database import get_db_service
-    return get_db_service().get_connection()
+@app.before_request
+def before_request():
+    print(f"DEBUG: Session language: {session.get('language', 'None')}")
+    print(f"DEBUG: Session ID: {session.get('_id', 'None')}")
 
 if __name__ == '__main__':
-    app.run(debug=app.config['DEBUG']) 
+    app.run(debug=True) 

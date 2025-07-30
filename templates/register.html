@@ -11,13 +11,13 @@
                 {% if invitation_info %}
                     <div class="alert alert-info mb-4">
                         <h4 class="alert-heading">You have been invited to join {{ invitation_info.group_name }}!</h4>
-                        <p class="mb-0">Please register to continue and automatically join the group.</p>
+                        <p class="mb-0">{{ _('Please register to continue and automatically join the group.' ) }}</p>
                     </div>
                 {% endif %}
                 
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="mb-0">Register</h2>
+                        <h2 class="mb-0">{{ _('Register' ) }}</h2>
                     </div>
                     <div class="card-body">
                         <form action="/register" method="post">
@@ -47,7 +47,7 @@
                             <div class="mb-3">
                                 <input class="form-control" id="confirmation" name="confirmation" placeholder="Confirm Password" type="password" required>
                             </div>
-                            <button class="btn btn-primary" type="submit">Register</button>
+                            <button class="btn btn-primary" type="submit">{{ _('Register' ) }}</button>
                         </form>
                     </div>
                 </div>

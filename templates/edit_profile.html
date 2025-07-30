@@ -8,51 +8,51 @@
         <div class="col-md-8">
             <div class="card shadow-sm">
                 <div class="card-header">
-                    <h2 class="mb-0">Edit Profile</h2>
+                    <h2 class="mb-0">{{ _('Edit Profile' ) }}</h2>
                 </div>
                 <div class="card-body">
                     <form method="post">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         
                         <div class="mb-3 row align-items-center">
-                            <label for="username" class="col-md-3 col-form-label fw-bold">Username:</label>
+                            <label for="username" class="col-md-3 col-form-label fw-bold">{{ _('Username:' ) }}</label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control form-control-sm w-75" id="username" value="{{ user.username }}" readonly>
-                                <small class="text-muted">Username cannot be changed</small>
+                                <small class="text-muted">{{ _('Username cannot be changed' ) }}</small>
                             </div>
                         </div>
 
                         <div class="mb-3 row align-items-center">
-                            <label for="firstname" class="col-md-3 col-form-label fw-bold">First Name:</label>
+                            <label for="firstname" class="col-md-3 col-form-label fw-bold">{{ _('First Name:' ) }}</label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control form-control-sm w-75" id="firstname" name="firstname" value="{{ user.firstname }}" required>
                             </div>
                         </div>
 
                         <div class="mb-3 row align-items-center">
-                            <label for="lastname" class="col-md-3 col-form-label fw-bold">Last Name:</label>
+                            <label for="lastname" class="col-md-3 col-form-label fw-bold">{{ _('Last Name:' ) }}</label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control form-control-sm w-75" id="lastname" name="lastname" value="{{ user.lastname }}" required>
                             </div>
                         </div>
 
                         <div class="mb-3 row align-items-center">
-                            <label for="email" class="col-md-3 col-form-label fw-bold">Email:</label>
+                            <label for="email" class="col-md-3 col-form-label fw-bold">{{ _('Email:' ) }}</label>
                             <div class="col-md-9">
                                 <input type="email" class="form-control form-control-sm w-75" id="email" name="email" value="{{ user.email }}" required>
                             </div>
                         </div>
 
                         <div class="mb-3 row align-items-center">
-                            <label for="postcode" class="col-md-3 col-form-label fw-bold">Postcode:</label>
+                            <label for="postcode" class="col-md-3 col-form-label fw-bold">{{ _('Postcode:' ) }}</label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control form-control-sm w-50" id="postcode" name="postcode" value="{{ user.postcode }}" required>
                             </div>
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <a href="{{ url_for('profile.user_profile', user_id=user.id) }}" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="{{ url_for('profile.user_profile', user_id=user.id) }}" class="btn btn-secondary">{{ _('Cancel' ) }}</a>
+                            <button type="submit" class="btn btn-primary">{{ _('Save Changes' ) }}</button>
                         </div>
                     </form>
                 </div>

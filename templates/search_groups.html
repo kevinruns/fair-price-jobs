@@ -6,7 +6,7 @@
     <div class="container">
         <!-- Header with Create Button -->
         <div class="d-flex justify-content-end mb-4">
-            <a href="{{ url_for('groups.create_group') }}" class="btn btn-primary">
+            <a href="{{ url_for('groups.create_group' ) }}" class="btn btn-primary">
                 Create Group
             </a>
         </div>
@@ -14,7 +14,7 @@
         <!-- Search Card -->
         <div class="card shadow-sm mb-4">
             <div class="card-body">
-                <form action="{{ url_for('groups.search_groups') }}" method="post">
+                <form action="{{ url_for('groups.search_groups' ) }}" method="post">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="row justify-content-center">
                         <div class="col-md-6"> <!-- Changed from col-md-8 to col-md-6 to make the search box narrower -->
@@ -39,11 +39,11 @@
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Group Name</th>
-                                    <th>Postcode</th>
-                                    <th>Description</th>
-                                    <th>Members</th>
-                                    <th>Status</th>
+                                    <th>{{ _('Group Name' ) }}</th>
+                                    <th>{{ _('Postcode' ) }}</th>
+                                    <th>{{ _('Description' ) }}</th>
+                                    <th>{{ _('Members' ) }}</th>
+                                    <th>{{ _('Status' ) }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -59,19 +59,19 @@
                                             {% if group['description'] %}
                                                 <span class="text-muted small">{{ group['description'][:50] }}{% if group['description']|length > 50 %}...{% endif %}</span>
                                             {% else %}
-                                                <span class="text-muted small">No description</span>
+                                                <span class="text-muted small">{{ _('No description' ) }}</span>
                                             {% endif %}
                                         </td>
                                         <td>{{ group['member_count'] }}</td>
                                         <td>
                                             {% if group['status'] == 'member' %}
-                                                <span class="badge bg-success rounded-circle p-2">Member</span>
+                                                <span class="badge bg-success rounded-circle p-2">{{ _('Member' ) }}</span>
                                             {% elif group['status'] == 'admin' %}
-                                                <span class="badge bg-primary rounded-circle p-2">Admin</span>
+                                                <span class="badge bg-primary rounded-circle p-2">{{ _('Admin' ) }}</span>
                                             {% elif group['status'] == 'creator' %}
-                                                <span class="badge bg-primary rounded-circle p-2">Creator</span>
+                                                <span class="badge bg-primary rounded-circle p-2">{{ _('Creator' ) }}</span>
                                             {% elif group['status'] == 'pending' %}
-                                                <span class="badge bg-warning text-dark rounded-circle p-2">Pending</span>
+                                                <span class="badge bg-warning text-dark rounded-circle p-2">{{ _('Pending' ) }}</span>
                                             {% elif group['status'] is none %}
                                                 <form action="{{ url_for('groups.view_group', group_id=group['id']) }}" method="post" class="d-inline">
                                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

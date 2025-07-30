@@ -5,11 +5,11 @@
         <h4 class="mt-4 mb-4">{{ group_name }} pending join requests</h4>        
 
         <script>
-            window.onload = function() {
+            window.onload = function() {{
                 window.handleRequest = function(requestId, action) {
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = `/handle_request/${requestId}/${action}`;
+                    form.action = `/handle_request/${requestId}}/${{action}}`;
                     
                     // Add CSRF token
                     const csrfInput = document.createElement('input');
@@ -29,9 +29,9 @@
                 <table class="table table-hover table-striped align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th scope="col">User Name</th>
-                            <th scope="col">Email</th>
-                            <th scope="col">Actions</th>
+                            <th scope="col">{{ _('User Name' ) }}</th>
+                            <th scope="col">{{ _('Email' ) }}</th>
+                            <th scope="col">{{ _('Actions' ) }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -41,8 +41,8 @@
                                 <td>{{ request.email }}</td>
                                 <td>
                                     <div class="d-flex align-items-center justify-content-center gap-4">
-                                        <button type="button" class="btn btn-success btn-sm" onclick="handleRequest('{{ request.id }}', 'accept')">Accept</button>
-                                        <button type="button" class="btn btn-danger btn-sm" onclick="handleRequest('{{ request.id }}', 'reject')">Reject</button>
+                                        <button type="button" class="btn btn-success btn-sm" onclick="handleRequest('{{ request.id }}', 'accept')">{{ _('Accept' ) }}</button>
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="handleRequest('{{ request.id }}', 'reject')">{{ _('Reject' ) }}</button>
                                     </div>
                                 </td>
                             </tr>
@@ -51,7 +51,7 @@
                 </table>
             </div>
         {% else %}
-            <h5 class="mt-4 mb-4 text-primary">No further requests</h5>
+            <h5 class="mt-4 mb-4 text-primary">{{ _('No further requests' ) }}</h5>
         {% endif %}
     </div>
 {% endblock %}

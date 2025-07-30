@@ -4,19 +4,19 @@
 
 {% block main %}
 <div class="container text-center mt-5">
-    <h1 class="display-1">500</h1>
-    <h2 class="mb-4">Internal Server Error</h2>
-    <p class="lead">Something went wrong on our end. Please try again later.</p>
+    <h1 class="display-1">{{ _('500') }}</h1>
+    <h2 class="mb-4">{{ _('Internal Server Error') }}</h2>
+    <p class="lead">{{ _('Something went wrong on our end. Please try again later.') }}</p>
     
     {% if error %}
     <div class="alert alert-warning">
-        <strong>Error:</strong> {{ error.message }}
+        <strong>{{ _('Error:') }}</strong> {{ error.message }}
     </div>
     {% endif %}
     
     <div class="mt-4">
-        <a href="{{ url_for('main.index') }}" class="btn btn-primary">Return to Home</a>
-        <button onclick="history.back()" class="btn btn-secondary">Go Back</button>
+        <a href="{{ url_for('main.index') }}" class="btn btn-primary">{{ _('Return to Home') }}</a>
+        <button onclick="history.back()" class="btn btn-secondary">{{ _('Go Back') }}</button>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

@@ -9,9 +9,9 @@
             <div class="card shadow-sm">
                 <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h2 class="mb-0">User Profile</h2>
+                        <h2 class="mb-0">{{ _('User Profile' ) }}</h2>
                         {% if session.user_id == user.id %}
-                            <a href="{{ url_for('profile.edit_profile') }}" class="btn btn-primary btn-sm">
+                            <a href="{{ url_for('profile.edit_profile' ) }}" class="btn btn-primary btn-sm">
                                 <i class="fas fa-edit"></i> Edit Profile
                             </a>
                         {% endif %}
@@ -20,55 +20,55 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h5 class="text-primary mb-3">Personal Information</h5>
+                            <h5 class="text-primary mb-3">{{ _('Personal Information' ) }}</h5>
                             <div class="mb-3">
-                                <label class="fw-bold text-muted">Username:</label>
+                                <label class="fw-bold text-muted">{{ _('Username:' ) }}</label>
                                 <p class="mb-1">{{ user.username }}</p>
                             </div>
                             <div class="mb-3">
-                                <label class="fw-bold text-muted">First Name:</label>
+                                <label class="fw-bold text-muted">{{ _('First Name:' ) }}</label>
                                 <p class="mb-1">{{ user.firstname }}</p>
                             </div>
                             <div class="mb-3">
-                                <label class="fw-bold text-muted">Last Name:</label>
+                                <label class="fw-bold text-muted">{{ _('Last Name:' ) }}</label>
                                 <p class="mb-1">{{ user.lastname }}</p>
                             </div>
                             <div class="mb-3">
-                                <label class="fw-bold text-muted">Email:</label>
+                                <label class="fw-bold text-muted">{{ _('Email:' ) }}</label>
                                 <p class="mb-1">{{ user.email }}</p>
                             </div>
                             <div class="mb-3">
-                                <label class="fw-bold text-muted">Postcode:</label>
+                                <label class="fw-bold text-muted">{{ _('Postcode:' ) }}</label>
                                 <p class="mb-1">{{ user.postcode }}</p>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <h5 class="text-primary mb-3">Activity Summary</h5>
+                            <h5 class="text-primary mb-3">{{ _('Activity Summary' ) }}</h5>
                             <div class="row">
                                 <div class="col-6">
                                     <div class="text-center p-3 bg-light rounded">
                                         <h3 class="text-primary mb-1">{{ tradesmen_count }}</h3>
-                                        <p class="text-muted mb-0">Tradesmen</p>
+                                        <p class="text-muted mb-0">{{ _('Tradesmen' ) }}</p>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="text-center p-3 bg-light rounded">
                                         <h3 class="text-success mb-1">{{ groups_count }}</h3>
-                                        <p class="text-muted mb-0">Groups</p>
+                                        <p class="text-muted mb-0">{{ _('Groups' ) }}</p>
                                     </div>
                                 </div>
                             </div>
                             
                             <div class="mt-4">
-                                <h6 class="text-primary mb-2">Quick Actions</h6>
+                                <h6 class="text-primary mb-2">{{ _('Quick Actions' ) }}</h6>
                                 <div class="d-grid gap-2">
                                     <a href="{{ url_for('tradesmen.user_tradesmen', user_id=user.id) }}" class="btn btn-outline-primary btn-sm">
                                         <i class="fas fa-users"></i> View Tradesmen
                                     </a>
-                                    <a href="{{ url_for('tradesmen.add_tradesman') }}" class="btn btn-outline-success btn-sm">
+                                    <a href="{{ url_for('tradesmen.add_tradesman' ) }}" class="btn btn-outline-success btn-sm">
                                         <i class="fas fa-plus"></i> Add Tradesman
                                     </a>
-                                    <a href="{{ url_for('groups.search_groups') }}" class="btn btn-outline-info btn-sm">
+                                    <a href="{{ url_for('groups.search_groups' ) }}" class="btn btn-outline-info btn-sm">
                                         <i class="fas fa-search"></i> Search Groups
                                     </a>
                                 </div>

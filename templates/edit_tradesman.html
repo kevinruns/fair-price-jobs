@@ -3,19 +3,11 @@
 
 {% block main %}
 <div class="container-fluid p-4 bg-light rounded">
-    <h4 class="mb-4">Edit Tradesman</h4>
+    <h4 class="mb-4">{{ _('Edit Tradesman' ) }}</h4>
     <form action="{{ url_for('tradesmen.edit_tradesman', tradesman_id=tradesman.id) }}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-        {{ form_field("First Name", "first_name", "first_name", tradesman.first_name, "text", "First Name", true) }}
-        {{ form_field("Family Name", "family_name", "family_name", tradesman.family_name, "text", "Family Name", true) }}
-        {{ form_field("Company Name", "company_name", "company_name", tradesman.company_name, "text", "Company Name") }}
-        {{ form_field("Trade", "trade", "trade", tradesman.trade, "text", "Trade", true) }}
-        {{ form_field("Postcode", "postcode", "postcode", tradesman.postcode, "text", "Postcode") }}
-        {{ form_field("Phone Number", "phone_number", "phone_number", tradesman.phone_number, "text", "Phone Number") }}
-        {{ form_field("Email", "email", "email", tradesman.email, "email", "Email") }}
-
-        <button type="submit" class="btn btn-primary">Save Changes</button>
+        {{ form_field("First Name", "first_name", "first_name", tradesman.first_name, "text", "First Name", true) }}{{ form_field("Family Name", "family_name", "family_name", tradesman.family_name, "text", "Family Name", true) }}{{ form_field("Company Name", "company_name", "company_name", tradesman.company_name, "text", "Company Name") }}{{ form_field("Trade", "trade", "trade", tradesman.trade, "text", "Trade", true) }}{{ form_field("Postcode", "postcode", "postcode", tradesman.postcode, "text", "Postcode") }}{{ form_field("Phone Number", "phone_number", "phone_number", tradesman.phone_number, "text", "Phone Number") }}{{ form_field("Email", "email", "email", tradesman.email, "email", "Email") }}<button type="submit" class="btn btn-primary">{{ _('Save Changes' ) }}</button>
     </form>
 </div>
 {% endblock %} 

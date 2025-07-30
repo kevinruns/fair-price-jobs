@@ -18,14 +18,14 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Trade</th>
-                            <th>Name</th>
-                            <th>Contact</th>
-                            <th>Location</th>
-                            <th>Jobs</th>
-                            <th>Rating</th>
-                            <th>Added On</th>
-                            <th>Actions</th>
+                            <th>{{ _('Trade' ) }}</th>
+                            <th>{{ _('Name' ) }}</th>
+                            <th>{{ _('Contact' ) }}</th>
+                            <th>{{ _('Location' ) }}</th>
+                            <th>{{ _('Jobs' ) }}</th>
+                            <th>{{ _('Rating' ) }}</th>
+                            <th>{{ _('Added On' ) }}</th>
+                            <th>{{ _('Actions' ) }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -50,16 +50,16 @@
                                 <td>{{ tradesman.job_count }}</td>
                                 <td>
                                     {% if tradesman.avg_rating %}
-                                        {{ "%.1f"|format(tradesman.avg_rating) }} ⭐
+                                        {{ "%.1f"|format(tradesman.avg_rating) }}⭐
                                     {% else %}
                                         No ratings
                                     {% endif %}
                                 </td>
                                 <td>{{ tradesman.date_added }}</td>
                                 <td>
-                                    <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}" class="btn btn-sm btn-primary">View</a>
+                                    <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}" class="btn btn-sm btn-primary">{{ _('View' ) }}</a>
                                     {% if session.user_id == user_id %}
-                                        <a href="{{ url_for('tradesmen.edit_tradesman', tradesman_id=tradesman.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                        <a href="{{ url_for('tradesmen.edit_tradesman', tradesman_id=tradesman.id) }}" class="btn btn-sm btn-warning">{{ _('Edit' ) }}</a>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -74,7 +74,7 @@
         {% endif %}
 
         <div class="mt-4">
-            <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Back to Home</a>
+            <a href="{{ url_for('main.index' ) }}" class="btn btn-secondary">{{ _('Back to Home' ) }}</a>
         </div>
     </div>
 {% endblock %} 

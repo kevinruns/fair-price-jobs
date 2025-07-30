@@ -10,11 +10,11 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h2 class="mb-0">Send Invitation</h2>
+                    <h2 class="mb-0">{{ _('Send Invitation' ) }}</h2>
                 </div>
                 <div class="card-body">
                     <div class="mb-4">
-                        <h5>Invite someone to join: <strong>{{ group.name }}</strong></h5>
+                        <h5>{{ _('Invite someone to join:' ) }}<strong>{{ group.name }}</strong></h5>
                         {% if group.description %}
                             <p class="text-muted">{{ group.description }}</p>
                         {% endif %}
@@ -23,7 +23,7 @@
                     <form method="post">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email Address</label>
+                            <label for="email" class="form-label">{{ _('Email Address' ) }}</label>
                             <input type="email" class="form-control" id="email" name="email" 
                                    placeholder="Enter the email address of the person you want to invite" 
                                    required>
@@ -33,8 +33,8 @@
                         </div>
                         
                         <div class="d-flex justify-content-between">
-                            <a href="{{ url_for('groups.view_group', group_id=group.id) }}" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary">Send Invitation</button>
+                            <a href="{{ url_for('groups.view_group', group_id=group.id) }}" class="btn btn-secondary">{{ _('Cancel' ) }}</a>
+                            <button type="submit" class="btn btn-primary">{{ _('Send Invitation' ) }}</button>
                         </div>
                     </form>
                 </div>
