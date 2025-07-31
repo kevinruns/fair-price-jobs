@@ -1,7 +1,7 @@
 @echo off
-REM Database Backup Script for Fair Price Application
+REM Database Backup Script for Jobéco Application
 
-echo ðŸ’¾ Database Backup Script for Fair Price Application
+echo ðŸ’¾ Database Backup Script for Jobéco Application
 echo ===================================================
 
 REM Check if we're in the right directory

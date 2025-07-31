@@ -13,37 +13,89 @@
     <form action="{{ url_for('jobs.add_job', tradesman_id=tradesman_id) }}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-        {{ form_field("Job Description", "title", "title", "", "textarea", "e.g. Tile bathroom", true, rows=1) }}{{ form_field("Details", "description", "description", "", "textarea", "Size of job, complexity, how many people worked on it", true, rows=3) }}{{ form_field_pair(
-            "Date Started", "date_started", "date_started", "", "date", "", false, "", "",
-            "Date Finished", "date_finished", "date_finished", "", "date", "", true, "", ""
-        ) }}{{ form_field_pair(
-            "Call Out Fee €", "call_out_fee", "call_out_fee", "", "number", "Optional", false, "0.01", "",
-            "Materials Fee €", "materials_fee", "materials_fee", "", "number", "Optional", false, "0.01", ""
-        ) }}{{ form_field_pair(
-            "Hourly Rate €", "hourly_rate", "hourly_rate", "", "number", "Optional", false, "0.01", "",
-            "Hours Worked", "hours_worked", "hours_worked", "", "number", "Optional", false, "0.5", ""
-        ) }}{{ form_field_pair(
-            "Daily Rate €", "daily_rate", "daily_rate", "", "number", "Optional", false, "0.01", "",
-            "Days Worked", "days_worked", "days_worked", "", "number", "Optional", false, "0.5", ""
-        ) }}{{ form_field("Rating (1-5)", "rating", "rating", "", "number", "Optional", false, "", 1, 5) }}<!-- File Upload Section -->
-        <div class="row align-items-center mb-4">
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="quote_file" class="col-sm-6 col-form-label">{{ _('Quote File' ) }}</label>
+        {{ form_field(_("Job Description"), "title", "title", "", "textarea", _("e.g. Tile bathroom"), true, rows=1) }}
+        {{ form_field(_("Details"), "description", "description", "", "textarea", _("Size of job, complexity, how many people worked on it"), true, rows=3) }}
+
+        <!-- Date fields -->
+        {{ form_field_pair(
+            _("Date Started"), "date_started", "date_started",
+            _("Date Finished"), "date_finished", "date_finished",
+            "", "date", _("dd/mm/yyyy"), false, "", "", "",
+            "", "date", _("dd/mm/yyyy"), true, "", "", ""
+        ) }}
+
+        <!-- Fee fields -->
+        {{ form_field_pair(
+            _("Call Out Fee €"), "call_out_fee", "call_out_fee",
+            _("Materials Fee €"), "materials_fee", "materials_fee",
+            "", "number", _("Optional"), false, "0.01", "", "",
+            "", "number", _("Optional"), false, "0.01", "", ""
+        ) }}
+
+        <!-- Rate fields -->
+        {{ form_field_pair(
+            _("Hourly Rate €"), "hourly_rate", "hourly_rate",
+            _("Hours Worked"), "hours_worked", "hours_worked",
+            "", "number", _("Optional"), false, "0.01", "", "",
+            "", "number", _("Optional"), false, "0.5", "", ""
+        ) }}
+
+        <!-- Daily rate fields -->
+        {{ form_field_pair(
+            _("Daily Rate €"), "daily_rate", "daily_rate",
+            _("Days Worked"), "days_worked", "days_worked",
+            "", "number", _("Optional"), false, "0.01", "", "",
+            "", "number", _("Optional"), false, "0.5", "", ""
+        ) }}
+
+        {{ form_field(_("Rating (1-5)"), "rating", "rating", "", "number", _("Optional"), false, "", 1, 5) }}
+        <!-- File Upload Section -->
+        <div class="row justify-content-center my-5">
+            <div class="col-md-10 col-lg-8">
+                <div class="row g-4">
                     <div class="col-sm-6">
-                        <input type="file" class="form-control" id="quote_file" name="quote_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
+                        <div class="text-center">
+                            <label for="quote_file" class="form-label fw-bold mb-2">{{ _('Quote') }}</label>
+                            <div class="custom-file-input">
+                                <input type="file" class="form-control" id="quote_file" name="quote_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt" style="display: none;">
+                                <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('quote_file').click();">
+                                    {{ _('Choose File') }}
+                                </button>
+                                <div class="mt-1">
+                                    <span id="quote_file_name" class="text-muted small">{{ _('No File Chosen') }}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <div class="row align-items-center">
-                    <label for="job_file" class="col-sm-6 col-form-label">{{ _('Invoice' ) }}</label>
                     <div class="col-sm-6">
-                        <input type="file" class="form-control" id="job_file" name="job_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
+                        <div class="text-center">
+                            <label for="job_file" class="form-label fw-bold mb-2">{{ _('Invoice' ) }}</label>
+                            <div class="custom-file-input">
+                                <input type="file" class="form-control" id="job_file" name="job_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt" style="display: none;">
+                                <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('job_file').click();">
+                                    {{ _('Choose File') }}
+                                </button>
+                                <div class="mt-1">
+                                    <span id="job_file_name" class="text-muted small">{{ _('No File Chosen') }}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <script>
+            document.getElementById('quote_file').addEventListener('change', function() {
+                const fileName = this.files[0] ? this.files[0].name : '{{ _("No File Chosen") }}';
+                document.getElementById('quote_file_name').textContent = fileName;
+            });
+            
+            document.getElementById('job_file').addEventListener('change', function() {
+                const fileName = this.files[0] ? this.files[0].name : '{{ _("No File Chosen") }}';
+                document.getElementById('job_file_name').textContent = fileName;
+            });
+        </script>
 
         <!-- Buttons Row -->
         <div class="row">
@@ -56,4 +108,4 @@
         </div>
     </form>
 </div>
-{% endblock %}
+{% endblock %} 

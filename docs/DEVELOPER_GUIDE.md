@@ -1,6 +1,6 @@
-# Fair Price Application - Developer Guide
+# Jobéco Application - Developer Guide
 
-Quick reference for developers working on the Fair Price application.
+Quick reference for developers working on the Jobéco application.
 
 ## ðŸš€ Getting Started
 

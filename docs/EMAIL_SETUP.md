@@ -1,6 +1,6 @@
 # Email Configuration Setup Guide
 
-This guide will help you set up OAuth-based email functionality for the Fair Price application, specifically for sending group invitations.
+This guide will help you set up OAuth-based email functionality for the Jobéco application, specifically for sending group invitations.
 
 ## Quick Setup
 
@@ -37,7 +37,7 @@ The application uses Google OAuth 2.0 for secure email authentication. This is m
    - Navigate to "APIs & Services" â†’ "OAuth consent screen"
    - Choose "External" user type
    - Fill in required information:
-     - App name: "Fair Price"
+     - App name: "Jobéco"
      - User support email: Your email
      - Developer contact information: Your email
 
@@ -57,7 +57,7 @@ The application uses Google OAuth 2.0 for secure email authentication. This is m
    - Go to "APIs & Services" â†’ "Credentials"
    - Click "Create Credentials" â†’ "OAuth 2.0 Client IDs"
    - Choose "Desktop application"
-   - Name: "Fair Price Desktop Client"
+   - Name: "Jobéco Desktop Client"
 
 2. **Download credentials:**
    - Download the JSON file
@@ -94,7 +94,7 @@ The application uses Google OAuth 2.0 for secure email authentication. This is m
 ## Complete .env File Example
 
 ```bash
-# Fair Price Application Environment Configuration
+# Jobéco Application Environment Configuration
 
 # Flask Environment
 FLASK_ENV=development

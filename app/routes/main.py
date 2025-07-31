@@ -186,8 +186,35 @@ def set_language(language: str) -> Response:
         flash(_('Invalid language selected.'), 'error')
         return redirect(url_for('main.index'))
     
-    # Primary: URL parameter (immediate, shareable)
-    response = redirect(f"{url_for('main.index')}?lang={language}")
+    # Get the page to redirect back to
+    next_page = request.args.get('next')
+    if not next_page:
+        # Fallback to referrer or home page
+        next_page = request.referrer or url_for('main.index')
+    
+    # Ensure the next_page is safe (same domain)
+    from urllib.parse import urlparse
+    parsed_next = urlparse(next_page)
+    if parsed_next.netloc and parsed_next.netloc != request.host:
+        next_page = url_for('main.index')
+    
+    # Add language parameter to the redirect URL
+    from urllib.parse import urlparse, parse_qs, urlencode
+    
+    # Parse the URL to handle existing parameters properly
+    parsed_url = urlparse(next_page)
+    query_params = parse_qs(parsed_url.query)
+    
+    # Update or add the lang parameter
+    query_params['lang'] = [language]
+    
+    # Rebuild the URL with the updated parameters
+    new_query = urlencode(query_params, doseq=True)
+    redirect_url = f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}"
+    if new_query:
+        redirect_url += f"?{new_query}"
+    
+    response = redirect(redirect_url)
     
     # Optional: Set cookie for convenience (modern approach)
     response.set_cookie(

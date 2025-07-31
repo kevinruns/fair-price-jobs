@@ -1,7 +1,7 @@
 #!/bin/bash
-# Cleanup Script for Fair Price Application
+# Cleanup Script for Jobéco Application
 
-echo "ðŸ§¹ Cleanup Script for Fair Price Application"
+echo "ðŸ§¹ Cleanup Script for Jobéco Application"
 echo "============================================"
 
 # Check if we're in the right directory

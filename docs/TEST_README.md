@@ -1,6 +1,6 @@
-# Fair Price Application - Test Suite
+# Jobéco Application - Test Suite
 
-This directory contains comprehensive tests for the Fair Price application, covering all major services and functionality.
+This directory contains comprehensive tests for the Jobéco application, covering all major services and functionality.
 
 ## Test Files
 
@@ -101,7 +101,7 @@ python run_tests.py --service user --verbose
 The test runner provides detailed output including:
 
 ```
-Running Fair Price Application Tests...
+Running Jobéco Application Tests...
 ==================================================
 test_database_initialization (__main__.TestDatabaseService) ... ok
 test_execute_query (__main__.TestDatabaseService) ... ok

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Comprehensive test script for Fair Price application
+Comprehensive test script for Jobéco application
 Tests services, routes, and database operations
 """
 
@@ -541,7 +541,7 @@ def run_tests():
     return result
 
 if __name__ == '__main__':
-    print("Running Fair Price Application Tests...")
+    print("Running Jobéco Application Tests...")
     print("="*50)
     
     success = run_tests()

@@ -1,4 +1,4 @@
-# Fair Price Application
+# Jobéco Application
 
 A Flask-based web application for managing tradesmen, groups, and job tracking.
 

@@ -1,7 +1,7 @@
 #!/bin/bash
-# Database Reset Script for Fair Price Application
+# Database Reset Script for Jobéco Application
 
-echo "ðŸ”„ Resetting Fair Price Application Database..."
+echo "ðŸ”„ Resetting Jobéco Application Database..."
 echo "================================================"
 
 # Check if we're in the right directory

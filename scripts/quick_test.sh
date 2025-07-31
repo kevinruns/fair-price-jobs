@@ -1,7 +1,7 @@
 #!/bin/bash
-# Quick Test Script for Fair Price Application
+# Quick Test Script for Jobéco Application
 
-echo "ðŸ§ª Running Quick Tests for Fair Price Application..."
+echo "ðŸ§ª Running Quick Tests for Jobéco Application..."
 echo "===================================================="
 
 # Check if we're in the right directory

@@ -61,7 +61,7 @@
                 _("Recent Jobs & Quotes"),
                 url_for('search.search_jobs_quotes'),
                 url_for('search.search_tradesmen', message='To add a job, first select or create the tradesman'),
-                _("Add Job or Quote"),
+                _("Ajouter un Travail ou Devis"),
                 _("Search Jobs & Quotes")
             ) }}{% if recent_jobs %}
                 <div class="table-responsive">
@@ -128,7 +128,7 @@
                                 <th>{{ _("Group Name") }}</th>
                                 <th>{{ _("Postcode") }}</th>
                                 <th>{{ _("Members") }}</th>
-                                <th>{{ _("Your Status") }}</th>
+                                <th>{{ _("Votre Statut") }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -148,7 +148,7 @@
                     </table>
                 </div>
                 <div class="text-center mt-3">
-                    <a href="{{ url_for('groups.search_groups' ) }}" class="btn btn-outline-primary btn-sm">{{ _("View All Groups") }}</a>
+                                            <a href="{{ url_for('groups.search_groups' ) }}" class="btn btn-outline-primary btn-sm">{{ _("View All Groups") }}</a>
                 </div>
             {% else %}
                 {{ empty_state(_("You haven't joined any groups yet. Join or create groups to collaborate with others and share tradesmen recommendations.")) }}{% endif %}

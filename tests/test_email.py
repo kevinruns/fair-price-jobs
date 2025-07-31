@@ -212,7 +212,7 @@ class TestEmailService(unittest.TestCase):
             self.assertIn('test_token_123', email_body)
             self.assertIn('December 31, 2024 at 11:59 PM', email_body)
             self.assertIn('Accept Invitation', email_body)
-            self.assertIn('Fair Price', email_body)
+            self.assertIn('Jobéco', email_body)
     
     def test_get_configuration_status(self):
         """Test configuration status reporting."""

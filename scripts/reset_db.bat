@@ -1,7 +1,7 @@
 @echo off
-REM Database Reset Script for Fair Price Application
+REM Database Reset Script for Jobéco Application
 
-echo ðŸ”„ Resetting Fair Price Application Database...
+echo ðŸ”„ Resetting Jobéco Application Database...
 echo ================================================
 
 REM Check if we're in the right directory

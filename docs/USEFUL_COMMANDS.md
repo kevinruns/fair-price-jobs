@@ -1,6 +1,6 @@
-# Fair Price Application - Useful Commands
+# Jobéco Application - Useful Commands
 
-This file contains useful commands for development, testing, and maintenance of the Fair Price application.
+This file contains useful commands for development, testing, and maintenance of the Jobéco application.
 
 ## ðŸ§ª Testing Commands
 

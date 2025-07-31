@@ -44,6 +44,7 @@ Thumbs.db
 # Environment files (CRITICAL - contains secrets)
 .env
 .env.*
+# !.env.example  # Remove this line - it's causing the conflict
 
 # Database files
 *.db

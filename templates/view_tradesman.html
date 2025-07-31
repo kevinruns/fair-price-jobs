@@ -17,8 +17,8 @@
         <h3 class="mb-4">{{ tradesman.trade }}</h3>
         {% if added_by_info %}
             <p class="text-muted small mb-0">
-                <i class="fas fa-user-plus"></i> Added by {{ added_by_info.username }} 
-                on {{ added_by_info.date_added if added_by_info.date_added else 'Unknown date' }}
+                <i class="fas fa-user-plus"></i> {{ _('Added by') }} {{ added_by_info.username }} 
+                {{ _('on') }} {{ added_by_info.date_added if added_by_info.date_added else _('Unknown date') }}
             </p>
         {% endif %}
     </div>
@@ -58,9 +58,9 @@
                                     {{ job.title }}
                                 </a>
                             </td>
-                            <td>{{ job.date_finished if job.date_finished else 'N/A' }}</td>
-                    <td>€{{ job.total_cost if job.total_cost else 'N/A' }}</td>
-                                                <td>{% if job.rating %}{{ job.rating }}/5{% else %}None{% endif %}</td>
+                            <td>{{ job.date_finished if job.date_finished else _('N/A') }}</td>
+                    <td>€{{ job.total_cost if job.total_cost else _('N/A') }}</td>
+                                                <td>{% if job.rating %}{{ job.rating }}/5{% else %}{{ _('None') }}{% endif %}</td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -88,8 +88,8 @@
                                     <span class="fw-semibold text-primary">{{ quote.title }}</span>
                                 </a>
                             </td>
-                            <td>{{ quote.date_received if quote.date_received else 'N/A' }}</td>
-                    <td>€{{ quote.total_quote if quote.total_quote else 'N/A' }}</td>
+                            <td>{{ quote.date_received if quote.date_received else _('N/A') }}</td>
+                    <td>€{{ quote.total_quote if quote.total_quote else _('N/A') }}</td>
                     <td>
                         <span class="badge bg-{% if quote.status == 'accepted' %}success{% elif quote.status == 'declined' %}danger{% else %}warning{% endif %}">
                             {{ quote.status|title }}

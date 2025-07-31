@@ -65,8 +65,8 @@
                                     <a href="{{ url_for('tradesmen.user_tradesmen', user_id=user.id) }}" class="btn btn-outline-primary btn-sm">
                                         <i class="fas fa-users"></i> View Tradesmen
                                     </a>
-                                    <a href="{{ url_for('tradesmen.add_tradesman' ) }}" class="btn btn-outline-success btn-sm">
-                                        <i class="fas fa-plus"></i> Add Tradesman
+                                    <a href="{{ url_for('tradesmen.add_tradesman' ) }}" class="btn btn-success">
+                                        <i class="fas fa-plus"></i> {{ _('Add Tradesman') }}
                                     </a>
                                     <a href="{{ url_for('groups.search_groups' ) }}" class="btn btn-outline-info btn-sm">
                                         <i class="fas fa-search"></i> Search Groups

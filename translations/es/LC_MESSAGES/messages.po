@@ -170,7 +170,7 @@ msgid "Status"
 msgstr "Tu estado"
 
 #: templates/layout.html:26
-msgid "Fair Price Jobs"
+msgid "Jobeco"
 msgstr ""
 
 #: templates/layout.html:34
@@ -289,7 +289,7 @@ msgstr ""
 msgid "1★+"
 msgstr ""
 
-#: templates/search_jobs.html:48 templates/search_jobs.html:90
+#: templates/search_jobs.html:48 templates/search_jobs_quotes.html:90
 #: templates/search_jobs_quotes.html:53 templates/search_jobs_quotes.html:113
 #: templates/search_tradesmen.html:52 templates/search_tradesmen.html:94
 msgid "Added By"

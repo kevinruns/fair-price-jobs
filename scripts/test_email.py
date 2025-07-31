@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 OAuth Email Configuration Test Script
-This script tests the OAuth configuration for the Fair Price application.
+This script tests the OAuth configuration for the Jobéco application.
 """
 
 import os
@@ -14,7 +14,7 @@ sys.path.insert(0, str(project_root))
 
 def test_oauth_configuration():
     """Test OAuth configuration and connection."""
-    print("Fair Price - OAuth Email Configuration Test")
+    print("Jobéco - OAuth Email Configuration Test")
     print("=" * 40)
     
     try:
@@ -54,15 +54,15 @@ def test_oauth_configuration():
             test_email = input("Enter a test email address (or press Enter to skip): ").strip()
             
             if test_email:
-                subject = "Fair Price - OAuth Email Configuration Test"
+                subject = "Jobéco - OAuth Email Configuration Test"
                 body = """
                 <html>
                 <body>
                     <h2>OAuth Email Configuration Test</h2>
-                    <p>This is a test email to verify that your Fair Price application OAuth configuration is working correctly.</p>
+                    <p>This is a test email to verify that your Jobéco application OAuth configuration is working correctly.</p>
                     <p>If you received this email, your OAuth setup is successful!</p>
                     <p>This email was sent using OAuth 2.0 authentication, which is more secure than traditional passwords.</p>
-                    <p>Best regards,<br>Fair Price Team</p>
+                    <p>Best regards,<br>Jobéco Team</p>
                 </body>
                 </html>
                 """

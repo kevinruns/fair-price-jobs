@@ -208,6 +208,27 @@ class TradesmanService:
         results = self.db.execute_query(query)
         return [row['trade'] for row in results]
     
+    def get_unique_users(self):
+        """Get all unique users who have added tradesmen for filtering"""
+        query = """
+            SELECT DISTINCT u.username, u.id
+            FROM users u
+            JOIN user_tradesmen ut ON u.id = ut.user_id
+            ORDER BY u.username
+        """
+        results = self.db.execute_query(query)
+        return results
+    
+    def get_unique_groups(self):
+        """Get all unique groups for filtering"""
+        query = """
+            SELECT DISTINCT g.name, g.id
+            FROM groups g
+            ORDER BY g.name
+        """
+        results = self.db.execute_query(query)
+        return results
+    
     def get_top_rated_tradesmen_for_user(self, user_id: int, limit: int = 10) -> List[Dict[str, Any]]:
         """Get top-rated tradesmen accessible to user through groups or direct ownership"""
         query = """

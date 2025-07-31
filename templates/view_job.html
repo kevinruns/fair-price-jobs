@@ -9,13 +9,13 @@
                 <div>
                     <h2 class="text-primary fw-bold mb-3">{{ job.title }}</h2>
                     <p class="text-muted mb-2">
-                        <strong>{{ _('Tradesman:' ) }}</strong> 
+                        <strong>{{ _('Tradesman' ) }}:</strong> 
                         <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=job.tradesman_id) }}" class="text-decoration-none">
                             {{ display_name(job.first_name, job.family_name, job.company_name) }}- {{ job.trade }}
                         </a>
                     </p>
                     <p class="text-muted mb-0">
-                        <strong>{{ _('Added by:' ) }}</strong> 
+                        <strong>{{ _('Added by') }}:</strong> 
                         <a href="{{ url_for('profile.user_profile', user_id=job.added_by_user_id) }}" class="text-decoration-none">
                             {{ job.added_by_username }}
                         </a>
@@ -24,7 +24,7 @@
                 {% if job.user_id == session.user_id %}
                 <div>
                     <a href="{{ url_for('jobs.edit_job', job_id=job.id) }}" class="btn btn-primary">
-                        <i class="fas fa-edit"></i> Edit Job
+                        <i class="fas fa-edit"></i> {{ _('Edit Job') }}
                     </a>
                 </div>
                 {% endif %}
@@ -40,22 +40,22 @@
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
-                        <div class="col-sm-4"><strong>{{ _('Description:' ) }}</strong></div>
+                        <div class="col-sm-4"><strong>{{ _('Description') }}:</strong></div>
                         <div class="col-sm-8">{{ job.description }}</div>
                     </div>
                     
                     <div class="row mb-3">
-                        <div class="col-sm-4"><strong>{{ _('Date Started:' ) }}</strong></div>
-                        <div class="col-sm-8">{{ job.date_started if job.date_started else 'Not specified' }}</div>
+                        <div class="col-sm-4"><strong>{{ _('Date Started') }}:</strong></div>
+                        <div class="col-sm-8">{{ job.date_started if job.date_started else _('Not specified') }}</div>
                     </div>
                     
                     <div class="row mb-3">
-                        <div class="col-sm-4"><strong>{{ _('Date Finished:' ) }}</strong></div>
-                        <div class="col-sm-8">{{ job.date_finished if job.date_finished else 'Not specified' }}</div>
+                        <div class="col-sm-4"><strong>{{ _('Date Finished') }}:</strong></div>
+                        <div class="col-sm-8">{{ job.date_finished if job.date_finished else _('Not specified') }}</div>
                     </div>
                     
                     <div class="row mb-3">
-                        <div class="col-sm-4"><strong>{{ _('Rating:' ) }}</strong></div>
+                        <div class="col-sm-4"><strong>{{ _('Rating') }}:</strong></div>
                         <div class="col-sm-8">
                             {{ rating_badge(job.rating) }}{% if job.rating %}
                                 <span class="ms-2">{{ "⭐" * job.rating }}</span>
@@ -68,11 +68,11 @@
             {% if job.quote_file %}
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0">{{ _('Quote File' ) }}</h5>
+                    <h5 class="mb-0">{{ _('Quote' ) }}</h5>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
-                        <div class="col-sm-4"><strong>{{ _('File:' ) }}</strong></div>
+                        <div class="col-sm-4"><strong>{{ _('File') }}:</strong></div>
                         <div class="col-sm-8">
                             {% set filename_parts = job.quote_file.split('_', 1) %}
                             {% set original_filename = filename_parts[1] if filename_parts|length > 1 else job.quote_file %}
@@ -87,11 +87,11 @@
             
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0">{{ _('Invoice File' ) }}</h5>
+                    <h5 class="mb-0">{{ _('Invoice' ) }}</h5>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
-                        <div class="col-sm-4"><strong>{{ _('File:' ) }}</strong></div>
+                        <div class="col-sm-4"><strong>{{ _('File') }}:</strong></div>
                         <div class="col-sm-8">
                             {% if job.job_file %}
                                 {% set filename_parts = job.job_file.split('_', 1) %}

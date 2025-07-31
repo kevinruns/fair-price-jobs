@@ -1,6 +1,6 @@
 # Production Commands Quick Reference
 
-This document provides quick reference commands for managing the Fair Price application in production.
+This document provides quick reference commands for managing the Jobéco application in production.
 
 ## Service Management
 

@@ -1,208 +1,134 @@
 """
-Input validation utilities for the Fair Price application.
+Input validation utilities for the Jobeco application.
+
+This module provides validation functions and classes for form inputs.
 """
 
 import re
-from typing import Any, Dict, List, Optional, Union, Callable, cast
-from functools import wraps
-from flask import request, flash, redirect, url_for, g
+from typing import Optional, Dict, Any, List
 from app.exceptions import ValidationError
 
-class Validator:
-    """Base validator class."""
-    
-    def __init__(self, field_name: str, required: bool = True):
-        self.field_name = field_name
-        self.required = required
-    
-    def validate(self, value: Any) -> Any:
-        """Validate a value and return the cleaned value."""
-        if value is None or value == "":
-            if self.required:
-                raise ValidationError(f"{self.field_name} is required", self.field_name)
-            return None
-        return self._validate(value)
-    
-    def _validate(self, value: Any) -> Any:
-        """Override this method in subclasses."""
-        return value
 
-def _is_less_than(a: int, b: Optional[int]) -> bool:
-    return b is not None and a < b
-
-def _is_greater_than(a: int, b: Optional[int]) -> bool:
-    return b is not None and a > b
-
-class StringValidator(Validator):
-    """Validates string fields."""
-    
-    def __init__(self, field_name: str, min_length: Optional[int] = None, max_length: Optional[int] = None, 
-                 pattern: Optional[str] = None, required: bool = True):
-        super().__init__(field_name, required)
-        self.min_length = min_length
-        self.max_length = max_length
-        self.pattern = pattern
-    
-    def _validate(self, value: str) -> str:
-        if not isinstance(value, str):
-            raise ValidationError(f"{self.field_name} must be a string", self.field_name)
-        value = value.strip()
-        value_len = len(value)
-        if self.min_length is not None:
-            min_length: int = self.min_length
-            if value_len < min_length:
-                raise ValidationError(f"{self.field_name} must be at least {min_length} characters", self.field_name)
-        if self.max_length is not None:
-            max_length: int = self.max_length
-            if value_len > max_length:
-                raise ValidationError(f"{self.field_name} must be no more than {max_length} characters", self.field_name)
-        if self.pattern and not re.match(self.pattern, value):
-            raise ValidationError(f"{self.field_name} format is invalid", self.field_name)
-        return value
-
-class EmailValidator(StringValidator):
-    """Validates email addresses."""
-    
-    def __init__(self, field_name: str = "email", required: bool = True):
-        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        super().__init__(field_name, pattern=email_pattern, required=required)
-
-class PasswordValidator(StringValidator):
-    """Validates passwords."""
-    
-    def __init__(self, field_name: str = "password", min_length: int = 6, required: bool = True):
-        super().__init__(field_name, min_length=min_length, required=required)
-    
-    def _validate(self, value: str) -> str:
-        value = super()._validate(value)
-        # Additional password strength checks can be added here
-        if self.min_length is not None:
-            min_length: int = self.min_length
-            if len(value) < min_length:
-                raise ValidationError(f"Password must be at least {min_length} characters", self.field_name)
-        return value
-
-class IntegerValidator(Validator):
-    """Validates integer fields."""
-    
-    def __init__(self, field_name: str, min_value: Optional[int] = None, max_value: Optional[int] = None, required: bool = True):
-        super().__init__(field_name, required)
-        self.min_value = min_value
-        self.max_value = max_value
-    
-    def _validate(self, value: Any) -> int:
-        try:
-            int_value = int(value)
-        except (ValueError, TypeError):
-            raise ValidationError(f"{self.field_name} must be a valid number", self.field_name)
-        
-        if self.min_value is not None and int_value < self.min_value:
-            raise ValidationError(f"{self.field_name} must be at least {self.min_value}", self.field_name)
-        
-        if self.max_value is not None and int_value > self.max_value:
-            raise ValidationError(f"{self.field_name} must be no more than {self.max_value}", self.field_name)
-        
-        return int_value
-
-class FloatValidator(Validator):
-    """Validates float fields."""
-    
-    def __init__(self, field_name: str, min_value: Optional[float] = None, max_value: Optional[float] = None, required: bool = True):
-        super().__init__(field_name, required)
-        self.min_value = min_value
-        self.max_value = max_value
-    
-    def _validate(self, value: Any) -> float:
-        try:
-            float_value = float(value)
-        except (ValueError, TypeError):
-            raise ValidationError(f"{self.field_name} must be a valid number", self.field_name)
-        
-        if self.min_value is not None and float_value < self.min_value:
-            raise ValidationError(f"{self.field_name} must be at least {self.min_value}", self.field_name)
-        
-        if self.max_value is not None and float_value > self.max_value:
-            raise ValidationError(f"{self.field_name} must be no more than {self.max_value}", self.field_name)
-        
-        return float_value
-
-class ChoiceValidator(Validator):
-    """Validates choice fields."""
-    
-    def __init__(self, field_name: str, choices: List[Any], required: bool = True):
-        super().__init__(field_name, required)
-        self.choices = choices
-    
-    def _validate(self, value: Any) -> Any:
-        if value not in self.choices:
-            choices_str = ", ".join(str(choice) for choice in self.choices)
-            raise ValidationError(f"{self.field_name} must be one of: {choices_str}", self.field_name)
-        return value
-
-def validate_form(validators: Dict[str, Validator]) -> Callable:
+def validate_form(data: Dict[str, Any], validators: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Decorator to validate form data.
+    Validate form data against specified validators.
     
     Args:
-        validators: Dictionary mapping field names to validators
-    
+        data: Form data to validate
+        validators: Dictionary of field names and their validators
+        
     Returns:
-        Decorated function that validates form data before execution
+        Validated data
+        
+    Raises:
+        ValidationError: If validation fails
     """
-    def decorator(f: Callable) -> Callable:
-        @wraps(f)
-        def decorated_function(*args: Any, **kwargs: Any) -> Any:
-            if request.method == "POST":
-                try:
-                    # Validate all fields
-                    validated_data = {}
-                    for field_name, validator in validators.items():
-                        value = request.form.get(field_name)
-                        validated_data[field_name] = validator.validate(value)
-                    
-                    # Add validated data to flask.g
-                    g.validated_data = validated_data
-                    
-                except ValidationError as e:
-                    flash(e.message, "error")
-                    return redirect(request.url)
+    validated_data = {}
+    errors = {}
+    
+    for field, validator in validators.items():
+        try:
+            value = data.get(field, '')
+            validated_value = validator.validate(value)
+            validated_data[field] = validated_value
+        except ValidationError as e:
+            errors[field] = e.message
+    
+    if errors:
+        raise ValidationError("Validation failed", errors=errors)
+    
+    return validated_data
+
+
+class StringValidator:
+    """Validator for string fields."""
+    
+    def __init__(self, min_length: int = 0, max_length: int = None, required: bool = True):
+        self.min_length = min_length
+        self.max_length = max_length
+        self.required = required
+    
+    def validate(self, value: str) -> str:
+        """Validate a string value."""
+        if not value and self.required:
+            raise ValidationError("This field is required")
+        
+        if value:
+            if len(value) < self.min_length:
+                raise ValidationError(f"Minimum length is {self.min_length} characters")
             
-            return f(*args, **kwargs)
-        return decorated_function
-    return decorator
+            if self.max_length and len(value) > self.max_length:
+                raise ValidationError(f"Maximum length is {self.max_length} characters")
+        
+        return value.strip() if value else value
 
-def sanitize_input(value: str) -> str:
-    """Sanitize string input to prevent XSS."""
-    if not isinstance(value, str):
-        return str(value)  # type: ignore[unreachable]
-    # Basic HTML entity encoding
-    value = value.replace("&", "&amp;")
-    value = value.replace("<", "&lt;")
-    value = value.replace(">", "&gt;")
-    value = value.replace('"', "&quot;")
-    value = value.replace("'", "&#x27;")
-    return value
 
-def validate_required_fields(data: Dict[str, Any], required_fields: List[str]) -> None:
-    """Validate that required fields are present and not empty."""
-    for field in required_fields:
-        if field not in data or not data[field]:
-            raise ValidationError(f"{field} is required", field)
+class EmailValidator:
+    """Validator for email fields."""
+    
+    def __init__(self, required: bool = True):
+        self.required = required
+        self.email_pattern = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+    
+    def validate(self, value: str) -> str:
+        """Validate an email value."""
+        if not value and self.required:
+            raise ValidationError("Email is required")
+        
+        if value:
+            value = value.strip().lower()
+            if not self.email_pattern.match(value):
+                raise ValidationError("Invalid email format")
+        
+        return value
 
-def validate_email_format(email: str) -> bool:
-    """Validate email format."""
-    email_validator = EmailValidator("email")
-    try:
-        email_validator.validate(email)
-        return True
-    except ValidationError:
-        return False
 
-def validate_password_strength(password: str, min_length: int = 6) -> bool:
-    """Validate password strength."""
-    password_validator = PasswordValidator("password", min_length=min_length)
-    try:
-        password_validator.validate(password)
-        return True
-    except ValidationError:
-        return False 
+class PasswordValidator:
+    """Validator for password fields."""
+    
+    def __init__(self, min_length: int = 6, require_special: bool = False):
+        self.min_length = min_length
+        self.require_special = require_special
+    
+    def validate(self, value: str) -> str:
+        """Validate a password value."""
+        if not value:
+            raise ValidationError("Password is required")
+        
+        if len(value) < self.min_length:
+            raise ValidationError(f"Password must be at least {self.min_length} characters")
+        
+        if self.require_special and not re.search(r'[!@#$%^&*(),.?":{}|<>]', value):
+            raise ValidationError("Password must contain at least one special character")
+        
+        return value
+
+
+class NumberValidator:
+    """Validator for numeric fields."""
+    
+    def __init__(self, min_value: float = None, max_value: float = None, required: bool = True):
+        self.min_value = min_value
+        self.max_value = max_value
+        self.required = required
+    
+    def validate(self, value: str) -> float:
+        """Validate a numeric value."""
+        if not value and self.required:
+            raise ValidationError("This field is required")
+        
+        if value:
+            try:
+                num_value = float(value)
+                
+                if self.min_value is not None and num_value < self.min_value:
+                    raise ValidationError(f"Value must be at least {self.min_value}")
+                
+                if self.max_value is not None and num_value > self.max_value:
+                    raise ValidationError(f"Value must be at most {self.max_value}")
+                
+                return num_value
+            except ValueError:
+                raise ValidationError("Invalid number format")
+        
+        return None

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Simple test runner for Fair Price application
+Simple test runner for Jobéco application
 Usage: python run_tests.py [options]
 """
 
@@ -11,7 +11,7 @@ from tests.test_app import run_tests, TestDatabaseService, TestUserService, Test
 from tests.test_email import TestEmailService, TestInvitationService, TestEmailIntegration
 
 def main():
-    parser = argparse.ArgumentParser(description='Run Fair Price application tests')
+    parser = argparse.ArgumentParser(description='Run Jobéco application tests')
     parser.add_argument('--service', choices=['database', 'user', 'group', 'tradesman', 'job', 'integration', 'email'], 
                        help='Run tests for specific service only')
     parser.add_argument('--verbose', '-v', action='store_true', 
@@ -21,7 +21,7 @@ def main():
     
     args = parser.parse_args()
     
-    print("Fair Price Application Test Runner")
+    print("Jobéco Application Test Runner")
     print("=" * 40)
     
     if args.service:

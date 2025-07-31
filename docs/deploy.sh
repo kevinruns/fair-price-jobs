@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Fair Price Application - Production Deployment Script
+# Jobéco Application - Production Deployment Script
 # This script automates the deployment process for production environments
 # Modify the variables below according to your environment
 
@@ -160,7 +160,7 @@ create_systemd_service() {
     
     cat > "$SYSTEMD_SERVICE" << EOF
 [Unit]
-Description=Fair Price Application
+Description=Jobéco Application
 After=network.target
 
 [Service]
@@ -276,7 +276,7 @@ setup_backup_cron() {
     # Create backup script
     cat > "$APP_DIR/backup.sh" << EOF
 #!/bin/bash
-# Automated backup script for Fair Price application
+# Automated backup script for Jobéco application
 
 BACKUP_DIR="$BACKUP_DIR"
 DB_FILE="$DB_FILE"
@@ -336,7 +336,7 @@ verify_deployment() {
 # =============================================================================
 
 main() {
-    print_info "Starting Fair Price application deployment..."
+    print_info "Starting Jobéco application deployment..."
     
     # Check if running as root
     check_root

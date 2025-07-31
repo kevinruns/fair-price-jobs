@@ -1,14 +1,14 @@
 # Email Configuration Guide
 
-This guide provides detailed information about setting up email functionality for the Fair Price application, specifically for group invitations.
+This guide provides detailed information about setting up email functionality for the Jobéco application, specifically for group invitations.
 
 ## Overview
 
-The Fair Price application uses email to send group invitations to users. The email system uses **OAuth 2.0** for secure, modern authentication with Gmail API.
+The Jobéco application uses email to send group invitations to users. The email system uses **OAuth 2.0** for secure, modern authentication with Gmail API.
 
 ## Why OAuth 2.0?
 
-OAuth 2.0 is the **only authentication method** supported by Fair Price for several important reasons:
+OAuth 2.0 is the **only authentication method** supported by Jobéco for several important reasons:
 
 ### **Security Benefits**
 
@@ -358,4 +358,4 @@ If you encounter issues:
 
 ## Conclusion
 
-OAuth 2.0 provides the most secure, reliable, and modern approach to email authentication for the Fair Price application. The simplified OAuth-only approach ensures consistent security standards, easier maintenance, and better user experience across all deployments. 
+OAuth 2.0 provides the most secure, reliable, and modern approach to email authentication for the Jobéco application. The simplified OAuth-only approach ensures consistent security standards, easier maintenance, and better user experience across all deployments. 

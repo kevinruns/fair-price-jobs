@@ -1,7 +1,7 @@
 #!/bin/bash
-# Database Backup Script for Fair Price Application
+# Database Backup Script for Jobéco Application
 
-echo "ðŸ’¾ Database Backup Script for Fair Price Application"
+echo "ðŸ’¾ Database Backup Script for Jobéco Application"
 echo "==================================================="
 
 # Check if we're in the right directory

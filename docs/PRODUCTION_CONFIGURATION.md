@@ -1,6 +1,6 @@
 # Production Configuration Guide
 
-This guide covers the essential configuration steps for deploying the Fair Price application in a production environment.
+This guide covers the essential configuration steps for deploying the Jobéco application in a production environment.
 
 ## Environment Variables
 

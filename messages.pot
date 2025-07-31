@@ -159,7 +159,7 @@ msgid "Status"
 msgstr ""
 
 #: templates/layout.html:26
-msgid "Fair Price Jobs"
+msgid "Jobéco"
 msgstr ""
 
 #: templates/layout.html:34

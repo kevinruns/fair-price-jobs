@@ -9,7 +9,7 @@
                 Edit Job: {{ job.title }}
             </h4>
             <p class="text-muted mb-0">
-                <strong>{{ _('Tradesman:' ) }}</strong> 
+                <strong>{{ _('Tradesman') }}:</strong> 
                 <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=job.tradesman_id) }}" class="text-decoration-none">
                     {{ display_name(job.first_name, job.family_name, job.company_name) }}</a>
             </p>

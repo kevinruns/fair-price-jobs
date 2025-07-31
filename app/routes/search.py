@@ -18,12 +18,44 @@ group_service = GroupService()
 def search_tradesmen() -> str:
     message = request.args.get('message')
     tradesmen: List[Dict[str, Any]] = []
+    
+    # Initialize form data variables
+    search_term = ''
+    selected_trade = ''
+    postcode = ''
+    selected_user = ''
+    selected_group = ''
+    
     if request.method == 'POST':
-        search_term = request.form.get('search_term')
-        trade = request.form.get('trade')
-        postcode = request.form.get('postcode')
+        search_term = request.form.get('search_term', '')
+        trade = request.form.get('trade', '')
+        postcode = request.form.get('postcode', '')
+        added_by_user = request.form.get('added_by_user', '')
+        group = request.form.get('group', '')
+        
+        # Update selected values for form persistence
+        selected_trade = trade
+        selected_user = added_by_user
+        selected_group = group
+        
         tradesmen = tradesman_service.search_tradesmen(search_term, trade, postcode)
-    return render_template('search_tradesmen.html', tradesmen=tradesmen, message=message)
+    
+    # Get filter options
+    trades = tradesman_service.get_unique_trades()
+    users = tradesman_service.get_unique_users()
+    groups = tradesman_service.get_unique_groups()
+    
+    return render_template('search_tradesmen.html', 
+                         tradesmen=tradesmen, 
+                         message=message,
+                         trades=trades,
+                         users=users,
+                         groups=groups,
+                         search_term=search_term,
+                         selected_trade=selected_trade,
+                         postcode=postcode,
+                         selected_user=selected_user,
+                         selected_group=selected_group)
 
 @search_bp.route('/search_jobs_quotes', methods=['GET', 'POST'])
 @login_required

@@ -1,7 +1,7 @@
 @echo off
-REM Quick Test Script for Fair Price Application
+REM Quick Test Script for Jobéco Application
 
-echo ðŸ§ª Running Quick Tests for Fair Price Application...
+echo ðŸ§ª Running Quick Tests for Jobéco Application...
 echo ====================================================
 
 REM Check if we're in the right directory

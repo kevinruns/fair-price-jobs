@@ -1,6 +1,6 @@
-# Fair Price Application - Documentation
+# Jobéco Application - Documentation
 
-Welcome to the Fair Price application documentation. This folder contains all the documentation and guides for developers and users.
+Welcome to the Jobéco application documentation. This folder contains all the documentation and guides for developers and users.
 
 ## ðŸ“š Documentation Index
 

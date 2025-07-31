@@ -1,7 +1,7 @@
 # Flask Application Refactoring Summary
 
 ## Overview
-This document outlines the comprehensive refactoring performed on the Fair Price Flask application to improve code quality, maintainability, and type safety.
+This document outlines the comprehensive refactoring performed on the Jobéco Flask application to improve code quality, maintainability, and type safety.
 
 ## 1. Database Layer Abstraction
 

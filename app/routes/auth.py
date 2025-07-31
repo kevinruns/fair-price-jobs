@@ -65,8 +65,8 @@ def login() -> Response:
     if request.method == "POST":
         # Validate input
         validators = {
-            'username': StringValidator('username', min_length=1, required=True),
-            'password': PasswordValidator('password', required=True)
+            'username': StringValidator(min_length=1, required=True),
+            'password': PasswordValidator()
         }
         
         try:
@@ -153,13 +153,13 @@ def register() -> Response:
     if request.method == "POST":
         # Define validators for registration
         validators = {
-            'username': StringValidator('username', min_length=3, pattern=r'^[a-zA-Z0-9_]+$', required=True),
-            'firstname': StringValidator('firstname', min_length=1, pattern=r'^[a-zA-Z\s]+$', required=True),
-            'lastname': StringValidator('lastname', min_length=1, pattern=r'^[a-zA-Z\s]+$', required=True),
-            'email': EmailValidator('email', required=True),
-            'postcode': StringValidator('postcode', min_length=1, pattern=r'^[a-zA-Z0-9\s]+$', required=True),
-            'password': PasswordValidator('password', min_length=6, required=True),
-            'confirmation': StringValidator('confirmation', required=True)
+            'username': StringValidator(min_length=3, required=True),
+            'firstname': StringValidator(min_length=1, required=True),
+            'lastname': StringValidator(min_length=1, required=True),
+            'email': EmailValidator(required=True),
+            'postcode': StringValidator(min_length=1, required=True),
+            'password': PasswordValidator(min_length=6),
+            'confirmation': StringValidator(required=True)
         }
         
         try:

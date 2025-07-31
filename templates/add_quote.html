@@ -3,13 +3,13 @@
 
 {% block main %}
 <div class="container-fluid p-4 bg-light rounded">
-    <form action="{{ url_for('quotes.add_quote', tradesman_id=tradesman_id) }}" method="post" enctype="multipart/form-data">
+    <form action="{{ url_for('jobs.add_quote', tradesman_id=tradesman_id) }}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-        {{ form_field("Quote Description", "title", "title", "", "textarea", "e.g. Replace boiler", true, rows=1) }}{{ form_field("Details", "description", "description", "", "textarea", "Details about the quote", true, rows=3) }}{{ form_field_pair(
-            "Date Received", "date_received", "date_received", "", "date", "", false, "", "",
-            "Quote Amount €", "total_quote", "total_quote", "", "number", "Total", true, "0.01", ""
-        ) }}{{ form_field("Rating (1-5)", "rating", "rating", "", "number", "Optional", false, "", 1, 5) }}<div class="row align-items-center mb-4">
+        {{ form_field(_("Quote Description"), "title", "title", "", "textarea", _("e.g. Replace boiler"), true, rows=1) }}{{ form_field(_("Details"), "description", "description", "", "textarea", _("Details about the quote"), true, rows=3) }}{{ form_field_pair(
+            _("Date Received"), "date_received", "date_received", "", "date", "", false, "", "",
+            _("Quote Amount €"), "total_quote", "total_quote", "", "number", _("Total"), true, "0.01", ""
+        ) }}{{ form_field(_("Rating (1-5)"), "rating", "rating", "", "number", _("Optional"), false, "", 1, 5) }}<div class="row align-items-center mb-4">
             <div class="col-sm-6">
                 <div class="row align-items-center">
                     <label for="quote_file" class="col-sm-6 col-form-label">{{ _('Quote File' ) }}</label>

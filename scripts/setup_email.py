@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Email Configuration Setup Script
-This script helps you set up OAuth 2.0 email configuration for the Fair Price application.
+This script helps you set up OAuth 2.0 email configuration for the Jobéco application.
 """
 
 import os
@@ -187,7 +187,7 @@ def test_oauth_configuration():
 
 def main():
     """Main setup function."""
-    print("Fair Price - OAuth Email Configuration Setup")
+    print("Jobéco - OAuth Email Configuration Setup")
     print("=" * 50)
     
     # Check if .env file exists

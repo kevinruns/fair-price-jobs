@@ -7,7 +7,7 @@
     <form action="{{ url_for('tradesmen.add_tradesman' ) }}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-        {{ form_field("First Name", "first_name", "first_name", "", "text", "First Name", true) }}{{ form_field("Family Name", "family_name", "family_name", "", "text", "Family Name", true) }}{{ form_field("Company Name", "company_name", "company_name", "", "text", "Company Name") }}{{ form_field("Trade", "trade", "trade", "", "text", "Trade", true) }}{{ form_field("Postcode", "postcode", "postcode", "", "text", "Postcode") }}{{ form_field("Phone Number", "phone_number", "phone_number", "", "text", "Phone Number") }}{{ form_field("Email", "email", "email", "", "email", "Email") }}<button type="submit" class="btn btn-primary">{{ _('Add Tradesman' ) }}</button>
+        {{ form_field(_("First Name"), "first_name", "first_name", "", "text", _("First Name"), true) }}{{ form_field(_("Family Name"), "family_name", "family_name", "", "text", _("Family Name"), true) }}{{ form_field(_("Company Name"), "company_name", "company_name", "", "text", _("Company Name")) }}{{ form_field(_("Trade"), "trade", "trade", "", "text", _("Trade"), true) }}{{ form_field(_("Postcode"), "postcode", "postcode", "", "text", _("Postcode")) }}{{ form_field(_("Phone Number"), "phone_number", "phone_number", "", "text", _("Phone Number")) }}{{ form_field(_("Email"), "email", "email", "", "email", _("Email")) }}<button type="submit" class="btn btn-primary">{{ _('Add Tradesman' ) }}</button>
     </form>
 </div>
 {% endblock %}

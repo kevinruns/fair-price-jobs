@@ -1,6 +1,6 @@
-# Fair Price Application - Utility Scripts
+# Jobéco Application - Utility Scripts
 
-This folder contains utility scripts for the Fair Price application. These scripts automate common development and maintenance tasks.
+This folder contains utility scripts for the Jobéco application. These scripts automate common development and maintenance tasks.
 
 ## ðŸš€ **Quick Start**
 

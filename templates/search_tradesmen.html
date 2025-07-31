@@ -10,7 +10,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>{{ _('Search Tradesmen' ) }}</h1>
             <a href="{{ url_for('tradesmen.add_tradesman' ) }}" class="btn btn-success">
-                <i class="fas fa-plus"></i> Add Tradesman
+                <i class="fas fa-plus"></i> {{ _('Add Tradesman') }}
             </a>
         </div>
         
@@ -27,13 +27,13 @@
                     <div class="col-md-3">
                         <label for="search_term" class="form-label">{{ _('Search' ) }}</label>
                         <input type="text" class="form-control" id="search_term" name="search_term" 
-                               value="{{ search_term }}" placeholder="Name, email, or phone">
+                               value="{{ search_term }}" placeholder="{{ _('Name, email or phone') }}">
                     </div>
                     
                     <div class="col-md-3">
                         <label for="trade" class="form-label">{{ _('Trade' ) }}</label>
                         <select class="form-select" id="trade" name="trade">
-                            <option value="">{{ _('All Trades' ) }}</option>
+                            <option value="">{{ _('All Trades') }}</option>
                             {% for trade in trades %}
                                 <option value="{{ trade }}" {% if trade == selected_trade %}selected{% endif %}>
                                     {{ trade }}
@@ -45,13 +45,13 @@
                     <div class="col-md-2">
                         <label for="postcode" class="form-label">{{ _('Postcode' ) }}</label>
                         <input type="text" class="form-control" id="postcode" name="postcode" 
-                               value="{{ postcode }}" placeholder="Postcode">
+                               value="{{ postcode }}" placeholder="{{ _('Postcode') }}">
                     </div>
                     
                     <div class="col-md-2">
                         <label for="added_by_user" class="form-label">{{ _('Added By' ) }}</label>
                         <select class="form-select" id="added_by_user" name="added_by_user">
-                            <option value="">{{ _('All Users' ) }}</option>
+                            <option value="">{{ _('All Users') }}</option>
                             {% for user in users %}
                                 <option value="{{ user.username }}" {% if user.username == selected_user %}selected{% endif %}>
                                     {{ user.username }}
@@ -61,9 +61,9 @@
                     </div>
                     
                     <div class="col-md-2">
-                        <label for="group" class="form-label">{{ _('Group' ) }}</label>
+                        <label for="group" class="form-label">{{ _('Group') }}</label>
                         <select class="form-select" id="group" name="group">
-                            <option value="">{{ _('All Groups' ) }}</option>
+                            <option value="">{{ _('All Groups') }}</option>
                             {% for group in groups %}
                                 <option value="{{ group.name }}" {% if group.name == selected_group %}selected{% endif %}>
                                     {{ group.name }}
@@ -74,7 +74,7 @@
                     
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary">{{ _('Search' ) }}</button>
-                        <a href="{{ url_for('search.search_tradesmen' ) }}" class="btn btn-secondary">{{ _('Clear' ) }}</a>
+                        <a href="{{ url_for('search.search_tradesmen' ) }}" class="btn btn-secondary">{{ _('Clear') }}</a>
                     </div>
                 </form>
             </div>
@@ -113,7 +113,7 @@
                                         <span class="text-info">{{ tradesman.added_by_username }}</span>
                                     </a>
                                 </td>
-                                <td>{{ rating_badge(tradesman.avg_rating, none_text="No Rating") }}</td>
+                                <td>{{ rating_badge(tradesman.avg_rating, none_text="{{ _('No Rating') }}") }}</td>
                                 <td>
                                     <div class="btn-group" role="group">
                                         <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}" class="btn btn-sm btn-outline-primary">
@@ -133,12 +133,12 @@
             </div>
         {% elif request.method == "POST" %}
             <div class="alert alert-info">
-                No tradesmen found matching your search criteria.
+                {{ _('No tradesmen found matching your search criteria.') }}
             </div>
         {% else %}
             <div class="text-center py-4">
-                <p class="text-muted">{{ _('Search for tradesmen by name, trade, or location.' ) }}</p>
-                <p class="text-muted small">{{ _('You can filter by trade type, postcode, and who added them.' ) }}</p>
+                <p class="text-muted">{{ _('Search for tradesmen by name, trade or location.') }}</p>
+                <p class="text-muted small">{{ _('You can filter by trade type, postcode and who added them.') }}</p>
             </div>
         {% endif %}
     </div>
