@@ -166,8 +166,7 @@ app = create_app()
 
 @app.before_request
 def before_request():
-    print(f"DEBUG: Session language: {session.get('language', 'None')}")
-    print(f"DEBUG: Session ID: {session.get('_id', 'None')}")
+    pass
 
 if __name__ == '__main__':
     app.run(debug=True) 

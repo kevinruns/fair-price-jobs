@@ -14,16 +14,16 @@
                 </div>
                 <div class="card-body">
                     {% if user_tradesmen %}
-                        <p class="text-muted mb-3">{{ _('Select tradesmen from your list to add to this group:' ) }}</p>
+                        <p class="text-muted mb-3">{{ _('Select tradesmen from your list to add to this group:') }}</p>
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th>{{ _('Trade' ) }}</th>
-                                    <th>{{ _('Name' ) }}</th>
-                                    <th>{{ _('Company' ) }}</th>
-                                    <th>{{ _('Phone Number' ) }}</th>
-                                    <th>{{ _('Postcode' ) }}</th>
-                                    <th>{{ _('Action' ) }}</th>
+                                    <th>{{ _('Trade') }}</th>
+                                    <th>{{ _('Name') }}</th>
+                                    <th>{{ _('Company') }}</th>
+                                    <th>{{ _('Phone Number') }}</th>
+                                    <th>{{ _('Postcode') }}</th>
+                                    <th>{{ _('Action') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -43,12 +43,12 @@
                                             <td>{{ tradesman.postcode }}</td>
                                             <td>
                                                 {% if tradesman.in_group %}
-                                                    <span class="badge bg-success">{{ _('Already in Group' ) }}</span>
+                                                    <span class="badge bg-success">{{ _('Already in Group') }}</span>
                                                 {% else %}
                                                     <form method="post" style="display: inline;">
                                                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                                         <input type="hidden" name="tradesman_id" value="{{ tradesman.id }}">
-                                                        <button type="submit" class="btn btn-primary btn-sm">{{ _('Add to Group' ) }}</button>
+                                                        <button type="submit" class="btn btn-primary btn-sm">{{ _('Add to Group') }}</button>
                                                     </form>
                                                 {% endif %}
                                             </td>
@@ -59,13 +59,13 @@
                         </table>
                     {% else %}
                         <div class="text-center py-4">
-                            <p class="text-muted">{{ _('You don't have any tradesmen in your list yet.' ) }}</p>
-                            <a href="{{ url_for('tradesmen.add_tradesman' ) }}" class="btn btn-primary">{{ _('Add Your First Tradesman' ) }}</a>
+                            <p class="text-muted">{{ _('You don\'t have any tradesmen in your list yet.') }}</p>
+                            <a href="{{ url_for('tradesmen.add_tradesman') }}" class="btn btn-primary">{{ _('Add Your First Tradesman') }}</a>
                         </div>
                     {% endif %}
                     
                     <div class="mt-3">
-                        <a href="{{ url_for('groups.view_group', group_id=group['id']) }}" class="btn btn-secondary">{{ _('Back to Group' ) }}</a>
+                        <a href="{{ url_for('groups.view_group', group_id=group['id']) }}" class="btn btn-secondary">{{ _('Back to Group') }}</a>
                     </div>
                 </div>
             </div>

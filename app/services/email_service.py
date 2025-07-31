@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-OAuth-based Email Service for Jobéco Application
+OAuth-based Email Service for Jobeco Application
 This service uses OAuth 2.0 for secure email authentication.
 """
 
@@ -120,15 +120,15 @@ class EmailService:
         <body>
             <h2>You're invited to join {group_name}!</h2>
             <p>Hello,</p>
-            <p>{inviter_name} has invited you to join the group <strong>{group_name}</strong> on Jobéco.</p>
-            <p>Jobéco is a platform where you can share and discover trusted tradesmen with your community.</p>
+            <p>{inviter_name} has invited you to join the group <strong>{group_name}</strong> on Jobï¿½co.</p>
+            <p>Jobeco is a platform where you can share and discover trusted tradesmen with your community.</p>
             <p><strong>To accept this invitation, click the link below:</strong></p>
             <p><a href="{invitation_url}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Accept Invitation</a></p>
             <p>Or copy and paste this URL into your browser:</p>
             <p>{invitation_url}</p>
             <p><strong>This invitation expires on: {expires_at}</strong></p>
             <p>If you don't have an account yet, you'll be able to create one when you accept the invitation.</p>
-            <p>Best regards,<br>The Jobéco Team</p>
+            <p>Best regards,<br>The Jobeco Team</p>
         </body>
         </html>
         """
