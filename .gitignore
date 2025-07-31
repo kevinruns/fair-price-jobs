@@ -44,7 +44,6 @@ Thumbs.db
 # Environment files (CRITICAL - contains secrets)
 .env
 .env.*
-!.env.example
 
 # Database files
 *.db
