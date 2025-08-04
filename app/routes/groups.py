@@ -324,4 +324,40 @@ def test_email_config():
     except Exception as e:
         return f"Error testing email configuration: {str(e)}"
 
+@groups_bp.route('/edit_group/<int:group_id>', methods=['GET', 'POST'])
+@login_required
+def edit_group(group_id: int) -> Union[str, Response]:
+    """Edit group details."""
+    # Check if user has permission to edit the group (admin or creator)
+    membership = group_service.get_user_group_membership(session['user_id'], group_id)
+    if not membership or membership['status'] not in ['admin', 'creator']:
+        flash('You do not have permission to edit this group.', 'error')
+        return redirect(url_for('groups.view_group', group_id=group_id))
+    
+    group = group_service.get_group_by_id(group_id)
+    if not group:
+        flash('Group not found.', 'error')
+        return redirect(url_for('groups.search_groups'))
+    
+    if request.method == 'POST':
+        name = request.form.get('group_name', '').strip()
+        postcode = request.form.get('group_postcode', '').strip()
+        description = request.form.get('group_description', '').strip() or None
+        
+        if not name:
+            flash('Group name is required.', 'error')
+            return render_template('edit_group.html', group=group)
+        
+        try:
+            success = group_service.update_group(group_id, name=name, postcode=postcode, description=description)
+            if success:
+                flash('Group updated successfully!', 'success')
+                return redirect(url_for('groups.view_group', group_id=group_id))
+            else:
+                flash('Failed to update group.', 'error')
+        except Exception as e:
+            flash(f'An error occurred: {str(e)}', 'error')
+    
+    return render_template('edit_group.html', group=group)
+
  

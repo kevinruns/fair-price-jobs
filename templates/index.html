@@ -21,6 +21,7 @@
                         <thead>
                             <tr>
                                 <th>{{ _("Name") }}</th>
+                                <th>{{ _("Company") }}</th>
                                 <th>{{ _("Trade") }}</th>
                                 <th>{{ _("Rating") }}</th>
                                 <th>{{ _("Jobs") }}</th>
@@ -34,9 +35,10 @@
                                     <td>
                                         <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}" class="text-decoration-none">
                                             <span class="fw-semibold text-primary">
-                                                {{ display_name(tradesman.first_name, tradesman.family_name, tradesman.company_name) }}</span>
+                                                {{ tradesman.first_name }} {{ tradesman.family_name }}</span>
                                         </a>
                                     </td>
+                                    <td>{{ tradesman.company_name or _("N/A") }}</td>
                                     <td>{{ tradesman.trade }}</td>
                                     <td>{{ rating_badge(tradesman.rating) }}</td>
                                     <td><span class="badge bg-info">{{ tradesman.job_count }}</span></td>

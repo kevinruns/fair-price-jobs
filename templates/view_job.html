@@ -11,7 +11,7 @@
                     <p class="text-muted mb-2">
                         <strong>{{ _('Tradesman' ) }}:</strong> 
                         <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=job.tradesman_id) }}" class="text-decoration-none">
-                            {{ display_name(job.first_name, job.family_name, job.company_name) }}- {{ job.trade }}
+                            {{ display_name(job.first_name, job.family_name, job.company_name) }} - {{ job.trade }}
                         </a>
                     </p>
                     <p class="text-muted mb-0">
@@ -34,6 +34,50 @@
 
     <div class="row justify-content-center">
         <div class="col-md-6">
+            <!-- Cost Breakdown Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ _('Cost Breakdown') }}</h5>
+                </div>
+                <div class="card-body">
+                    {% if job.call_out_fee %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>{{ _('Call Out Fee') }}:</strong></div>
+                        <div class="col-sm-8">€{{ job.call_out_fee }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if job.materials_fee %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>{{ _('Materials Fee') }}:</strong></div>
+                        <div class="col-sm-8">€{{ job.materials_fee }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if job.hourly_rate and job.hours_worked %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>{{ _('Hourly Rate') }}:</strong></div>
+                        <div class="col-sm-8">€{{ job.hourly_rate }} × {{ job.hours_worked }}h = €{{ job.hourly_rate * job.hours_worked }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if job.daily_rate and job.days_worked %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>{{ _('Daily Rate') }}:</strong></div>
+                        <div class="col-sm-8">€{{ job.daily_rate }} × {{ job.days_worked }}d = €{{ job.daily_rate * job.days_worked }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if job.total_cost %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>{{ _('Total Cost') }}:</strong></div>
+                        <div class="col-sm-8"><strong class="text-primary">€{{ job.total_cost }}</strong></div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Job Details Card -->
             <div class="card mb-4">
                 <div class="card-header">
                     <h5 class="mb-0">{{ _('Job Details' ) }}</h5>

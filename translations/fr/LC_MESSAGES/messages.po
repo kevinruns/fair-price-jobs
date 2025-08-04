@@ -1016,6 +1016,24 @@ msgstr "Peintre"
 msgid "Mason"
 msgstr "Maçon"
 
+msgid "Roofer"
+msgstr "Couvreur"
+
+msgid "Landscaper"
+msgstr "Paysagiste"
+
+msgid "HVAC"
+msgstr "Climatisation"
+
+msgid "Plasterer"
+msgstr "Plâtrier"
+
+msgid "Tiler"
+msgstr "Carreleur"
+
+msgid "Select a trade"
+msgstr "Sélectionner un métier"
+
 #: templates/add_tradesman.html:8
 msgid "First Name"
 msgstr "Prénom"
@@ -1114,14 +1132,14 @@ msgstr "Voir les invitations"
 msgid "Pending Requests"
 msgstr "Demandes en attente"
 
-msgid "Group Members:"
-msgstr "Membres du groupe :"
+msgid "Group Members"
+msgstr "Membres du groupe"
 
 msgid "No members in this group yet."
 msgstr "Aucun membre dans ce groupe pour le moment."
 
-msgid "Tradesmen in this group:"
-msgstr "Artisans dans ce groupe :"
+msgid "Tradesmen in this group"
+msgstr "Artisans dans ce groupe"
 
 msgid "No tradesmen in this group yet."
 msgstr "Aucun artisan dans ce groupe pour le moment."

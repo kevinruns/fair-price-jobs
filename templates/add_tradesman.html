@@ -7,7 +7,25 @@
     <form action="{{ url_for('tradesmen.add_tradesman' ) }}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-        {{ form_field(_("First Name"), "first_name", "first_name", "", "text", _("First Name"), true) }}{{ form_field(_("Family Name"), "family_name", "family_name", "", "text", _("Family Name"), true) }}{{ form_field(_("Company Name"), "company_name", "company_name", "", "text", _("Company Name")) }}{{ form_field(_("Trade"), "trade", "trade", "", "text", _("Trade"), true) }}{{ form_field(_("Postcode"), "postcode", "postcode", "", "text", _("Postcode")) }}{{ form_field(_("Phone Number"), "phone_number", "phone_number", "", "text", _("Phone Number")) }}{{ form_field(_("Email"), "email", "email", "", "email", _("Email")) }}<button type="submit" class="btn btn-primary">{{ _('Add Tradesman' ) }}</button>
+        {{ form_field(_("First Name"), "first_name", "first_name", "", "text", _("First Name"), true) }}
+        {{ form_field(_("Family Name"), "family_name", "family_name", "", "text", _("Family Name"), true) }}
+        {{ form_field(_("Company Name"), "company_name", "company_name", "", "text", _("Company Name")) }}
+        
+        <div class="row align-items-center mb-4">
+            <label for="trade" class="col-sm-2 col-form-label fw-bold">{{ _("Trade") }}</label>
+            <div class="col-sm-10">
+                <select class="form-control" id="trade" name="trade" required>
+                    <option value="">{{ _("Select a trade") }}</option>
+                    {% for trade in trades %}
+                        <option value="{{ trade }}">{{ _(trade) }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        
+        {{ form_field(_("Postcode"), "postcode", "postcode", "", "text", _("Postcode")) }}
+        {{ form_field(_("Phone Number"), "phone_number", "phone_number", "", "text", _("Phone Number")) }}
+        {{ form_field(_("Email"), "email", "email", "", "email", _("Email")) }}<button type="submit" class="btn btn-primary">{{ _('Add Tradesman' ) }}</button>
     </form>
 </div>
 {% endblock %}

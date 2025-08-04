@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Comprehensive test script for Jobéco application
+Comprehensive test script for Jobeco application
 Tests services, routes, and database operations
 """
 
@@ -541,7 +541,7 @@ def run_tests():
     return result
 
 if __name__ == '__main__':
-    print("Running Jobéco Application Tests...")
+    print("Running Jobï¿½co Application Tests...")
     print("="*50)
     
     success = run_tests()

@@ -86,11 +86,13 @@
                     <thead>
                         <tr>
                             <th>{{ _('Name' ) }}</th>
+                            <th>{{ _('Company' ) }}</th>
                             <th>{{ _('Trade' ) }}</th>
                             <th>{{ _('Location' ) }}</th>
                             <th>{{ _('Phone' ) }}</th>
                             <th>{{ _('Email' ) }}</th>
                             <th>{{ _('Jobs' ) }}</th>
+                            <th>{{ _('Quotes' ) }}</th>
                             <th>{{ _('Added By' ) }}</th>
                             <th>{{ _('Rating' ) }}</th>
                             <th>{{ _('Actions' ) }}</th>
@@ -101,19 +103,23 @@
                             <tr>
                                 <td>
                                     <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}" class="text-decoration-none">
-                                        {{ display_name(tradesman.first_name, tradesman.family_name, tradesman.company_name) }}</a>
+                                        <span class="fw-semibold text-primary">
+                                            {{ tradesman.first_name }} {{ tradesman.family_name }}</span>
+                                    </a>
                                 </td>
+                                <td>{{ tradesman.company_name or _("N/A") }}</td>
                                 <td>{{ tradesman.trade }}</td>
                                 <td>{{ tradesman.postcode }}</td>
                                 <td>{{ tradesman.phone_number }}</td>
                                 <td>{{ tradesman.email }}</td>
                                 <td><span class="badge bg-info">{{ tradesman.job_count }}</span></td>
+                                <td><span class="badge bg-warning">{{ tradesman.quote_count }}</span></td>
                                 <td>
                                     <a href="{{ url_for('profile.user_profile', user_id=tradesman.added_by_user_id) }}" class="text-decoration-none">
                                         <span class="text-info">{{ tradesman.added_by_username }}</span>
                                     </a>
                                 </td>
-                                <td>{{ rating_badge(tradesman.avg_rating, none_text="{{ _('No Rating') }}") }}</td>
+                                <td>{{ rating_badge(tradesman.avg_rating, none_text=_('No Rating')) }}</td>
                                 <td>
                                     <div class="btn-group" role="group">
                                         <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}" class="btn btn-sm btn-outline-primary">

@@ -1,5 +1,6 @@
 from typing import Optional, List, Dict, Any
 from app.services.database import get_db_service
+from app.config import TRADE_TYPES
 
 class TradesmanService:
     """Service class for tradesman-related database operations."""
@@ -64,8 +65,9 @@ class TradesmanService:
         """Search for tradesmen with filters"""
         query = """
             SELECT DISTINCT t.*, 
-                   COUNT(j.id) as job_count,
-                   AVG(j.rating) as avg_rating,
+                   COUNT(CASE WHEN j.type = 'job' THEN j.id END) as job_count,
+                   COUNT(CASE WHEN j.type = 'quote' THEN j.id END) as quote_count,
+                   AVG(CASE WHEN j.type = 'job' THEN j.rating END) as avg_rating,
                    u.username as added_by_username,
                    u.id as added_by_user_id
             FROM tradesmen t
@@ -89,7 +91,7 @@ class TradesmanService:
             query += " AND t.postcode LIKE ?"
             params.append(f"{postcode}%")
             
-        query += " GROUP BY t.id ORDER BY COUNT(j.id) DESC, avg_rating DESC NULLS LAST"
+        query += " GROUP BY t.id ORDER BY job_count DESC, avg_rating DESC NULLS LAST"
         
         return self.db.execute_query(query, tuple(params))
     
@@ -201,6 +203,10 @@ class TradesmanService:
         """
         result = self.db.execute_single_query(query, (group_id, tradesman_id))
         return result is not None
+    
+    def get_available_trades(self):
+        """Get all available trade types from configuration"""
+        return TRADE_TYPES
     
     def get_unique_trades(self):
         """Get all unique trades for filtering"""

@@ -5,133 +5,176 @@
 {% if group %}
     <div class="container">
         <div class="row mt-4 mb-4">
-            <!-- Group Info Card -->
-            <div class="col-md-7 mb-3">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h2 class="card-title mb-3">{{ group['name'] }}</h2>
-                        {% if group['description'] %}
-                            <p class="card-text text-muted mb-3">{{ group['description'] }}</p>
-                        {% endif %}
+            <!-- Group Info (no card, compact layout) -->
+            <div class="col-12 mb-3">
+                <h2 class="mb-3">{{ group['name'] }}</h2>
+                {% if group['description'] %}
+                    <p class="text-muted mb-3">{{ group['description'] }}</p>
+                {% endif %}
+                <div class="row">
+                    <div class="col-md-6">
                         <table class="table table-borderless mb-0">
                             <tbody>
                                 <tr>
                                     <th scope="row" class="w-25">{{ _('Creator:') }}</th>
-                                    <td>{{ creator.username if creator else 'Unknown' }}</td>
+                                    <td>
+                                        {% if creator %}
+                                            <a href="{{ url_for('profile.user_profile', user_id=creator.id) }}" class="text-decoration-none">
+                                                <span class="text-primary">{{ creator.username }}</span>
+                                            </a>
+                                        {% else %}
+                                            Unknown
+                                        {% endif %}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <th scope="row">{{ _('Created on:') }}</th>
                                     <td>{{ group['created_at'] }}</td>
                                 </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless mb-0">
+                            <tbody>
                                 <tr>
-                                    <th scope="row">{{ _('Members:') }}</th>
+                                    <th scope="row" class="w-25">{{ _('Members:') }}</th>
                                     <td>{{ members|length }}</td>
                                 </tr>
                                 <tr>
                                     <th scope="row">{{ _('Tradesmen:') }}</th>
                                     <td>{{ tradesmen|length }}</td>
                                 </tr>
+                                {% if is_admin_or_creator and pending_requests_count > 0 %}
+                                <tr>
+                                    <th scope="row">{{ _('Pending Requests') }}</th>
+                                    <td>
+                                        <a href="{{ url_for('groups.view_all_pending_requests') }}" class="btn btn-warning btn-sm">
+                                            <i class="fas fa-clock"></i> {{ _('Pending Requests') }} ({{ pending_requests_count }})
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endif %}
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-            <!-- Group Management Card -->
-            {% if is_admin_or_creator %}
-            <div class="col-md-5 mb-3">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h6 class="card-title text-primary">{{ _('Group Management') }}</h6>
-                        <div class="d-flex gap-2 flex-wrap">
-                            <a href="{{ url_for('groups.send_invitation', group_id=group['id']) }}" class="btn btn-success">
-                                <i class="fas fa-envelope"></i> {{ _('Send Invitation') }}
-                            </a>
-                            <a href="{{ url_for('groups.view_invitations', group_id=group['id']) }}" class="btn btn-info">
-                                <i class="fas fa-list"></i> {{ _('View Invitations') }}
-                            </a>
-                            {% if pending_requests_count > 0 %}
-                                <a href="{{ url_for('groups.view_all_pending_requests') }}" class="btn btn-warning">
-                                    <i class="fas fa-clock"></i> {{ _('Pending Requests') }} ({{ pending_requests_count }})
-                                </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
         </div>
 
         {% if is_member %}
 
             <!-- Group Members Section -->
             {% if members %}
-                <h5 class="mt-5 mb-4">{{ _('Group Members:') }}</h5>
-                <table class="table table-striped mb-4">
-                    <thead>
-                        <tr>
-                            <th>{{ _('Username') }}</th>
-                            <th>{{ _('Name') }}</th>
-                            <th>{{ _('Email') }}</th>
-                            <th>{{ _('Status') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for member in members %}
-                            <tr>
-                                <td>
-                                    <a href="{{ url_for('profile.user_profile', user_id=member.id) }}" class="text-decoration-none">
-                                        <span class="text-primary">{{ member.username }}</span>
-                                    </a>
-                                </td>
-                                <td>{{ member.firstname }} {{ member.lastname }}</td>
-                                <td>{{ member.email }}</td>
-                                <td>
-                                    <span class="badge bg-{% if member.status == 'creator' %}primary{% elif member.status == 'admin' %}warning{% else %}success{% endif %}">
-                                        {{ member.status|title }}
-                                    </span>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div class="card mb-5">
+                    <div class="card-header">
+                        <h5 class="mb-0">{{ _('Group Members') }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>{{ _('Username') }}</th>
+                                    <th>{{ _('Name') }}</th>
+                                    <th>{{ _('Email') }}</th>
+                                    <th>{{ _('Status') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for member in members %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ url_for('profile.user_profile', user_id=member.id) }}" class="text-decoration-none">
+                                                <span class="text-primary">{{ member.username }}</span>
+                                            </a>
+                                        </td>
+                                        <td>{{ member.firstname }} {{ member.lastname }}</td>
+                                        <td>{{ member.email }}</td>
+                                        <td>
+                                            <span class="badge bg-{% if member.status == 'creator' %}primary{% elif member.status == 'admin' %}warning{% else %}success{% endif %}">
+                                                {{ member.status|title }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        
+                        {% if is_admin_or_creator %}
+                        <div class="d-flex justify-content-center gap-2 mt-3">
+                            <a href="{{ url_for('groups.send_invitation', group_id=group['id']) }}" class="btn btn-success">
+                                <i class="fas fa-envelope"></i> {{ _('Send Invitation') }}
+                            </a>
+                            <a href="{{ url_for('groups.view_invitations', group_id=group['id']) }}" class="btn btn-info">
+                                <i class="fas fa-list"></i> {{ _('View Invitations') }}
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
             {% else %}
-                <p>{{ _('No members in this group yet.') }}</p>
+                <div class="card mb-5">
+                    <div class="card-body">
+                        <p class="mb-0">{{ _('No members in this group yet.') }}</p>
+                    </div>
+                </div>
             {% endif %}
 
             {% if tradesmen %}
-                <h5 class="mt-5 mb-4">{{ _('Tradesmen in this group:') }}</h5>
-                <table class="table table-striped mb-4">
-                    <thead>
-                        <tr>
-                            <th>{{ _('Trade') }}</th>
-                            <th>{{ _('Name') }}</th>
-                            <th>{{ _('Phone Number') }}</th>
-                            <th>{{ _('Postcode') }}</th>
-                            <th>{{ _('Email') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for trade, trade_group in tradesmen|groupby('trade') %}
-                            {% for tradesman in trade_group %}
+                <div class="card mb-5">
+                    <div class="card-header">
+                        <h5 class="mb-0">{{ _('Tradesmen in this group') }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped mb-0">
+                            <thead>
                                 <tr>
-                                    <td><strong>{{ trade }}</strong></td>
-                                    <td><a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}">{{ tradesman.first_name }} {{ tradesman.family_name }}</a></td>
-                                    <td>{{ tradesman.phone_number }}</td>
-                                    <td>{{ tradesman.postcode }}</td>
-                                    <td>{{ tradesman.email }}</td>
+                                    <th>{{ _('Trade') }}</th>
+                                    <th>{{ _('Name') }}</th>
+                                    <th>{{ _('Phone Number') }}</th>
+                                    <th>{{ _('Postcode') }}</th>
+                                    <th>{{ _('Email') }}</th>
                                 </tr>
-                            {% endfor %}
-                        {% endfor %}
-                    </tbody>
-                </table>
+                            </thead>
+                            <tbody>
+                                {% for trade, trade_group in tradesmen|groupby('trade') %}
+                                    {% for tradesman in trade_group %}
+                                        <tr>
+                                            <td><strong>{{ trade }}</strong></td>
+                                            <td><a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}">{{ tradesman.first_name }} {{ tradesman.family_name }}</a></td>
+                                            <td>{{ tradesman.phone_number }}</td>
+                                            <td>{{ tradesman.postcode }}</td>
+                                            <td>{{ tradesman.email }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        
+                        <div class="d-flex justify-content-center mt-3">
+                            <a href="{{ url_for('tradesmen.add_my_tradesman_to_group', group_id=group.id) }}" class="btn btn-primary">{{ _('Add My Tradesman') }}</a>
+                        </div>
+                    </div>
+                </div>
             {% else %}
-                <p>{{ _('No tradesmen in this group yet.') }}</p>
+                <div class="card mb-5">
+                    <div class="card-body">
+                        <p class="mb-0">{{ _('No tradesmen in this group yet.') }}</p>
+                        
+                        <div class="d-flex justify-content-center mt-3">
+                            <a href="{{ url_for('tradesmen.add_my_tradesman_to_group', group_id=group.id) }}" class="btn btn-primary">{{ _('Add My Tradesman') }}</a>
+                        </div>
+                    </div>
+                </div>
             {% endif %}
 
-            <div class="mt-3">
-                <a href="{{ url_for('tradesmen.add_my_tradesman_to_group', group_id=group.id) }}" class="btn btn-primary btn-sm">{{ _('Add My Tradesman') }}</a>
+            {% if is_admin_or_creator %}
+            <div class="d-flex justify-content-center mt-4">
+                <a href="{{ url_for('groups.edit_group', group_id=group.id) }}" class="btn btn-secondary">
+                    <i class="fas fa-edit"></i> {{ _('Edit Group') }}
+                </a>
             </div>
-
+            {% endif %}
         {% else %}
 
             <p>{{ _('You are not a member of this group.') }}</p>

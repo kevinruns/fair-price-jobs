@@ -18,66 +18,103 @@
             <form action="{{ url_for('jobs.edit_job', job_id=job.id) }}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-        {{ form_field("Job Description", "title", "title", job.title, "textarea", "e.g. Tile bathroom", true, rows=1) }}{{ form_field("Details", "description", "description", job.description, "textarea", "Size of job, complexity, how many people worked on it", true, rows=3) }}{{ form_field_pair(
-            "Date Started", "date_started", "date_started", job.date_started, "date", "", false, "", "",
-            "Date Finished", "date_finished", "date_finished", job.date_finished, "date", "", false, "", ""
-        ) }}{{ form_field_pair(
-            "Call Out Fee €", "call_out_fee", "call_out_fee", job.call_out_fee, "number", "Optional", false, "0.01", "",
-            "Materials Fee €", "materials_fee", "materials_fee", job.materials_fee, "number", "Optional", false, "0.01", ""
-        ) }}{{ form_field_pair(
-            "Hourly Rate €", "hourly_rate", "hourly_rate", job.hourly_rate, "number", "Optional", false, "0.01", "",
-            "Hours Worked", "hours_worked", "hours_worked", job.hours_worked, "number", "Optional", false, "0.5", ""
-        ) }}{{ form_field_pair(
-            "Daily Rate €", "daily_rate", "daily_rate", job.daily_rate, "number", "Optional", false, "0.01", "",
-            "Days Worked", "days_worked", "days_worked", job.days_worked, "number", "Optional", false, "0.5", ""
-        ) }}{{ form_field("Rating (1-5)", "rating", "rating", job.rating, "number", "Optional", false, "", 1, 5) }}<!-- File Upload Section -->
+        {{ form_field("Job Description", "title", "title", job.title, "textarea", "e.g. Tile bathroom", true, 1) }}
+        {{ form_field("Details", "description", "description", job.description, "textarea", "Size of job, complexity, how many people worked on it", true, 3) }}
+        {{ form_field_pair(
+            "Date Started", "date_started", "date_started",
+            "Date Finished", "date_finished", "date_finished",
+            job.date_started, "date", _("dd/mm/yyyy"), false, "", "", "",
+            job.date_finished, "date", _("dd/mm/yyyy"), false, "", "", ""
+        ) }}
+        
+        <!-- Cost Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">{{ _('Cost Details') }}</h6>
+            </div>
+            <div class="card-body">
+                {{ form_field_pair(
+                    "Call Out Fee €", "call_out_fee", "call_out_fee",
+                    "Materials Fee €", "materials_fee", "materials_fee",
+                    job.call_out_fee, "number", _("Optional"), false, "0.01", "", "",
+                    job.materials_fee, "number", _("Optional"), false, "0.01", "", ""
+                ) }}
+                {{ form_field_pair(
+                    "Hourly Rate €", "hourly_rate", "hourly_rate",
+                    "Hours Worked", "hours_worked", "hours_worked",
+                    job.hourly_rate, "number", _("Optional"), false, "0.01", "", "",
+                    job.hours_worked, "number", _("Optional"), false, "0.5", "", ""
+                ) }}
+                {{ form_field_pair(
+                    "Daily Rate €", "daily_rate", "daily_rate",
+                    "Days Worked", "days_worked", "days_worked",
+                    job.daily_rate, "number", _("Optional"), false, "0.01", "", "",
+                    job.days_worked, "number", _("Optional"), false, "0.5", "", ""
+                ) }}
+                
+                <!-- Total Cost Field -->
+                <div class="row align-items-center mb-4">
+                    <label for="total_cost" class="col-sm-2 col-form-label fw-bold">{{ _('Total Cost €') }}</label>
+                    <div class="col-sm-10">
+                        <input type="number" class="form-control" id="total_cost" name="total_cost" value="{{ job.total_cost }}" 
+                               placeholder="{{ _('Total cost') }}" step="0.01" min="0" style="max-width: 150px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Rating and File Upload Section -->
         <div class="row align-items-center mb-4">
-            <div class="col-sm-6">
+            <!-- Rating Field -->
+            <div class="col-sm-3">
                 <div class="row align-items-center">
-                    <label for="quote_file" class="col-sm-6 col-form-label">{{ _('Quote File' ) }}</label>
+                    <label for="rating" class="col-sm-6 col-form-label fw-bold">{{ _('Rating (1-5)') }}</label>
                     <div class="col-sm-6">
+                        <input type="number" class="form-control" id="rating" name="rating" value="{{ job.rating }}" 
+                               placeholder="{{ _('Optional') }}" min="1" max="5" style="max-width: 80px;">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quote File -->
+            <div class="col-sm-4">
+                <div class="row align-items-center">
+                    <label for="quote_file" class="col-sm-4 col-form-label fw-bold">{{ _('Quote') }}</label>
+                    <div class="col-sm-8">
                         {% if job.quote_file %}
-                            <div class="d-flex align-items-center gap-2">
+                            <div class="mb-2">
                                 {% set filename_parts = job.quote_file.split('_', 1) %}
                                 {% set original_filename = filename_parts[1] if filename_parts|length > 1 else job.quote_file %}
                                 <a href="{{ url_for('main.uploaded_file', filename=job.quote_file) }}" target="_blank" class="text-decoration-none">
-                                    {{ original_filename }}
+                                    <i class="fas fa-file text-primary"></i> {{ original_filename }}
                                 </a>
-                                <div class="file-input-wrapper">
-                                    <input type="file" class="form-control" id="quote_file" name="quote_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt" style="display: none;">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('quote_file').click()">
-                                        <i class="fas fa-upload"></i> Replace
-                                    </button>
-                                    <span id="quote_file_name" class="ms-2 small text-muted"></span>
-                                </div>
                             </div>
+                            <input type="file" class="form-control form-control-sm" id="quote_file" name="quote_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
+                            <small class="text-muted">Replace</small>
                         {% else %}
-                            <input type="file" class="form-control" id="quote_file" name="quote_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
+                            <input type="file" class="form-control form-control-sm" id="quote_file" name="quote_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
                         {% endif %}
                     </div>
                 </div>
             </div>
-            <div class="col-sm-6">
+            
+            <!-- Invoice File -->
+            <div class="col-sm-5">
                 <div class="row align-items-center">
-                    <label for="job_file" class="col-sm-6 col-form-label">{{ _('Invoice' ) }}</label>
-                    <div class="col-sm-6">
+                    <label for="job_file" class="col-sm-4 col-form-label fw-bold">{{ _('Invoice') }}</label>
+                    <div class="col-sm-8">
                         {% if job.job_file %}
-                            <div class="d-flex align-items-center gap-2">
+                            <div class="mb-2">
                                 {% set filename_parts = job.job_file.split('_', 1) %}
                                 {% set original_filename = filename_parts[1] if filename_parts|length > 1 else job.job_file %}
                                 <a href="{{ url_for('main.uploaded_file', filename=job.job_file) }}" target="_blank" class="text-decoration-none">
-                                    {{ original_filename }}
+                                    <i class="fas fa-file text-primary"></i> {{ original_filename }}
                                 </a>
-                                <div class="file-input-wrapper">
-                                    <input type="file" class="form-control" id="job_file" name="job_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt" style="display: none;">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('job_file').click()">
-                                        <i class="fas fa-upload"></i> Replace
-                                    </button>
-                                    <span id="job_file_name" class="ms-2 small text-muted"></span>
-                                </div>
                             </div>
+                            <input type="file" class="form-control form-control-sm" id="job_file" name="job_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
+                            <small class="text-muted">Replace</small>
                         {% else %}
-                            <input type="file" class="form-control" id="job_file" name="job_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
+                            <input type="file" class="form-control form-control-sm" id="job_file" name="job_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
                         {% endif %}
                     </div>
                 </div>
@@ -107,7 +144,7 @@
 
 {% if can_delete %}
 <script>
-    function confirmDelete() {{
+    function confirmDelete() {
         if (confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
             window.location.href = "{{ url_for('jobs.delete_job', job_id=job.id) }}";
         }

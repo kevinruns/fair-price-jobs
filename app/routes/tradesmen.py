@@ -37,7 +37,8 @@ def add_tradesman() -> Union[str, Response]:
             return redirect(url_for("tradesmen.add_tradesman"))
 
     # If it's a GET request, just render the form
-    return render_template("add_tradesman.html")
+    available_trades = tradesman_service.get_available_trades()
+    return render_template("add_tradesman.html", trades=available_trades)
 
 @tradesmen_bp.route("/tradesman/<int:tradesman_id>")
 @login_required

@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Edit Group - {{ group.name }}
+{% endblock %}
+
+{% block main %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">{{ _('Edit Group') }}</h4>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('groups.edit_group', group_id=group.id) }}" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        
+                        <div class="mb-3">
+                            <label for="group_name" class="form-label fw-bold">{{ _('Group Name') }}</label>
+                            <input type="text" class="form-control" id="group_name" name="group_name" 
+                                   value="{{ group.name }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="group_postcode" class="form-label fw-bold">{{ _('Postcode') }}</label>
+                            <input type="text" class="form-control" id="group_postcode" name="group_postcode" 
+                                   value="{{ group.postcode }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="group_description" class="form-label fw-bold">{{ _('Description') }}</label>
+                            <textarea class="form-control" id="group_description" name="group_description" 
+                                      rows="3">{{ group.description or '' }}</textarea>
+                        </div>
+                        
+                        <div class="d-flex justify-content-center gap-3">
+                            <button type="submit" class="btn btn-primary">{{ _('Save Changes') }}</button>
+                            <a href="{{ url_for('groups.view_group', group_id=group.id) }}" class="btn btn-secondary">{{ _('Cancel') }}</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %} 

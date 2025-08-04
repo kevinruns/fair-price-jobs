@@ -3,37 +3,68 @@
 
 {% block main %}
 <div class="container-fluid p-4">
-    <div class="row mb-4">
-        <div class="col">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <h2 class="text-primary fw-bold mb-3">{{ quote.title }}</h2>
-                    <p class="text-muted mb-2">
-                        <strong>{{ _('Tradesman:' ) }}</strong> 
-                        <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=quote.tradesman_id) }}" class="text-decoration-none">
-                            {{ display_name(quote.first_name, quote.family_name, quote.company_name) }}- {{ quote.trade }}
-                        </a>
-                    </p>
-                    <p class="text-muted mb-0">
-                        <strong>{{ _('Added by') }}:</strong> 
-                        <a href="{{ url_for('profile.user_profile', user_id=quote.added_by_user_id) }}" class="text-decoration-none">
-                            {{ quote.added_by_username }}
-                        </a>
-                    </p>
-                </div>
-                {% if quote.user_id == session.user_id %}
-                <div>
-                    <a href="{{ url_for('jobs.edit_quote', quote_id=quote.id) }}" class="btn btn-primary">
-                        <i class="fas fa-edit"></i> Edit Quote
-                    </a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
     <div class="row justify-content-center">
         <div class="col-md-6">
+            <div class="text-center mb-4">
+                <h2 class="text-primary fw-bold mb-3">{{ quote.title }}</h2>
+                <p class="text-muted mb-2">
+                    <strong>{{ _('Tradesman' ) }}:</strong> 
+                    <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=quote.tradesman_id) }}" class="text-decoration-none">
+                        {{ display_name(quote.first_name, quote.family_name, quote.company_name) }} - {{ quote.trade }}
+                    </a>
+                </p>
+                <p class="text-muted mb-0">
+                    <strong>{{ _('Added by') }}:</strong> 
+                    <a href="{{ url_for('profile.user_profile', user_id=quote.added_by_user_id) }}" class="text-decoration-none">
+                        {{ quote.added_by_username }}
+                    </a>
+                </p>
+            </div>
+
+            <!-- Cost Breakdown Card (moved to top) -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ _('Cost Breakdown' ) }}</h5>
+                </div>
+                <div class="card-body">
+                    {% if quote.call_out_fee %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>{{ _('Call Out Fee') }}:</strong></div>
+                        <div class="col-sm-8">€{{ quote.call_out_fee }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if quote.materials_fee %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>{{ _('Materials Fee') }}:</strong></div>
+                        <div class="col-sm-8">€{{ quote.materials_fee }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if quote.hourly_rate and quote.hours_estimated %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>{{ _('Hourly Rate') }}:</strong></div>
+                        <div class="col-sm-8">€{{ quote.hourly_rate }}/hour ({{ quote.hours_estimated }} hours)</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if quote.daily_rate and quote.days_estimated %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>{{ _('Daily Rate') }}:</strong></div>
+                        <div class="col-sm-8">€{{ quote.daily_rate }}/day ({{ quote.days_estimated }} days)</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if quote.total_quote %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>{{ _('Total Quote') }}:</strong></div>
+                        <div class="col-sm-8"><strong>€{{ quote.total_quote }}</strong></div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quote Details Card -->
             <div class="card mb-4">
                 <div class="card-header">
                     <h5 class="mb-0">{{ _('Quote Details' ) }}</h5>
@@ -89,49 +120,30 @@
                 </div>
             </div>
             {% endif %}
-            
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">{{ _('Cost Breakdown' ) }}</h5>
-                </div>
-                <div class="card-body">
-                    {% if quote.call_out_fee %}
-                    <div class="row mb-3">
-                        <div class="col-sm-4"><strong>{{ _('Call Out Fee') }}:</strong></div>
-                        <div class="col-sm-8">£{{ quote.call_out_fee }}</div>
-                    </div>
-                    {% endif %}
-                    
-                    {% if quote.materials_fee %}
-                    <div class="row mb-3">
-                        <div class="col-sm-4"><strong>{{ _('Materials Fee') }}:</strong></div>
-                        <div class="col-sm-8">£{{ quote.materials_fee }}</div>
-                    </div>
-                    {% endif %}
-                    
-                    {% if quote.hourly_rate and quote.hours_estimated %}
-                    <div class="row mb-3">
-                        <div class="col-sm-4"><strong>{{ _('Hourly Rate') }}:</strong></div>
-                        <div class="col-sm-8">£{{ quote.hourly_rate }}/hour ({{ quote.hours_estimated }} hours)</div>
-                    </div>
-                    {% endif %}
-                    
-                    {% if quote.daily_rate and quote.days_estimated %}
-                    <div class="row mb-3">
-                        <div class="col-sm-4"><strong>{{ _('Daily Rate') }}:</strong></div>
-                        <div class="col-sm-8">£{{ quote.daily_rate }}/day ({{ quote.days_estimated }} days)</div>
-                    </div>
-                    {% endif %}
-                    
-                    {% if quote.total_quote %}
-                    <div class="row mb-3">
-                        <div class="col-sm-4"><strong>{{ _('Total Quote') }}:</strong></div>
-                        <div class="col-sm-8"><strong>£{{ quote.total_quote }}</strong></div>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
         </div>
+    </div>
+    
+    <div class="d-flex justify-content-center gap-3 mt-4">
+        {% if quote.user_id == session.user_id %}
+        <a href="{{ url_for('jobs.edit_quote', quote_id=quote.id) }}" class="btn btn-secondary">
+            <i class="fas fa-edit"></i> {{ _('Edit Quote') }}
+        </a>
+        {% endif %}
+        
+        {% if quote.status == 'pending' %}
+        <form action="{{ url_for('jobs.convert_quote_to_job', quote_id=quote.id) }}" method="post" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-check"></i> {{ _('Accept Quote') }}
+            </button>
+        </form>
+        <form action="{{ url_for('jobs.reject_quote', quote_id=quote.id) }}" method="post" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-times"></i> {{ _('Reject Quote') }}
+            </button>
+        </form>
+        {% endif %}
     </div>
 </div>
 
