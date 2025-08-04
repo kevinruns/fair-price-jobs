@@ -490,15 +490,15 @@ msgstr ""
 
 #: templates/send_invitation.html:13 templates/send_invitation.html:37
 msgid "Send Invitation"
-msgstr ""
+msgstr "Envoyer une invitation"
 
 #: templates/send_invitation.html:17
 msgid "Invite someone to join:"
-msgstr ""
+msgstr "Inviter quelqu'un à rejoindre :"
 
 #: templates/send_invitation.html:26
 msgid "Email Address"
-msgstr ""
+msgstr "Adresse email"
 
 #: templates/user_profile.html:12
 msgid "User Profile"
@@ -1000,62 +1000,6 @@ msgstr "Recherchez des artisans par nom, métier ou localisation."
 msgid "You can filter by trade type, postcode and who added them."
 msgstr "Vous pouvez filtrer par type de métier, code postal et qui les a ajoutés."
 
-#: templates/search_jobs_quotes.html:15
-msgid "Add Job/Quote"
-msgstr "Ajouter un travail/devis"
-
-#: templates/search_jobs_quotes.html:25
-msgid "Enter keywords to search in titles..."
-msgstr "Entrez des mots-clés pour rechercher dans les titres..."
-
-#: templates/search_jobs_quotes.html:35
-msgid "Minimum Rating"
-msgstr "Note minimale"
-
-#: templates/search_jobs_quotes.html:37
-msgid "Any"
-msgstr "Toute"
-
-#: templates/search_jobs_quotes.html:75
-msgid "Include Jobs"
-msgstr "Inclure les travaux"
-
-#: templates/search_jobs_quotes.html:79
-msgid "Include Quotes"
-msgstr "Inclure les devis"
-
-#: templates/search_jobs_quotes.html:105
-msgid "Type"
-msgstr "Type"
-
-#: templates/search_jobs_quotes.html:106
-msgid "Title"
-msgstr "Titre"
-
-#: templates/search_jobs_quotes.html:108
-msgid "Tradesman"
-msgstr "Artisan"
-
-#: templates/search_jobs_quotes.html:109
-msgid "Status"
-msgstr "Statut"
-
-#: templates/search_jobs_quotes.html:110
-msgid "Cost/Quote"
-msgstr "Coût/Devis"
-
-#: templates/search_jobs_quotes.html:130
-msgid "No jobs or quotes found matching your search criteria."
-msgstr "Aucun travail ou devis trouvé correspondant à vos critères de recherche."
-
-#: templates/search_jobs_quotes.html:134
-msgid "Search for jobs and quotes by keywords in the title."
-msgstr "Recherchez des travaux et devis par mots-clés dans le titre."
-
-#: templates/search_jobs_quotes.html:135
-msgid "You can filter by trade type, minimum rating, and choose to include jobs, quotes, or both."
-msgstr "Vous pouvez filtrer par type de métier, note minimale, et choisir d'inclure les travaux, devis, ou les deux."
-
 #: Trade types
 msgid "Electrician"
 msgstr "Électricien"
@@ -1148,3 +1092,64 @@ msgstr "Inclure les travaux"
 msgid "Include Quotes"
 msgstr "Inclure les devis"
 
+#: templates/view_group.html
+msgid "Creator:"
+msgstr "Créateur :"
+
+msgid "Created on:"
+msgstr "Créé le :"
+
+msgid "Members:"
+msgstr "Membres :"
+
+msgid "Tradesmen:"
+msgstr "Artisans :"
+
+msgid "Group Management"
+msgstr "Gestion du groupe"
+
+msgid "View Invitations"
+msgstr "Voir les invitations"
+
+msgid "Pending Requests"
+msgstr "Demandes en attente"
+
+msgid "Group Members:"
+msgstr "Membres du groupe :"
+
+msgid "No members in this group yet."
+msgstr "Aucun membre dans ce groupe pour le moment."
+
+msgid "Tradesmen in this group:"
+msgstr "Artisans dans ce groupe :"
+
+msgid "No tradesmen in this group yet."
+msgstr "Aucun artisan dans ce groupe pour le moment."
+
+msgid "Add My Tradesman"
+msgstr "Ajouter mon artisan"
+
+msgid "You are not a member of this group."
+msgstr "Vous n'êtes pas membre de ce groupe."
+
+msgid "Request Pending"
+msgstr "Demande en attente"
+
+msgid "Join Group"
+msgstr "Rejoindre le groupe"
+
+msgid "Pending Join Requests:"
+msgstr "Demandes d'adhésion en attente :"
+
+msgid "Accept"
+msgstr "Accepter"
+
+msgid "Reject"
+msgstr "Rejeter"
+
+#: templates/send_invitation.html
+msgid "Enter the email address of the person you want to invite"
+msgstr "Entrez l'adresse email de la personne que vous voulez inviter"
+
+msgid "An invitation email will be sent to this address. The recipient will be able to join the group by clicking the link in the email."
+msgstr "Un email d'invitation sera envoyé à cette adresse. Le destinataire pourra rejoindre le groupe en cliquant sur le lien dans l'email."
