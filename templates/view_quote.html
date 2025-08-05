@@ -133,7 +133,7 @@
         {% if quote.status == 'pending' %}
         <form action="{{ url_for('jobs.convert_quote_to_job', quote_id=quote.id) }}" method="post" class="d-inline">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="btn btn-success">
+                                <button type="submit" class="btn" style="background-color: #475569; color: white; border-color: #475569;">
                 <i class="fas fa-check"></i> {{ _('Accept Quote') }}
             </button>
         </form>

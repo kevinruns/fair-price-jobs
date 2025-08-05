@@ -5,10 +5,78 @@
     Home
 {% endblock %}
 
+{% block extra_head %}
+<style>
+    body.index-page {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+    }
+    body.index-page main {
+        background: transparent !important;
+    }
+    body.index-page .navbar {
+        background: rgba(255, 255, 255, 0.9) !important;
+        backdrop-filter: blur(10px);
+    }
+    body.index-page .alert {
+        background: rgba(255, 255, 255, 0.9) !important;
+        backdrop-filter: blur(10px);
+    }
+    body.index-page footer {
+        background: transparent !important;
+        color: #6c757d;
+        margin: 2rem auto;
+        max-width: 1200px;
+        padding: 1rem;
+    }
+    
+    /* Custom Table Row Styling */
+    .table tbody tr:nth-child(even) {
+        background-color: #ffffff !important;
+    }
+    
+    .table tbody tr:nth-child(odd) {
+        background-color: #f5f5f5 !important;
+    }
+    
+    .table tbody tr:hover {
+        background-color: #e5f1ff !important;
+        transition: background-color 0.2s ease;
+    }
+    
+    /* Increase font sizes in cards */
+    .card .table {
+        font-size: 16px;
+    }
+    
+    .card .table th {
+        font-size: 16px;
+        font-weight: 600;
+        border-bottom: none;
+    }
+    
+    .card .table td {
+        font-size: 16px;
+    }
+    
+    .card .badge {
+        font-size: 14px;
+    }
+    
+    .card .text-decoration-none {
+        font-size: 16px;
+    }
+    
+
+</style>
+{% endblock %}
+
 {% block main %}
     <div class="container">
         <!-- Top Rated Tradesmen Section -->
-        <div class="border border-3 rounded-3 p-3 mb-4">
+        <div class="card mb-5" style="margin-bottom: 3rem !important; background: #f9fafb; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px;">
             {{ section_header(
                 _("Top Rated Tradesmen"),
                 url_for('search.search_tradesmen'),
@@ -41,7 +109,7 @@
                                     <td>{{ tradesman.company_name or _("N/A") }}</td>
                                     <td>{{ tradesman.trade }}</td>
                                     <td>{{ rating_badge(tradesman.rating) }}</td>
-                                    <td><span class="badge bg-info">{{ tradesman.job_count }}</span></td>
+                                    <td><span class="badge bg-success">{{ tradesman.job_count }}</span></td>
                                     <td><span class="badge bg-warning">{{ tradesman.quote_count }}</span></td>
                                     <td>
                                         <a href="{{ url_for('profile.user_profile', user_id=tradesman.added_by_user_id) }}" class="text-decoration-none">
@@ -57,12 +125,14 @@
                 {{ empty_state(_("No rated tradesmen found. Top-rated tradesmen will appear here when you or your group members add tradesmen and complete jobs with ratings.")) }}{% endif %}
         </div>
 
+        <hr style="border: none; height: 1px; background: #e2e8f0; margin: 32px 0;" />
+
         <!-- Recently Completed Jobs & Quotes Section -->
-        <div class="border border-3 rounded-3 p-3 mb-4">
+        <div class="card mb-5" style="margin-bottom: 3rem !important; background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px;">
             {{ section_header(
                 _("Recent Jobs & Quotes"),
                 url_for('search.search_jobs_quotes'),
-                url_for('search.search_tradesmen', message='To add a job, first select or create the tradesman'),
+                url_for('search.search_tradesmen'),
                 _("Add Job/Quote"),
                 _("Search Jobs & Quotes")
             ) }}{% if recent_jobs %}
@@ -114,8 +184,10 @@
                 {{ empty_state(_("No recently completed jobs found. Jobs will appear here when you or members of your groups complete work with tradesmen.")) }}{% endif %}
         </div>
 
+        <hr style="border: none; height: 1px; background: #e2e8f0; margin: 32px 0;" />
+
         <!-- My Groups Section -->
-        <div class="border border-3 rounded-3 p-3 mb-4">
+        <div class="card mb-5" style="margin-bottom: 3rem !important; background: #f3f4f6; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px;">
             {{ section_header(
                 _("My Groups"),
                 url_for('groups.search_groups'),
@@ -127,10 +199,10 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>{{ _("Group Name") }}</th>
-                                <th>{{ _("Postcode") }}</th>
-                                <th>{{ _("Members") }}</th>
-                                <th>{{ _("Votre Statut") }}</th>
+                                                                 <th>{{ _("Group Name") }}</th>
+                                 <th>{{ _("Postcode") }}</th>
+                                 <th>{{ _("Members") }}</th>
+                                 <th>{{ _("Your Status") }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -148,13 +220,11 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                </div>
-                <div class="text-center mt-3">
-                                            <a href="{{ url_for('groups.search_groups' ) }}" class="btn btn-outline-primary btn-sm">{{ _("View All Groups") }}</a>
-                </div>
-            {% else %}
-                {{ empty_state(_("You haven't joined any groups yet. Join or create groups to collaborate with others and share tradesmen recommendations.")) }}{% endif %}
+                                 </div>
+                         {% else %}
+                 {{ empty_state(_("You haven't joined any groups yet. Join or create groups to collaborate with others and share tradesmen recommendations.")) }}{% endif %}
+         </div>
         </div>
     </div>
-{% endblock %}
+ {% endblock %}
 

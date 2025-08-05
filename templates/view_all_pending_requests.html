@@ -39,7 +39,7 @@
                                             {% if request.group_id in admin_or_creator_group_ids %}
                                             <form action="{{ url_for('groups.handle_request', request_id=request.request_id, action='accept' ) }}" method="post" class="d-inline">
                                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                <button type="submit" class="btn btn-success btn-sm">
+                                                <button type="submit" class="btn btn-sm" style="background-color: #475569; color: white; border-color: #475569;">
                                                     <i class="fas fa-check"></i> Accept
                                                 </button>
                                             </form>

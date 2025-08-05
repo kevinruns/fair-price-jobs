@@ -8,13 +8,25 @@
 {% block main %}
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>{{ _('Search Jobs & Quotes' ) }}</h1>
-            <a href="{{ url_for('search.search_tradesmen', message=_('To add a new job or quote, you first must select the tradesman responsible.<br>If the tradesman is not in the database, please add.') ) }}" class="btn btn-success">
+            <div>
+                {% if filtered_user %}
+                    <h1>{{ filtered_user.firstname }}'s Jobs and Quotes</h1>
+                {% else %}
+                    <h1>{{ _('Search Jobs & Quotes' ) }}</h1>
+                {% endif %}
+            </div>
+            {% if not filtered_user %}
+            <a href="{{ url_for('search.search_tradesmen', message=_('To add a new job or quote, you first must select the tradesman responsible.<br>If the tradesman is not in the database, please add.') ) }}" class="btn" style="background-color: #475569; color: white; border-color: #475569;">
                 <i class="fas fa-plus"></i> {{ _('Add Job/Quote') }}
             </a>
+            {% endif %}
         </div>
         
+        {% if show_search_form %}
         <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0 fw-bold">{{ _('Search Jobs & Quotes') }}</h5>
+            </div>
             <div class="card-body">
                 <form method="post" class="row g-3">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -97,6 +109,7 @@
                 </form>
             </div>
         </div>
+        {% endif %}
 
         {% if results %}
             <div class="table-responsive">
@@ -110,7 +123,9 @@
                             <th>{{ _('Status' ) }}</th>
                             <th>{{ _('Cost/Quote' ) }}</th>
                             <th>{{ _('Rating' ) }}</th>
+                            {% if not filtered_user %}
                             <th>{{ _('Added By' ) }}</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody>
@@ -149,11 +164,13 @@
                                     {% endif %}
                                 </td>
                                 <td>{{ rating_badge(result.rating) }}</td>
+                                {% if not filtered_user %}
                                 <td>
                                     <a href="{{ url_for('profile.user_profile', user_id=result.added_by_user_id) }}" class="text-decoration-none">
                                         <span class="text-info">{{ result.added_by_username }}</span>
                                     </a>
                                 </td>
+                                {% endif %}
                             </tr>
                         {% endfor %}
                     </tbody>

@@ -73,7 +73,64 @@ def search_jobs_quotes() -> str:
     include_jobs = 'on'
     include_quotes = 'on'
     
-    if request.method == 'POST':
+    # Check for query parameters (GET request)
+    added_by_user = request.args.get('added_by_user', '')
+    filtered_user = None
+    show_search_form = True
+    if added_by_user:
+        selected_user = added_by_user
+        show_search_form = False
+        # Get user information for display
+        from app.services.user_service import UserService
+        user_service = UserService()
+        
+        # Try to get user by ID first, then by username
+        try:
+            user_id = int(added_by_user)
+            filtered_user = user_service.get_user_by_id(user_id)
+        except ValueError:
+            # If not a number, treat as username
+            filtered_user = user_service.get_user_by_username(added_by_user)
+        
+        # Search for jobs and quotes by this user
+        # Get jobs by this user using the correct method
+        try:
+            user_id = int(added_by_user)
+            jobs = job_service.get_jobs_by_user(user_id)
+        except ValueError:
+            # If not a number, get user by username first
+            user_service = UserService()
+            user = user_service.get_user_by_username(added_by_user)
+            if user:
+                jobs = job_service.get_jobs_by_user(user['id'])
+            else:
+                jobs = []
+        
+        for job in jobs:
+            job['type'] = 'job'
+            combined_results.append(job)
+        
+        # Get quotes by this user using the correct method
+        try:
+            user_id = int(added_by_user)
+            quotes = job_service.get_quotes_by_user(user_id)
+        except ValueError:
+            # If not a number, get user by username first
+            user_service = UserService()
+            user = user_service.get_user_by_username(added_by_user)
+            if user:
+                quotes = job_service.get_quotes_by_user(user['id'])
+            else:
+                quotes = []
+        
+        for quote in quotes:
+            quote['type'] = 'quote'
+            combined_results.append(quote)
+        
+        # Sort combined results by date (most recent first)
+        combined_results.sort(key=lambda x: x.get('date_finished') or x.get('date_requested') or '', reverse=True)
+    
+    elif request.method == 'POST':
         search_term = request.form.get('search_term', '')
         trade = request.form.get('trade', '')
         rating = request.form.get('rating', '')
@@ -121,7 +178,9 @@ def search_jobs_quotes() -> str:
                          selected_user=selected_user,
                          selected_group=selected_group,
                          include_jobs=include_jobs,
-                         include_quotes=include_quotes)
+                         include_quotes=include_quotes,
+                         filtered_user=filtered_user,
+                         show_search_form=show_search_form)
 
 @search_bp.route('/search_groups', methods=['GET', 'POST'])
 @login_required

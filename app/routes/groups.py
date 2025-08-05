@@ -54,6 +54,9 @@ def view_group(group_id: int) -> Union[str, Response]:
     member_count: int = len(members) if members else 0
     tradesmen_count: int = len(tradesmen) if tradesmen else 0
     job_count: int = group_service.get_group_job_count(group_id)
+    
+    # Fetch recent jobs and quotes for tradesmen in this group
+    group_jobs_quotes: List[Dict[str, Any]] = group_service.get_group_jobs_and_quotes(group_id, limit=10)
 
     # Fetch pending requests if admin or creator
     pending_requests: List[Dict[str, Any]] = []
@@ -77,7 +80,7 @@ def view_group(group_id: int) -> Union[str, Response]:
             return redirect(url_for('groups.view_group', group_id=group_id))
         except Exception as e:
             flash(f'An error occurred: {str(e)}', 'error')
-    return render_template('view_group.html', group=group, members=members, tradesmen=tradesmen, creator=creator, member_count=member_count, tradesmen_count=tradesmen_count, job_count=job_count, is_member=is_member, is_admin_or_creator=is_admin_or_creator, pending_requests_count=pending_requests_count, pending_requests=pending_requests, pending_request=pending_request)
+    return render_template('view_group.html', group=group, members=members, tradesmen=tradesmen, creator=creator, member_count=member_count, tradesmen_count=tradesmen_count, job_count=job_count, group_jobs_quotes=group_jobs_quotes, is_member=is_member, is_admin_or_creator=is_admin_or_creator, pending_requests_count=pending_requests_count, pending_requests=pending_requests, pending_request=pending_request)
 
 @groups_bp.route('/search_groups', methods=['GET', 'POST'])
 @login_required

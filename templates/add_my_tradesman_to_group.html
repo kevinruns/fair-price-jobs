@@ -43,7 +43,7 @@
                                             <td>{{ tradesman.postcode }}</td>
                                             <td>
                                                 {% if tradesman.in_group %}
-                                                    <span class="badge bg-success">{{ _('Already in Group') }}</span>
+                                                    <span class="badge" style="background-color: #475569;">{{ _('Already in Group') }}</span>
                                                 {% else %}
                                                     <form method="post" style="display: inline;">
                                                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

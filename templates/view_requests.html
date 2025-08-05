@@ -41,7 +41,7 @@
                                 <td>{{ request.email }}</td>
                                 <td>
                                     <div class="d-flex align-items-center justify-content-center gap-4">
-                                        <button type="button" class="btn btn-success btn-sm" onclick="handleRequest('{{ request.id }}', 'accept')">{{ _('Accept' ) }}</button>
+                                        <button type="button" class="btn btn-sm" style="background-color: #475569; color: white; border-color: #475569;" onclick="handleRequest('{{ request.id }}', 'accept')">{{ _('Accept' ) }}</button>
                                         <button type="button" class="btn btn-danger btn-sm" onclick="handleRequest('{{ request.id }}', 'reject')">{{ _('Reject' ) }}</button>
                                     </div>
                                 </td>

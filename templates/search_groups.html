@@ -65,7 +65,7 @@
                                         <td>{{ group['member_count'] }}</td>
                                         <td>
                                             {% if group['status'] == 'member' %}
-                                                <span class="badge bg-success rounded-circle p-2">{{ _('Member' ) }}</span>
+                                                <span class="badge rounded-circle p-2" style="background-color: #475569;">{{ _('Member' ) }}</span>
                                             {% elif group['status'] == 'admin' %}
                                                 <span class="badge bg-primary rounded-circle p-2">{{ _('Admin' ) }}</span>
                                             {% elif group['status'] == 'creator' %}

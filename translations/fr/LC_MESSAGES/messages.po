@@ -492,6 +492,12 @@ msgstr ""
 msgid "Send Invitation"
 msgstr "Envoyer une invitation"
 
+msgid "Send New Invitation"
+msgstr "Envoyer une nouvelle invitation"
+
+msgid "Back to Group"
+msgstr "Retour au groupe"
+
 #: templates/send_invitation.html:17
 msgid "Invite someone to join:"
 msgstr "Inviter quelqu'un à rejoindre :"
@@ -552,28 +558,28 @@ msgstr ""
 
 #: templates/view_invitations.html:13
 msgid "Pending Invitations"
-msgstr ""
+msgstr "Invitations en attente"
 
 #: templates/view_invitations.html:20
 #, fuzzy
 msgid "Group:"
-msgstr "Mes groupes"
+msgstr "Groupe :"
 
 #: templates/view_invitations.html:32
 msgid "Invited By"
-msgstr ""
+msgstr "Invité par"
 
 #: templates/view_invitations.html:33
 msgid "Sent On"
-msgstr ""
+msgstr "Envoyé le"
 
 #: templates/view_invitations.html:34
 msgid "Expires On"
-msgstr ""
+msgstr "Expire le"
 
 #: templates/view_invitations.html:60
 msgid "No pending invitations for this group."
-msgstr ""
+msgstr "Aucune invitation en attente pour ce groupe."
 
 #: templates/view_job.html:18 templates/view_quote.html:18
 msgid "Added by"
@@ -1068,6 +1074,9 @@ msgstr "le"
 msgid "Unknown date"
 msgstr "Date inconnue"
 
+msgid "Unknown"
+msgstr "Inconnu"
+
 msgid "N/A"
 msgstr "N/A"
 
@@ -1171,3 +1180,6 @@ msgstr "Entrez l'adresse email de la personne que vous voulez inviter"
 
 msgid "An invitation email will be sent to this address. The recipient will be able to join the group by clicking the link in the email."
 msgstr "Un email d'invitation sera envoyé à cette adresse. Le destinataire pourra rejoindre le groupe en cliquant sur le lien dans l'email."
+
+msgid "Are you sure you want to cancel this invitation?"
+msgstr "Êtes-vous sûr de vouloir annuler cette invitation ?"

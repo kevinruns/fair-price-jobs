@@ -1,14 +1,14 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    {{ user.firstname }}'s Tradesmen
+    {{ user.username }}'s Tradesmen
 {% endblock %}
 
 {% block main %}
     <div class="container">
         <div class="row mb-4">
             <div class="col">
-                <h2>{{ user.firstname }} {{ user.lastname }}'s Tradesmen</h2>
+                <h2>{{ user.username }}'s Tradesmen</h2>
                 <p class="text-muted">Username: {{ user.username }}</p>
             </div>
         </div>

@@ -56,7 +56,7 @@ def rate_limit(limit: int = 5, window: int = 300) -> Callable:  # 5 attempts per
     return decorator
 
 @auth_bp.route("/login", methods=["GET", "POST"])
-@rate_limit() # Apply rate limiting to the login route
+# @rate_limit() # Disabled rate limiting
 def login() -> Response:
     """Log user in"""
     # Forget any user_id

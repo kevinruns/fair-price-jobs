@@ -106,7 +106,7 @@
 
 <div class="d-flex justify-content-center align-items-center mt-5 mb-4">
                     <a href="{{ url_for('jobs.add_job', tradesman_id=tradesman.id) }}" class="btn btn-primary me-2">{{ _('Add New Job' ) }}</a>
-                    <a href="{{ url_for('jobs.add_quote', tradesman_id=tradesman.id) }}" class="btn btn-success me-2">{{ _('Add New Quote' ) }}</a>
+                    <a href="{{ url_for('jobs.add_quote', tradesman_id=tradesman.id) }}" class="btn me-2" style="background-color: #475569; color: white; border-color: #475569;">{{ _('Add New Quote' ) }}</a>
     {% if can_edit %}
         <a href="{{ url_for('tradesmen.edit_tradesman', tradesman_id=tradesman.id) }}" class="btn btn-secondary">{{ _('Edit Tradesman' ) }}</a>
     {% endif %}

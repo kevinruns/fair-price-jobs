@@ -44,14 +44,20 @@ def user_profile(user_id: int) -> Union[str, Response]:
     # Get user statistics
     user_groups = group_service.get_user_groups(user_id)
     user_tradesmen = tradesman_service.get_tradesmen_by_user(user_id)
+    user_jobs = job_service.get_jobs_by_user(user_id)
+    user_quotes = job_service.get_quotes_by_user(user_id)
     
     tradesmen_count = len(user_tradesmen)
     groups_count = len([g for g in user_groups if g['status'] != 'pending'])
+    jobs_count = len(user_jobs)
+    quotes_count = len(user_quotes)
 
     return render_template("user_profile.html", 
                          user=user,
                          tradesmen_count=tradesmen_count,
-                         groups_count=groups_count)
+                         groups_count=groups_count,
+                         jobs_count=jobs_count,
+                         quotes_count=quotes_count)
 
 @profile_bp.route("/edit_profile", methods=["GET", "POST"])
 @login_required

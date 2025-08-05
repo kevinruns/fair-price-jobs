@@ -203,6 +203,32 @@ class GroupService:
         result = self.db.execute_single_query(query, (group_id,))
         return result['count'] if result else 0
     
+    def get_group_jobs_and_quotes(self, group_id: int, limit: int = 10) -> List[Dict[str, Any]]:
+        """Get recent jobs and quotes for tradesmen in this group."""
+        query = """
+            SELECT j.*, 
+                   CASE 
+                       WHEN t.first_name IS NOT NULL THEN t.first_name || ' ' || t.family_name
+                       ELSE t.family_name
+                   END as tradesman_name,
+                   t.first_name, t.family_name, t.company_name, t.trade,
+                   u.username as added_by_username,
+                   u.id as added_by_user_id
+            FROM jobs j
+            JOIN tradesmen t ON j.tradesman_id = t.id
+            JOIN users u ON j.user_id = u.id
+            JOIN group_tradesmen gt ON t.id = gt.tradesman_id
+            WHERE gt.group_id = ?
+            ORDER BY 
+                CASE 
+                    WHEN j.date_finished IS NOT NULL THEN j.date_finished 
+                    WHEN j.date_received IS NOT NULL THEN j.date_received
+                    ELSE j.date_requested
+                END DESC
+            LIMIT ?
+        """
+        return self.db.execute_query(query, (group_id, limit))
+    
     def get_group_member_count(self, group_id: int) -> int:
         """Get the number of members in a group (excluding pending requests)."""
         query = """

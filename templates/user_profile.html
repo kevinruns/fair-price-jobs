@@ -58,6 +58,20 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="row mt-2">
+                                <div class="col-6">
+                                    <div class="text-center p-3 bg-light rounded">
+                                        <h3 class="text-info mb-1">{{ jobs_count }}</h3>
+                                        <p class="text-muted mb-0">{{ _('Jobs' ) }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center p-3 bg-light rounded">
+                                        <h3 class="text-warning mb-1">{{ quotes_count }}</h3>
+                                        <p class="text-muted mb-0">{{ _('Quotes' ) }}</p>
+                                    </div>
+                                </div>
+                            </div>
                             
                             <div class="mt-4">
                                 <h6 class="text-primary mb-2">{{ _('Quick Actions' ) }}</h6>
@@ -65,11 +79,8 @@
                                     <a href="{{ url_for('tradesmen.user_tradesmen', user_id=user.id) }}" class="btn btn-outline-primary btn-sm">
                                         <i class="fas fa-users"></i> View Tradesmen
                                     </a>
-                                    <a href="{{ url_for('tradesmen.add_tradesman' ) }}" class="btn btn-success">
-                                        <i class="fas fa-plus"></i> {{ _('Add Tradesman') }}
-                                    </a>
-                                    <a href="{{ url_for('groups.search_groups' ) }}" class="btn btn-outline-info btn-sm">
-                                        <i class="fas fa-search"></i> Search Groups
+                                    <a href="{{ url_for('search.search_jobs_quotes', added_by_user=user.id) }}" class="btn btn-outline-warning btn-sm">
+                                        <i class="fas fa-tasks"></i> View Quotes and Jobs
                                     </a>
                                 </div>
                             </div>

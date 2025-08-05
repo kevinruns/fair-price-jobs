@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% from "macros.html" import status_badge %}
+{% from "macros.html" import status_badge, job_type_badge, rating_badge, display_name, date_display %}
 
 {% block main %}
 {% if group %}
@@ -64,11 +64,128 @@
 
         {% if is_member %}
 
+            {% if tradesmen %}
+                <div class="card mb-5" style="margin-bottom: 3rem !important;">
+                    <div class="card-header" style="background-color: #635bff; color: white;">
+                        <h5 class="mb-0 fw-bold">{{ _('Tradesmen in this group') }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>{{ _('Trade') }}</th>
+                                    <th>{{ _('Name') }}</th>
+                                    <th>{{ _('Phone Number') }}</th>
+                                    <th>{{ _('Postcode') }}</th>
+                                    <th>{{ _('Email') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for trade, trade_group in tradesmen|groupby('trade') %}
+                                    {% for tradesman in trade_group %}
+                                        <tr>
+                                            <td><strong>{{ trade }}</strong></td>
+                                            <td><a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}">{{ tradesman.first_name }} {{ tradesman.family_name }}</a></td>
+                                            <td>{{ tradesman.phone_number }}</td>
+                                            <td>{{ tradesman.postcode }}</td>
+                                            <td>{{ tradesman.email }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        
+                        <div class="d-flex justify-content-center mt-3">
+                            <a href="{{ url_for('tradesmen.add_my_tradesman_to_group', group_id=group.id) }}" class="btn" style="background-color: #635bff; color: white; border-color: #635bff;">{{ _('Add My Tradesman') }}</a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card mb-5" style="margin-bottom: 3rem !important;">
+                    <div class="card-header" style="background-color: #635bff; color: white;">
+                        <h5 class="mb-0 fw-bold">{{ _('Tradesmen in this group') }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">{{ _('No tradesmen in this group yet.') }}</p>
+                        
+                        <div class="d-flex justify-content-center mt-3">
+                            <a href="{{ url_for('tradesmen.add_my_tradesman_to_group', group_id=group.id) }}" class="btn" style="background-color: #635bff; color: white; border-color: #635bff;">{{ _('Add My Tradesman') }}</a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Jobs & Quotes Section -->
+            {% if group_jobs_quotes %}
+                <div class="card mb-5" style="margin-bottom: 3rem !important;">
+                    <div class="card-header" style="background-color: #0a2540; color: white;">
+                        <h5 class="mb-0 fw-bold">{{ _('Recent Jobs & Quotes') }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>{{ _('Type') }}</th>
+                                        <th>{{ _('Title') }}</th>
+                                        <th>{{ _('Tradesman') }}</th>
+                                        <th>{{ _('Trade') }}</th>
+                                        <th>{{ _('Date') }}</th>
+                                        <th>{{ _('Cost/Quote') }}</th>
+                                        <th>{{ _('Rating') }}</th>
+                                        <th>{{ _('Added By') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for job in group_jobs_quotes %}
+                                        {% set job_url = url_for('jobs.view_job', job_id=job.id) if job.type == 'job' else url_for('jobs.view_quote', quote_id=job.id) %}
+                                        {% set cost_field = job.total_cost if job.type == 'job' else job.total_quote %}
+                                        {% set date_field = job.date_finished if job.type == 'job' else (job.date_received or job.date_requested) %}
+                                        
+                                        <tr>
+                                            <td>{{ job_type_badge(job.type) }}</td>
+                                            <td>
+                                                <a href="{{ job_url }}" class="text-decoration-none">
+                                                    <span class="fw-semibold text-primary">{{ job.title }}</span>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=job.tradesman_id) }}" class="text-decoration-none">
+                                                    {{ display_name(job.first_name, job.family_name, job.company_name) }}
+                                                </a>
+                                            </td>
+                                            <td>{{ job.trade }}</td>
+                                            <td>{{ date_display(date_field) }}</td>
+                                            <td>€{{ cost_field }}</td>
+                                            <td>{{ rating_badge(job.rating, show_none=true, none_text=_('No rating')) }}</td>
+                                            <td>
+                                                <a href="{{ url_for('profile.user_profile', user_id=job.added_by_user_id) }}" class="text-decoration-none">
+                                                    <span class="text-info">{{ job.added_by_username }}</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card mb-5" style="margin-bottom: 3rem !important;">
+                    <div class="card-header" style="background-color: #0a2540; color: white;">
+                        <h5 class="mb-0 fw-bold">{{ _('Recent Jobs & Quotes') }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">{{ _('No jobs or quotes found for tradesmen in this group yet.') }}</p>
+                    </div>
+                </div>
+            {% endif %}
+
             <!-- Group Members Section -->
             {% if members %}
-                <div class="card mb-5">
-                    <div class="card-header">
-                        <h5 class="mb-0">{{ _('Group Members') }}</h5>
+                <div class="card mb-5" style="margin-bottom: 3rem !important;">
+                    <div class="card-header" style="background-color: #f6f9fc; color: #0a2540;">
+                        <h5 class="mb-0 fw-bold">{{ _('Group Members') }}</h5>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped mb-0">
@@ -102,10 +219,10 @@
                         
                         {% if is_admin_or_creator %}
                         <div class="d-flex justify-content-center gap-2 mt-3">
-                            <a href="{{ url_for('groups.send_invitation', group_id=group['id']) }}" class="btn btn-success">
+                            <a href="{{ url_for('groups.send_invitation', group_id=group['id']) }}" class="btn" style="background-color: #f6f9fc; color: #0a2540; border-color: #0a2540;">
                                 <i class="fas fa-envelope"></i> {{ _('Send Invitation') }}
                             </a>
-                            <a href="{{ url_for('groups.view_invitations', group_id=group['id']) }}" class="btn btn-info">
+                            <a href="{{ url_for('groups.view_invitations', group_id=group['id']) }}" class="btn" style="background-color: #f6f9fc; color: #0a2540; border-color: #0a2540;">
                                 <i class="fas fa-list"></i> {{ _('View Invitations') }}
                             </a>
                         </div>
@@ -113,64 +230,19 @@
                     </div>
                 </div>
             {% else %}
-                <div class="card mb-5">
+                <div class="card mb-5" style="margin-bottom: 3rem !important;">
+                    <div class="card-header" style="background-color: #f6f9fc; color: #0a2540;">
+                        <h5 class="mb-0 fw-bold">{{ _('Group Members') }}</h5>
+                    </div>
                     <div class="card-body">
                         <p class="mb-0">{{ _('No members in this group yet.') }}</p>
                     </div>
                 </div>
             {% endif %}
 
-            {% if tradesmen %}
-                <div class="card mb-5">
-                    <div class="card-header">
-                        <h5 class="mb-0">{{ _('Tradesmen in this group') }}</h5>
-                    </div>
-                    <div class="card-body">
-                        <table class="table table-striped mb-0">
-                            <thead>
-                                <tr>
-                                    <th>{{ _('Trade') }}</th>
-                                    <th>{{ _('Name') }}</th>
-                                    <th>{{ _('Phone Number') }}</th>
-                                    <th>{{ _('Postcode') }}</th>
-                                    <th>{{ _('Email') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for trade, trade_group in tradesmen|groupby('trade') %}
-                                    {% for tradesman in trade_group %}
-                                        <tr>
-                                            <td><strong>{{ trade }}</strong></td>
-                                            <td><a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}">{{ tradesman.first_name }} {{ tradesman.family_name }}</a></td>
-                                            <td>{{ tradesman.phone_number }}</td>
-                                            <td>{{ tradesman.postcode }}</td>
-                                            <td>{{ tradesman.email }}</td>
-                                        </tr>
-                                    {% endfor %}
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                        
-                        <div class="d-flex justify-content-center mt-3">
-                            <a href="{{ url_for('tradesmen.add_my_tradesman_to_group', group_id=group.id) }}" class="btn btn-primary">{{ _('Add My Tradesman') }}</a>
-                        </div>
-                    </div>
-                </div>
-            {% else %}
-                <div class="card mb-5">
-                    <div class="card-body">
-                        <p class="mb-0">{{ _('No tradesmen in this group yet.') }}</p>
-                        
-                        <div class="d-flex justify-content-center mt-3">
-                            <a href="{{ url_for('tradesmen.add_my_tradesman_to_group', group_id=group.id) }}" class="btn btn-primary">{{ _('Add My Tradesman') }}</a>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
-
             {% if is_admin_or_creator %}
             <div class="d-flex justify-content-center mt-4">
-                <a href="{{ url_for('groups.edit_group', group_id=group.id) }}" class="btn btn-secondary">
+                <a href="{{ url_for('groups.edit_group', group_id=group.id) }}" class="btn" style="background-color: #f6f9fc; color: #0a2540; border-color: #0a2540;">
                     <i class="fas fa-edit"></i> {{ _('Edit Group') }}
                 </a>
             </div>
@@ -183,7 +255,7 @@
             {% else %}
                 <form action="{{ url_for('groups.view_group', group_id=group.id) }}" method="post">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <input type="submit" value="{{ _('Join Group') }}" class="btn btn-primary">
+                    <input type="submit" value="{{ _('Join Group') }}" class="btn" style="background-color: #635bff; color: white; border-color: #635bff;">
                 </form>
             {% endif %}
 
@@ -212,13 +284,13 @@
                             <div class="btn-group" role="group">
                                 <form action="{{ url_for('groups.handle_request', request_id=request.id, action='accept') }}" method="post" class="d-inline">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                    <button type="submit" class="btn btn-success btn-sm">
+                                    <button type="submit" class="btn btn-sm" style="background-color: #0a2540; color: white; border-color: #0a2540;">
                                         <i class="fas fa-check"></i> {{ _('Accept') }}
                                     </button>
                                 </form>
                                 <form action="{{ url_for('groups.handle_request', request_id=request.id, action='reject') }}" method="post" class="d-inline ms-1">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                    <button type="submit" class="btn btn-danger btn-sm">
+                                    <button type="submit" class="btn btn-sm" style="background-color: #f6f9fc; color: #0a2540; border-color: #0a2540;">
                                         <i class="fas fa-times"></i> {{ _('Reject') }}
                                     </button>
                                 </form>
