@@ -80,8 +80,6 @@ body.index-page footer {
 .table th.numeric,
 .table td.numeric {
     text-align: right !important;
-    font-family: 'Courier New', monospace;
-    font-weight: 500;
 }
 
 /* Center-align badge columns */

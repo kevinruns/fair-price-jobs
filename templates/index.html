@@ -95,7 +95,7 @@
                                  <th class="sortable-header" data-column="tradesman" data-type="text">{{ _("Tradesman") }}</th>
                                  <th class="sortable-header" data-column="trade" data-type="text">{{ _("Trade") }}</th>
                                  <th class="sortable-header" data-column="date" data-type="date">{{ _("Date") }}</th>
-                                 <th class="sortable-header" data-column="cost" data-type="number">{{ _("Cost/Quote") }}</th>
+                                                                   <th class="sortable-header" data-column="cost" data-type="number">{{ _("Price") }}</th>
                                  <th class="sortable-header" data-column="rating" data-type="number">{{ _("Rating") }}</th>
                                  <th class="sortable-header" data-column="added_by" data-type="text">{{ _("Added By") }}</th>
                             </tr>
@@ -121,7 +121,13 @@
                                             {{ display_name(job.first_name, job.family_name, job.company_name) }}</a>
                                     </td>
                                     <td data-column="trade">{{ job.trade }}</td>
-                                    <td data-column="date">{{ date_display(job.date_finished) }}</td>
+                                                                         <td data-column="date">
+                                         {% if job.type == 'job' %}
+                                             {{ date_display(job.date_finished) }}
+                                         {% else %}
+                                             {{ date_display(job.date_received, label="Date received") }}
+                                         {% endif %}
+                                     </td>
                                     <td data-column="cost" class="numeric">€{{ cost_field }}</td>
                                     <td data-column="rating">{{ rating_badge(job.rating) }}</td>
                                     <td data-column="added_by">

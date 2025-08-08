@@ -66,14 +66,15 @@
 {% endmacro %}
 
 {# Date display with formatting #}}
-{% macro date_display(date, format="%d/%m/%Y") %}
+{% macro date_display(date, format="%d/%m/%Y", label="") %}
     {% if date %}
         {% if date is string %}
-            {{ date }}
+            <span class="date-cell" data-date="{{ date }}" data-label="{{ label }}">{{ date }}</span>
         {% else %}
-            {{ date.strftime(format) }}{% endif %}
+            <span class="date-cell" data-date="{{ date.isoformat() }}" data-label="{{ label }}">{{ date.strftime(format) }}</span>
+        {% endif %}
     {% else %}
-        Not set
+        <span class="date-cell" data-date="" data-label="{{ label }}">Date pending</span>
     {% endif %}
 {% endmacro %}
 
