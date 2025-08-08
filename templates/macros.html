@@ -5,7 +5,9 @@
             {{ "%.1f"|format(rating) if rating is number else rating }}/5
         </span>
     {% elif show_none %}
-        <span class="badge bg-secondary">{{ none_text }}</span>
+        <span class="badge bg-light text-muted">
+            <i class="fas fa-star rating-icon"></i>No Rating
+        </span>
     {% endif %}
 {% endmacro %}
 
@@ -59,7 +61,7 @@
         'job': 'success',
         'quote': 'warning'
     } %}
-    <span class="badge bg-{{ type_colors.get(job_type, 'secondary' ) }}" style="min-width: 60px; text-align: center;">
+    <span class="badge bg-{{ type_colors.get(job_type, 'secondary' ) }}" style="min-width: 60px; width: 60px;">
         {{ job_type.title() }}</span>
 {% endmacro %}
 
