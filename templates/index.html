@@ -6,311 +6,8 @@
 {% endblock %}
 
 {% block extra_head %}
-<style>
-    body.index-page {
-        background-color: #f5f8ff;
-        background-image: 
-            linear-gradient(45deg, rgba(59, 130, 246, 0.05) 25%, transparent 25%, transparent 75%, rgba(59, 130, 246, 0.05) 75%),
-            linear-gradient(-45deg, rgba(99, 102, 241, 0.05) 25%, transparent 25%, transparent 75%, rgba(99, 102, 241, 0.05) 75%);
-        background-size: 60px 60px, 40px 40px;
-        background-position: 0 0, 30px 30px;
-        min-height: 100vh;
-        margin: 0;
-        padding: 0;
-    }
-    body.index-page main {
-        background: transparent !important;
-    }
-    body.index-page .navbar {
-        background: rgba(255, 255, 255, 0.9) !important;
-        backdrop-filter: blur(10px);
-    }
-    body.index-page .alert {
-        background: rgba(255, 255, 255, 0.9) !important;
-        backdrop-filter: blur(10px);
-    }
-    body.index-page footer {
-        background: transparent !important;
-        color: #6c757d;
-        margin: 2rem auto;
-        max-width: 1200px;
-        padding: 1rem;
-    }
     
-    /* Enhanced Section Title Styling */
-    .section-title {
-        font-size: 1.75rem !important;
-        font-weight: 700 !important;
-        color: #374151 !important;
-        margin-bottom: 20px !important;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        border-bottom: 3px solid #6b7280;
-        padding-bottom: 8px;
-    }
-    
-    /* Increased spacing between sections */
-    .section-card {
-        margin-bottom: 4rem !important;
-    }
-    
-    .section-divider {
-        border: none;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, #3b82f6, transparent);
-        margin: 48px 0;
-        opacity: 0.6;
-    }
-    
-    /* Enhanced Table Styling */
-    .table {
-        border-collapse: separate;
-        border-spacing: 0;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    
-    .table thead th {
-        background: transparent;
-        border-bottom: 2px solid #e2e8f0;
-        font-weight: 800;
-        color: #374151;
-        padding: 12px 16px;
-        font-size: 20px;
-    }
-    
-         /* Right-align numeric columns */
-     .table th.numeric,
-     .table td.numeric {
-         text-align: right !important;
-         font-family: 'Courier New', monospace;
-         font-weight: 500;
-     }
-     
-     /* Center-align badge columns */
-     .table td.numeric .badge {
-         text-align: center !important;
-         display: inline-block;
-         margin: 0 auto;
-     }
-     
-     /* Override right alignment for badge cells */
-     .table td.numeric:has(.badge) {
-         text-align: center !important;
-     }
-    
-    /* Enhanced row striping */
-    .table tbody tr:nth-child(even) {
-        background-color: #ffffff !important;
-    }
-    
-    .table tbody tr:nth-child(odd) {
-        background-color: #f8fafc !important;
-    }
-    
-         .table tbody tr:hover {
-         background-color: #e5f1ff !important;
-         transform: translateY(-1px);
-         box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
-         transition: all 0.2s ease;
-         cursor: pointer;
-     }
-     
-     /* Clickable row styling */
-     .table tbody tr.clickable {
-         cursor: pointer;
-         transition: all 0.2s ease;
-     }
-     
-     .table tbody tr.clickable:hover {
-         background-color: #e5f1ff !important;
-         transform: translateY(-1px);
-         box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
-     }
-    
-         .table tbody td {
-         padding: 12px 16px;
-         border-bottom: 1px solid #f1f5f9;
-         vertical-align: middle;
-         color: #1f2937;
-     }
-    
-    /* Enhanced rating display */
-    .rating-none {
-        color: #9ca3af;
-        font-style: italic;
-    }
-    
-    .rating-icon {
-        display: inline-block;
-        margin-right: 4px;
-        color: #9ca3af;
-    }
-    
-         /* Badge improvements */
-     .badge {
-         font-size: 12px;
-         padding: 6px 10px;
-         border-radius: 16px;
-         font-weight: 600;
-         min-width: 36px;
-         text-align: center;
-         display: inline-block;
-         box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-         letter-spacing: 0.3px;
-     }
-    
-    /* Increase font sizes in cards */
-    .card .table {
-        font-size: 16px;
-    }
-    
-    .card .table th {
-        font-size: 16px;
-        font-weight: 600;
-        border-bottom: none;
-    }
-    
-    .card .table td {
-        font-size: 16px;
-    }
-    
-         .card .text-decoration-none {
-         font-size: 16px;
-         color: #1f2937;
-     }
-    
-    /* Sortable table headers */
-    .sortable-header {
-        cursor: pointer;
-        user-select: none;
-        position: relative;
-        transition: background-color 0.2s ease;
-    }
-    
-    .sortable-header:hover {
-        background-color: #e2e8f0 !important;
-    }
-    
-    .sortable-header::after {
-        content: '↕';
-        position: absolute;
-        right: 8px;
-        color: #6c757d;
-        font-size: 12px;
-    }
-    
-    .sortable-header.sort-asc::after {
-        content: '↑';
-        color: #0d6efd;
-    }
-    
-    .sortable-header.sort-desc::after {
-        content: '↓';
-        color: #0d6efd;
-    }
-    
-
-    </style>
-    
-    <script>
-        // Table sorting functionality
-        function makeTableSortable(tableId) {
-            const table = document.getElementById(tableId);
-            if (!table) return;
-            
-            const headers = table.querySelectorAll('th.sortable-header');
-            let currentSort = {};
-            
-            headers.forEach(header => {
-                header.addEventListener('click', () => {
-                    const column = header.dataset.column;
-                    const type = header.dataset.type || 'text';
-                    
-                    // Toggle sort direction
-                    if (currentSort.column === column) {
-                        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-                    } else {
-                        currentSort.column = column;
-                        currentSort.direction = 'asc';
-                    }
-                    
-                    // Update header classes
-                    headers.forEach(h => {
-                        h.classList.remove('sort-asc', 'sort-desc');
-                    });
-                    header.classList.add(`sort-${currentSort.direction}`);
-                    
-                    // Sort the table
-                    sortTable(table, column, currentSort.direction, type);
-                });
-            });
-        }
-        
-        function sortTable(table, column, direction, type) {
-            const tbody = table.querySelector('tbody');
-            const rows = Array.from(tbody.querySelectorAll('tr'));
-            
-            rows.sort((a, b) => {
-                const aValue = getCellValue(a, column, type);
-                const bValue = getCellValue(b, column, type);
-                
-                if (type === 'number') {
-                    return direction === 'asc' ? aValue - bValue : bValue - aValue;
-                } else if (type === 'date') {
-                    return direction === 'asc' ? aValue - bValue : bValue - aValue;
-                } else {
-                    const comparison = aValue.localeCompare(bValue);
-                    return direction === 'asc' ? comparison : -comparison;
-                }
-            });
-            
-            // Reorder rows
-            rows.forEach(row => tbody.appendChild(row));
-        }
-        
-        function getCellValue(row, column, type) {
-            const cell = row.querySelector(`td[data-column="${column}"]`);
-            if (!cell) return '';
-            
-            let value = cell.textContent.trim();
-            
-            if (type === 'number') {
-                // Extract number from text (e.g., "€150" -> 150)
-                const match = value.match(/[\d,]+\.?\d*/);
-                return match ? parseFloat(match[0].replace(',', '')) : 0;
-            } else if (type === 'date') {
-                // Convert date string to timestamp
-                const date = new Date(value);
-                return isNaN(date.getTime()) ? 0 : date.getTime();
-            }
-            
-            return value;
-        }
-        
-                 // Initialize sorting when page loads
-         document.addEventListener('DOMContentLoaded', function() {
-             makeTableSortable('tradesmen-table');
-             makeTableSortable('jobs-table');
-             makeTableSortable('groups-table');
-             
-             // Handle clickable rows
-             document.querySelectorAll('tr.clickable').forEach(row => {
-                 row.addEventListener('click', function(e) {
-                     // Don't trigger if clicking on a link or button
-                     if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.closest('a') || e.target.closest('button')) {
-                         return;
-                     }
-                     
-                     // Get the URL from the first link in the row
-                     const firstLink = this.querySelector('a');
-                     if (firstLink) {
-                         window.location.href = firstLink.href;
-                     }
-                 });
-             });
-         });
-    </script>
-    {% endblock %}
+{% endblock %}
 
 {% block main %}
     <div class="container">
@@ -319,7 +16,7 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="section-title">{{ _("Top Rated Tradesmen") }}</h2>
                 <div>
-                                         <a href="{{ url_for('search.search_tradesmen') }}" class="btn btn-primary me-2" style="width: 200px; height: 36px; text-align: center; line-height: 20px; transition: all 0.2s ease; font-size: 16px;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.3)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
+                                         <a href="{{ url_for('search.search_tradesmen') }}" class="btn btn-primary me-2" style="width: 220px; height: 36px; text-align: center; line-height: 20px; transition: all 0.2s ease; font-size: 16px;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.3)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
                          <i class="fas fa-search"></i> {{ _("Search Tradesmen") }}
                      </a>
                      <a href="{{ url_for('tradesmen.add_tradesman') }}" class="btn btn-secondary" style="width: 36px; height: 36px; text-align: center; line-height: 28px; padding: 0; font-size: 20px; font-weight: bold; color: #1f2937;" title="{{ _('Add Tradesman') }}">
@@ -331,24 +28,30 @@
                     <table class="table table-striped" id="tradesmen-table">
                         <thead>
                             <tr>
-                                <th class="sortable-header" data-column="name" data-type="text">{{ _("Name") }}</th>
-                                <th class="sortable-header" data-column="company" data-type="text">{{ _("Company") }}</th>
-                                <th class="sortable-header" data-column="trade" data-type="text">{{ _("Trade") }}</th>
-                                <th class="sortable-header" data-column="rating" data-type="number">{{ _("Rating") }}</th>
-                                <th class="sortable-header" data-column="jobs" data-type="number">{{ _("Jobs") }}</th>
-                                <th class="sortable-header" data-column="quotes" data-type="number">{{ _("Quotes") }}</th>
-                                <th class="sortable-header" data-column="added_by" data-type="text">{{ _("Added By") }}</th>
+                                                                 <th class="sortable-header" data-column="avatar" data-type="text">{{ _("") }}</th>
+                                 <th class="sortable-header" data-column="name" data-type="text">{{ _("Name") }}</th>
+                                 <th class="sortable-header" data-column="company" data-type="text">{{ _("Company") }}</th>
+                                 <th class="sortable-header" data-column="trade" data-type="text">{{ _("Trade") }}</th>
+                                 <th class="sortable-header" data-column="rating" data-type="number">{{ _("Rating") }}</th>
+                                 <th class="sortable-header" data-column="jobs" data-type="number">{{ _("Jobs") }}</th>
+                                 <th class="sortable-header" data-column="quotes" data-type="number">{{ _("Quotes") }}</th>
+                                 <th class="sortable-header" data-column="added_by" data-type="text">{{ _("Added By") }}</th>
                             </tr>
                         </thead>
                         <tbody>
                                                          {% for tradesman in tradesmen %}
-                                 <tr class="clickable">
+                                                                  <tr class="clickable">
+                                     <td data-column="avatar" class="text-center">
+                                         <div class="avatar-circle">
+                                             <i class="fas fa-user-tie text-muted"></i>
+                                         </div>
+                                     </td>
                                      <td data-column="name">
-                                        <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}" class="text-decoration-none">
-                                            <span class="fw-semibold text-primary">
-                                                {{ tradesman.first_name }} {{ tradesman.family_name }}</span>
-                                        </a>
-                                    </td>
+                                         <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}" class="text-decoration-none">
+                                             <span class="fw-semibold text-primary">
+                                                 {{ tradesman.first_name }} {{ tradesman.family_name }}</span>
+                                         </a>
+                                     </td>
                                     <td data-column="company">{{ tradesman.company_name or _("N/A") }}</td>
                                     <td data-column="trade">{{ tradesman.trade }}</td>
                                     <td data-column="rating">{{ rating_badge(tradesman.rating) }}</td>
@@ -375,7 +78,7 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="section-title">{{ _("Recent Jobs and Quotes") }}</h2>
                 <div>
-                                         <a href="{{ url_for('search.search_jobs_quotes') }}" class="btn btn-primary me-2" style="width: 200px; height: 36px; text-align: center; line-height: 20px; transition: all 0.2s ease; font-size: 16px;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.3)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
+                                         <a href="{{ url_for('search.search_jobs_quotes') }}" class="btn btn-primary me-2" style="width: 240px; height: 36px; text-align: center; line-height: 20px; transition: all 0.2s ease; font-size: 16px;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.3)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
                          <i class="fas fa-search"></i> {{ _("Search Jobs and Quotes") }}
                      </a>
                      <a href="{{ url_for('search.search_tradesmen') }}" class="btn btn-secondary" style="width: 36px; height: 36px; text-align: center; line-height: 28px; padding: 0; font-size: 20px; font-weight: bold; color: #1f2937;" title="{{ _('Add Job/Quote') }}">
@@ -387,14 +90,14 @@
                     <table class="table table-striped" id="jobs-table">
                         <thead>
                             <tr>
-                                <th class="sortable-header" data-column="type" data-type="text">{{ _("Type") }}</th>
-                                <th class="sortable-header" data-column="title" data-type="text">{{ _("Title") }}</th>
-                                <th class="sortable-header" data-column="tradesman" data-type="text">{{ _("Tradesman") }}</th>
-                                <th class="sortable-header" data-column="trade" data-type="text">{{ _("Trade") }}</th>
-                                <th class="sortable-header" data-column="date" data-type="date">{{ _("Date") }}</th>
-                                <th class="sortable-header" data-column="cost" data-type="number">{{ _("Cost/Quote") }}</th>
-                                <th class="sortable-header" data-column="rating" data-type="number">{{ _("Rating") }}</th>
-                                <th class="sortable-header" data-column="added_by" data-type="text">{{ _("Added By") }}</th>
+                                                                 <th class="sortable-header" data-column="icon" data-type="text">{{ _("") }}</th>
+                                 <th class="sortable-header" data-column="title" data-type="text">{{ _("Title") }}</th>
+                                 <th class="sortable-header" data-column="tradesman" data-type="text">{{ _("Tradesman") }}</th>
+                                 <th class="sortable-header" data-column="trade" data-type="text">{{ _("Trade") }}</th>
+                                 <th class="sortable-header" data-column="date" data-type="date">{{ _("Date") }}</th>
+                                 <th class="sortable-header" data-column="cost" data-type="number">{{ _("Cost/Quote") }}</th>
+                                 <th class="sortable-header" data-column="rating" data-type="number">{{ _("Rating") }}</th>
+                                 <th class="sortable-header" data-column="added_by" data-type="text">{{ _("Added By") }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -402,8 +105,12 @@
                                  {% set job_url = url_for('jobs.view_job', job_id=job.id) if job.type == 'job' else url_for('jobs.view_quote', quote_id=job.id) %}
                                  {% set cost_field = job.total_cost if job.type == 'job' else job.total_quote %}
                                  
-                                 <tr class="clickable">
-                                    <td data-column="type">{{ job_type_badge(job.type) }}</td>
+                                                                   <tr class="clickable">
+                                     <td data-column="icon" class="text-center">
+                                         <div class="icon-circle" title="{% if job.type == 'job' %}{{ _('Completed Job') }}{% else %}{{ _('Quote') }}{% endif %}">
+                                             <i class="fas fa-{% if job.type == 'job' %}hammer{% else %}file-invoice{% endif %} text-muted"></i>
+                                         </div>
+                                     </td>
                                     <td data-column="title">
                                         <a href="{{ job_url }}" class="text-decoration-none">
                                             <span class="fw-semibold text-primary">{{ job.title }}</span>
@@ -438,7 +145,7 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="section-title">{{ _("My Groups") }}</h2>
                 <div>
-                                         <a href="{{ url_for('groups.search_groups') }}" class="btn btn-primary me-2" style="width: 200px; height: 36px; text-align: center; line-height: 20px; transition: all 0.2s ease; font-size: 16px;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.3)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
+                                         <a href="{{ url_for('groups.search_groups') }}" class="btn btn-primary me-2" style="width: 220px; height: 36px; text-align: center; line-height: 20px; transition: all 0.2s ease; font-size: 16px;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.3)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
                          <i class="fas fa-search"></i> {{ _("Find Group") }}
                      </a>
                      <a href="{{ url_for('groups.create_group') }}" class="btn btn-secondary" style="width: 36px; height: 36px; text-align: center; line-height: 28px; padding: 0; font-size: 20px; font-weight: bold; color: #1f2937;" title="{{ _('Create Group') }}">
@@ -450,20 +157,26 @@
                     <table class="table table-striped" id="groups-table">
                         <thead>
                             <tr>
-                                <th class="sortable-header" data-column="name" data-type="text">{{ _("Group Name") }}</th>
-                                <th class="sortable-header" data-column="postcode" data-type="text">{{ _("Postcode") }}</th>
-                                <th class="sortable-header" data-column="members" data-type="number">{{ _("Members") }}</th>
-                                <th class="sortable-header" data-column="status" data-type="text">{{ _("Your Status") }}</th>
+                                                                 <th class="sortable-header" data-column="icon" data-type="text">{{ _("") }}</th>
+                                 <th class="sortable-header" data-column="name" data-type="text">{{ _("Group Name") }}</th>
+                                 <th class="sortable-header" data-column="postcode" data-type="text">{{ _("Postcode") }}</th>
+                                 <th class="sortable-header" data-column="members" data-type="number">{{ _("Members") }}</th>
+                                 <th class="sortable-header" data-column="status" data-type="text">{{ _("Your Status") }}</th>
                             </tr>
                         </thead>
                         <tbody>
                                                          {% for group in my_groups %}
-                                 <tr class="clickable">
-                                    <td data-column="name">
-                                        <a href="{{ url_for('groups.view_group', group_id=group.id) }}" class="text-decoration-none">
-                                            <span class="fw-semibold text-primary">{{ group.name }}</span>
-                                        </a>
-                                    </td>
+                                                                  <tr class="clickable">
+                                     <td data-column="icon" class="text-center">
+                                         <div class="icon-circle" title="{{ _('Group') }}">
+                                             <i class="fas fa-users text-muted"></i>
+                                         </div>
+                                     </td>
+                                     <td data-column="name">
+                                         <a href="{{ url_for('groups.view_group', group_id=group.id) }}" class="text-decoration-none">
+                                             <span class="fw-semibold text-primary">{{ group.name }}</span>
+                                         </a>
+                                     </td>
                                     <td data-column="postcode">{{ group.postcode }}</td>
                                     <td data-column="members" class="numeric"><span class="badge bg-info">{{ group.member_count }}</span></td>
                                     <td data-column="status">{{ status_badge(group.status) }}</td>
