@@ -245,9 +245,7 @@ body footer {
 
 /* Footer enhancements */
 footer {
-    border-top: 1px solid #e5e7eb;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
+    background: transparent;
 }
 
 /* Avatar styling */

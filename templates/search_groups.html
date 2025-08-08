@@ -1,81 +1,88 @@
 {% extends "layout.html" %}
+{% from "macros.html" import status_badge %}
 
 {% block title %}{{ _('Search Groups') }}{% endblock %}
 
 {% block main %}
     <div class="container">
-        <!-- Header with Create Button -->
-        <div class="d-flex justify-content-end mb-4">
-            <a href="{{ url_for('groups.create_group' ) }}" class="btn btn-primary">
-                {{ _('Create Group') }}
-            </a>
-        </div>
-
-        <!-- Search Card -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-body">
-                <form action="{{ url_for('groups.search_groups' ) }}" method="post">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <div class="row justify-content-center">
-                        <div class="col-md-6"> <!-- Changed from col-md-8 to col-md-6 to make the search box narrower -->
-                            <div class="d-flex gap-2">
-                                <input type="text" class="form-control rounded-3" name="postcode" 
-                                       placeholder="{{ _('Enter Postcode') }}" value="{{ postcode }}">
-                                <button type="submit" class="btn btn-primary" style="width: 140px;">
-                                    <i class="bi bi-search me-1"></i>
-                                    {{ _('Search') }}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
+        <!-- Search Groups Card -->
+        <div class="card section-card" style="background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px; margin-bottom: 2rem;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="section-title">{{ _('Search Groups') }}</h2>
+                </div>
+                <div>
+                    <a href="{{ url_for('groups.create_group' ) }}" class="btn btn-secondary" style="width: 36px; height: 36px; text-align: center; line-height: 28px; padding: 0; font-size: 20px; font-weight: bold; color: #1f2937;" title="{{ _('Create Group') }}">
+                        +
+                    </a>
+                </div>
             </div>
+            
+            <form action="{{ url_for('groups.search_groups' ) }}" method="post" class="row g-3">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="col-md-6">
+                    <label for="postcode" class="form-label fw-bold">{{ _('Postcode' ) }}</label>
+                    <div class="d-flex gap-2">
+                        <input type="text" class="form-control" id="postcode" name="postcode" 
+                               placeholder="{{ _('Enter Postcode') }}" value="{{ postcode }}">
+                        <button type="submit" class="btn btn-primary">{{ _('Search' ) }}</button>
+                        <a href="{{ url_for('groups.search_groups' ) }}" class="btn btn-secondary">{{ _('Clear') }}</a>
+                    </div>
+                </div>
+            </form>
         </div>
 
-        {% if groups %}
-            <div class="card shadow-sm">
-                <div class="card-body">
+        {% if request.method == "POST" %}
+            {% if groups %}
+                <!-- Search Results Card -->
+                <div class="card section-card" style="background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px; margin-bottom: 2rem;">
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
+                        <table id="groups-search-table" class="table table-striped">
+                            <thead>
                                 <tr>
-                                    <th>{{ _('Group Name' ) }}</th>
-                                    <th>{{ _('Postcode' ) }}</th>
-                                    <th>{{ _('Description' ) }}</th>
-                                    <th>{{ _('Members' ) }}</th>
-                                    <th>{{ _('Status' ) }}</th>
+                                    <th class="sortable-header" data-column="icon" data-type="text">{{ _("") }}</th>
+                                    <th class="sortable-header" data-column="name" data-type="text">{{ _('Group Name' ) }}</th>
+                                    <th class="sortable-header" data-column="postcode" data-type="text">{{ _('Postcode' ) }}</th>
+                                    <th class="sortable-header" data-column="description" data-type="text">{{ _('Description' ) }}</th>
+                                    <th class="sortable-header numeric text-center" data-column="members" data-type="number">{{ _('Members' ) }}</th>
+                                    <th class="sortable-header" data-column="status" data-type="text">{{ _('Status' ) }}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for group in groups %}
-                                    <tr>
-                                        <td>
+                                    <tr class="clickable">
+                                        <td data-column="icon" class="text-center">
+                                            <div class="icon-circle" title="{{ _('Group') }}">
+                                                <i class="fas fa-users text-muted"></i>
+                                            </div>
+                                        </td>
+                                        <td data-column="name">
                                             <a href="{{ url_for('groups.view_group', group_id=group['id']) }}" class="text-decoration-none">
                                                 <span class="fw-semibold text-primary">{{ group['name'] }}</span>
                                             </a>
                                         </td>
-                                        <td>{{ group['postcode'] }}</td>
-                                        <td>
+                                        <td data-column="postcode">{{ group['postcode'] }}</td>
+                                        <td data-column="description">
                                             {% if group['description'] %}
                                                 <span class="text-muted small">{{ group['description'][:50] }}{% if group['description']|length > 50 %}...{% endif %}</span>
                                             {% else %}
                                                 <span class="text-muted small">{{ _('No description' ) }}</span>
                                             {% endif %}
                                         </td>
-                                        <td>{{ group['member_count'] }}</td>
-                                        <td>
+                                        <td data-column="members"><span class="badge bg-info">{{ group['member_count'] }}</span></td>
+                                        <td data-column="status">
                                             {% if group['status'] == 'member' %}
-                                                <span class="badge rounded-circle p-2" style="background-color: #475569;">{{ _('Member' ) }}</span>
+                                                <span class="badge bg-secondary">{{ _('Member' ) }}</span>
                                             {% elif group['status'] == 'admin' %}
-                                                <span class="badge bg-primary rounded-circle p-2">{{ _('Admin' ) }}</span>
+                                                <span class="badge bg-primary">{{ _('Admin' ) }}</span>
                                             {% elif group['status'] == 'creator' %}
-                                                <span class="badge bg-primary rounded-circle p-2">{{ _('Creator' ) }}</span>
+                                                <span class="badge bg-primary">{{ _('Creator' ) }}</span>
                                             {% elif group['status'] == 'pending' %}
-                                                <span class="badge bg-warning text-dark rounded-circle p-2">{{ _('Pending' ) }}</span>
+                                                <span class="badge bg-warning text-dark">{{ _('Pending' ) }}</span>
                                             {% elif group['status'] is none %}
                                                 <form action="{{ url_for('groups.view_group', group_id=group['id']) }}" method="post" class="d-inline">
                                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                    <button type="submit" class="btn btn-primary rounded-circle px-4">
+                                                    <button type="submit" class="btn btn-primary btn-sm">
                                                         {{ _('Join Group') }}
                                                     </button>
                                                 </form>
@@ -87,10 +94,15 @@
                         </table>
                     </div>
                 </div>
-            </div>
+            {% else %}
+                <div class="alert alert-info">
+                    {{ _('No groups found matching your search criteria.') }}
+                </div>
+            {% endif %}
         {% else %}
-            <div class="alert alert-info text-center">
-                <i class="bi bi-info-circle me-2"></i>{{ _('No groups found.') }}
+            <div class="text-center py-4">
+                <p class="text-muted">{{ _('Search for groups by postcode.' ) }}</p>
+                <p class="text-muted small">{{ _('You can join groups in your area to collaborate with others.' ) }}</p>
             </div>
         {% endif %}
     </div>
