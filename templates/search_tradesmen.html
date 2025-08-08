@@ -7,135 +7,130 @@
 
 {% block main %}
     <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>{{ _('Search Tradesmen' ) }}</h1>
-            <a href="{{ url_for('tradesmen.add_tradesman' ) }}" class="btn" style="background-color: #475569; color: white; border-color: #475569;">
-                <i class="fas fa-plus"></i> {{ _('Add Tradesman') }}
-            </a>
-        </div>
-        
-        {% if message %}
-            <div class="alert alert-info mb-4 fw-bold">
-                {{ message|safe }}
+        <!-- Search Tradesmen Card -->
+        <div class="card section-card" style="background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px; margin-bottom: 2rem;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="section-title">{{ _('Search Tradesmen') }}</h2>
+                </div>
+                <div>
+                    <a href="{{ url_for('tradesmen.add_tradesman' ) }}" class="btn btn-secondary" style="width: 36px; height: 36px; text-align: center; line-height: 28px; padding: 0; font-size: 20px; font-weight: bold; color: #1f2937;" title="{{ _('Add Tradesman') }}">
+                        +
+                    </a>
+                </div>
             </div>
-        {% endif %}
-        
-        <div class="card mb-4">
-            <div class="card-body">
-                <form method="post" class="row g-3">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <div class="col-md-3">
-                        <label for="search_term" class="form-label">{{ _('Search' ) }}</label>
-                        <input type="text" class="form-control" id="search_term" name="search_term" 
-                               value="{{ search_term }}" placeholder="{{ _('Name, email or phone') }}">
-                    </div>
-                    
-                    <div class="col-md-3">
-                        <label for="trade" class="form-label">{{ _('Trade' ) }}</label>
-                        <select class="form-select" id="trade" name="trade">
-                            <option value="">{{ _('All Trades') }}</option>
-                            {% for trade in trades %}
-                                <option value="{{ trade }}" {% if trade == selected_trade %}selected{% endif %}>
-                                    {{ trade }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-2">
-                        <label for="postcode" class="form-label">{{ _('Postcode' ) }}</label>
-                        <input type="text" class="form-control" id="postcode" name="postcode" 
-                               value="{{ postcode }}" placeholder="{{ _('Postcode') }}">
-                    </div>
-                    
-                    <div class="col-md-2">
-                        <label for="added_by_user" class="form-label">{{ _('Added By' ) }}</label>
-                        <select class="form-select" id="added_by_user" name="added_by_user">
-                            <option value="">{{ _('All Users') }}</option>
-                            {% for user in users %}
-                                <option value="{{ user.username }}" {% if user.username == selected_user %}selected{% endif %}>
-                                    {{ user.username }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-2">
-                        <label for="group" class="form-label">{{ _('Group') }}</label>
-                        <select class="form-select" id="group" name="group">
-                            <option value="">{{ _('All Groups') }}</option>
-                            {% for group in groups %}
-                                <option value="{{ group.name }}" {% if group.name == selected_group %}selected{% endif %}>
-                                    {{ group.name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-primary">{{ _('Search' ) }}</button>
-                        <a href="{{ url_for('search.search_tradesmen' ) }}" class="btn btn-secondary">{{ _('Clear') }}</a>
-                    </div>
-                </form>
-            </div>
+            
+            {% if message %}
+                <div class="alert alert-info mb-4 fw-bold">
+                    {{ message|safe }}
+                </div>
+            {% endif %}
+            
+            <form method="post" class="row g-3">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="col-md-3">
+                    <label for="search_term" class="form-label fw-bold">{{ _('Search' ) }}</label>
+                    <input type="text" class="form-control" id="search_term" name="search_term" 
+                           value="{{ search_term }}" placeholder="{{ _('Name, email or phone') }}">
+                </div>
+                
+                <div class="col-md-3">
+                    <label for="trade" class="form-label fw-bold">{{ _('Trade' ) }}</label>
+                    <select class="form-select" id="trade" name="trade">
+                        <option value="">{{ _('All Trades') }}</option>
+                        {% for trade in trades %}
+                            <option value="{{ trade }}" {% if trade == selected_trade %}selected{% endif %}>
+                                {{ trade }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-2">
+                    <label for="postcode" class="form-label fw-bold">{{ _('Postcode' ) }}</label>
+                    <input type="text" class="form-control" id="postcode" name="postcode" 
+                           value="{{ postcode }}" placeholder="{{ _('Postcode') }}">
+                </div>
+                
+                <div class="col-md-2">
+                    <label for="added_by_user" class="form-label fw-bold">{{ _('Added By' ) }}</label>
+                    <select class="form-select" id="added_by_user" name="added_by_user">
+                        <option value="">{{ _('All Users') }}</option>
+                        {% for user in users %}
+                            <option value="{{ user.username }}" {% if user.username == selected_user %}selected{% endif %}>
+                                {{ user.username }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-2">
+                    <label for="group" class="form-label fw-bold">{{ _('Group') }}</label>
+                    <select class="form-select" id="group" name="group">
+                        <option value="">{{ _('All Groups') }}</option>
+                        {% for group in groups %}
+                            <option value="{{ group.name }}" {% if group.name == selected_group %}selected{% endif %}>
+                                {{ group.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">{{ _('Search' ) }}</button>
+                    <a href="{{ url_for('search.search_tradesmen' ) }}" class="btn btn-secondary">{{ _('Clear') }}</a>
+                </div>
+            </form>
         </div>
 
         {% if tradesmen %}
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>{{ _('Name' ) }}</th>
-                            <th>{{ _('Company' ) }}</th>
-                            <th>{{ _('Trade' ) }}</th>
-                            <th>{{ _('Location' ) }}</th>
-                            <th>{{ _('Phone' ) }}</th>
-                            <th>{{ _('Email' ) }}</th>
-                            <th>{{ _('Jobs' ) }}</th>
-                            <th>{{ _('Quotes' ) }}</th>
-                            <th>{{ _('Added By' ) }}</th>
-                            <th>{{ _('Rating' ) }}</th>
-                            <th>{{ _('Actions' ) }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for tradesman in tradesmen %}
+            <!-- Search Results Card -->
+            <div class="card section-card" style="background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px; margin-bottom: 2rem;">
+                <div class="table-responsive">
+                    <table id="tradesmen-search-table" class="table table-striped">
+                        <thead>
                             <tr>
-                                <td>
-                                    <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}" class="text-decoration-none">
-                                        <span class="fw-semibold text-primary">
-                                            {{ tradesman.first_name }} {{ tradesman.family_name }}</span>
-                                    </a>
-                                </td>
-                                <td>{{ tradesman.company_name or _("N/A") }}</td>
-                                <td>{{ tradesman.trade }}</td>
-                                <td>{{ tradesman.postcode }}</td>
-                                <td>{{ tradesman.phone_number }}</td>
-                                <td>{{ tradesman.email }}</td>
-                                <td><span class="badge bg-info">{{ tradesman.job_count }}</span></td>
-                                <td><span class="badge bg-warning">{{ tradesman.quote_count }}</span></td>
-                                <td>
-                                    <a href="{{ url_for('profile.user_profile', user_id=tradesman.added_by_user_id) }}" class="text-decoration-none">
-                                        <span class="text-info">{{ tradesman.added_by_username }}</span>
-                                    </a>
-                                </td>
-                                <td>{{ rating_badge(tradesman.avg_rating, none_text=_('No Rating')) }}</td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        {% if tradesman.can_edit %}
-                                            <a href="{{ url_for('tradesmen.edit_tradesman', tradesman_id=tradesman.id) }}" class="btn btn-sm btn-outline-secondary">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                        {% endif %}
-                                    </div>
-                                </td>
+                                <th class="sortable-header" data-column="icon" data-type="text">{{ _("") }}</th>
+                                <th class="sortable-header" data-column="name" data-type="text">{{ _('Name' ) }}</th>
+                                <th class="sortable-header" data-column="company" data-type="text">{{ _('Company' ) }}</th>
+                                <th class="sortable-header" data-column="trade" data-type="text">{{ _('Trade' ) }}</th>
+                                                                 <th class="sortable-header" data-column="location" data-type="text">{{ _('Location' ) }}</th>
+                                                                  <th class="sortable-header numeric text-center" data-column="jobs" data-type="number">{{ _('Jobs' ) }}</th>
+                                 <th class="sortable-header numeric text-center" data-column="quotes" data-type="number">{{ _('Quotes' ) }}</th>
+                                                                 <th class="sortable-header" data-column="added_by" data-type="text">{{ _('Added By' ) }}</th>
+                                 <th class="sortable-header" data-column="rating" data-type="number">{{ _('Rating' ) }}</th>
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {% for tradesman in tradesmen %}
+                                <tr class="clickable">
+                                    <td data-column="icon" class="text-center">
+                                        <div class="avatar-circle" title="{{ _('Tradesman') }}">
+                                            <i class="fas fa-user text-muted"></i>
+                                        </div>
+                                    </td>
+                                    <td data-column="name">
+                                        <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}" class="text-decoration-none">
+                                            <span class="fw-semibold text-primary">
+                                                {{ tradesman.first_name }} {{ tradesman.family_name }}</span>
+                                        </a>
+                                    </td>
+                                    <td data-column="company">{{ tradesman.company_name or _("N/A") }}</td>
+                                    <td data-column="trade">{{ tradesman.trade }}</td>
+                                                                         <td data-column="location">{{ tradesman.postcode }}</td>
+                                                                          <td data-column="jobs"><span class="badge bg-info">{{ tradesman.job_count }}</span></td>
+                                     <td data-column="quotes"><span class="badge bg-warning">{{ tradesman.quote_count }}</span></td>
+                                    <td data-column="added_by">
+                                        <a href="{{ url_for('profile.user_profile', user_id=tradesman.added_by_user_id) }}" class="text-decoration-none">
+                                            <span class="text-info">{{ tradesman.added_by_username }}</span>
+                                        </a>
+                                    </td>
+                                                                         <td data-column="rating">{{ rating_badge(tradesman.avg_rating, none_text=_('No Rating')) }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         {% elif request.method == "POST" %}
             <div class="alert alert-info">

@@ -55,8 +55,8 @@
                                     <td data-column="company">{{ tradesman.company_name or _("N/A") }}</td>
                                     <td data-column="trade">{{ tradesman.trade }}</td>
                                     <td data-column="rating">{{ rating_badge(tradesman.rating) }}</td>
-                                    <td data-column="jobs" class="numeric"><span class="badge bg-success">{{ tradesman.job_count }}</span></td>
-                                    <td data-column="quotes" class="numeric"><span class="badge bg-warning">{{ tradesman.quote_count }}</span></td>
+                                    <td data-column="jobs"><span class="badge bg-success">{{ tradesman.job_count }}</span></td>
+                                    <td data-column="quotes"><span class="badge bg-warning">{{ tradesman.quote_count }}</span></td>
                                     <td data-column="added_by">
                                         <a href="{{ url_for('profile.user_profile', user_id=tradesman.added_by_user_id) }}" class="text-decoration-none">
                                             <span class="text-info">{{ tradesman.added_by_username }}</span>
@@ -184,7 +184,7 @@
                                          </a>
                                      </td>
                                     <td data-column="postcode">{{ group.postcode }}</td>
-                                    <td data-column="members" class="numeric"><span class="badge bg-info">{{ group.member_count }}</span></td>
+                                    <td data-column="members"><span class="badge bg-info">{{ group.member_count }}</span></td>
                                     <td data-column="status">{{ status_badge(group.status) }}</td>
                                 </tr>
                             {% endfor %}

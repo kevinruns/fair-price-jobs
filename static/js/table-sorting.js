@@ -104,6 +104,8 @@ document.addEventListener('DOMContentLoaded', function() {
     makeTableSortable('tradesmen-table');
     makeTableSortable('jobs-table');
     makeTableSortable('groups-table');
+    makeTableSortable('jobs-search-table');
+    makeTableSortable('tradesmen-search-table');
 
     // Initialize clickable rows
     initializeClickableRows();
@@ -129,13 +131,11 @@ function formatAllDateCells() {
 // Format all numeric cells on the page
 function formatAllNumericCells() {
     document.querySelectorAll('td.numeric').forEach(cell => {
-        // Skip cells that contain badges
-        if (cell.querySelector('.badge')) return;
-        
         const text = cell.textContent.trim();
         // Check if it's a currency value (starts with €)
         if (text.startsWith('€')) {
             const number = text.substring(1); // Remove € symbol
+            // Add thousand separators for euro values
             const formattedNumber = formatNumber(number);
             cell.textContent = `€${formattedNumber}`;
         } else if (/^\d+$/.test(text)) {
