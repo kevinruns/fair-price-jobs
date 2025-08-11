@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block main %}
-
+<div class="container">
 <div class="row align-items-center">
     <div class="col-md-6 d-flex flex-column justify-content-end">
         <h2 class="text-primary fw-bold mb-3">
@@ -39,77 +39,106 @@
 <div class="mb-5"></div>
 
 
-{% if jobs %}
-    <h3 class="mb-3">{{ _('Jobs' ) }}</h3>
-        <table class="table table-striped">
-        <thead>
-            <tr>
-                <th style="width: 40%;">{{ _('Job' ) }}</th>
-                <th style="width: 20%;">{{ _('Finished' ) }}</th>
-                <th style="width: 20%;">{{ _('Total Cost' ) }}</th>
-                <th style="width: 20%;">{{ _('Rating' ) }}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for job in jobs %}
-                <tr>
-                                                <td>
+<!-- Jobs Card -->
+<div class="card section-card" style="background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px; margin-bottom: 2rem;">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div>
+            <h2 class="section-title">{{ _('Jobs') }}</h2>
+        </div>
+        <div>
+            <a href="{{ url_for('jobs.add_job', tradesman_id=tradesman.id) }}" class="btn btn-secondary" style="width: 36px; height: 36px; text-align: center; line-height: 28px; padding: 0; font-size: 20px; font-weight: bold; color: #1f2937;" title="{{ _('Add New Job') }}">
+                +
+            </a>
+        </div>
+    </div>
+    
+    {% if jobs %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">{{ _('Job') }}</th>
+                        <th style="width: 20%;">{{ _('Finished') }}</th>
+                        <th style="width: 20%;">{{ _('Total Cost') }}</th>
+                        <th style="width: 20%;">{{ _('Rating') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in jobs %}
+                        <tr>
+                            <td>
                                 <a href="{{ url_for('jobs.view_job', job_id=job.id) }}" class="text-decoration-none">
-                                    {{ job.title }}
+                                    <span class="fw-semibold text-primary">{{ job.title }}</span>
                                 </a>
                             </td>
                             <td>{{ job.date_finished if job.date_finished else _('N/A') }}</td>
-                    <td>€{{ job.total_cost if job.total_cost else _('N/A') }}</td>
-                                                <td>{% if job.rating %}{{ job.rating }}/5{% else %}{{ _('None') }}{% endif %}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-{% else %}
-    <p>{{ _('No jobs entered yet for this tradesman.' ) }}</p>
-{% endif %}
+                            <td>€{{ "{:,}".format(job.total_cost) if job.total_cost else _('N/A') }}</td>
+                            <td>{% if job.rating %}{{ job.rating }}/5{% else %}{{ _('None') }}{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted text-center py-4">{{ _('No jobs entered yet for this tradesman.') }}</p>
+    {% endif %}
+</div>
 
-{% if quotes %}
-    <h3 class="mb-3 mt-5">{{ _('Quotes' ) }}</h3>
-        <table class="table table-striped">
-        <thead>
-            <tr>
-                <th style="width: 40%;">{{ _('Quote' ) }}</th>
-                <th style="width: 20%;">{{ _('Received' ) }}</th>
-                <th style="width: 20%;">{{ _('Total Quote' ) }}</th>
-                <th style="width: 20%;">{{ _('Status' ) }}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for quote in quotes %}
-                <tr>
-                                                <td>
+<!-- Quotes Card -->
+<div class="card section-card" style="background: #f9fafb; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px; margin-bottom: 2rem;">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div>
+            <h2 class="section-title">{{ _('Quotes') }}</h2>
+        </div>
+        <div>
+            <a href="{{ url_for('jobs.add_quote', tradesman_id=tradesman.id) }}" class="btn btn-secondary" style="width: 36px; height: 36px; text-align: center; line-height: 28px; padding: 0; font-size: 20px; font-weight: bold; color: #1f2937;" title="{{ _('Add New Quote') }}">
+                +
+            </a>
+        </div>
+    </div>
+    
+    {% if quotes %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">{{ _('Quote') }}</th>
+                        <th style="width: 20%;">{{ _('Received') }}</th>
+                        <th style="width: 20%;">{{ _('Total Quote') }}</th>
+                        <th style="width: 20%;">{{ _('Status') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quote in quotes %}
+                        <tr>
+                            <td>
                                 <a href="{{ url_for('jobs.view_quote', quote_id=quote.id) }}" class="text-decoration-none">
                                     <span class="fw-semibold text-primary">{{ quote.title }}</span>
                                 </a>
                             </td>
                             <td>{{ quote.date_received if quote.date_received else _('N/A') }}</td>
-                    <td>€{{ quote.total_quote if quote.total_quote else _('N/A') }}</td>
-                    <td>
-                        <span class="badge bg-{% if quote.status == 'accepted' %}success{% elif quote.status == 'declined' %}danger{% else %}warning{% endif %}">
-                            {{ quote.status|title }}
-                        </span>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-{% else %}
-    <p class="mt-5">{{ _('No quotes entered yet for this tradesman.' ) }}</p>
-{% endif %}
-
-
-<div class="d-flex justify-content-center align-items-center mt-5 mb-4">
-                    <a href="{{ url_for('jobs.add_job', tradesman_id=tradesman.id) }}" class="btn btn-primary me-2">{{ _('Add New Job' ) }}</a>
-                    <a href="{{ url_for('jobs.add_quote', tradesman_id=tradesman.id) }}" class="btn me-2" style="background-color: #475569; color: white; border-color: #475569;">{{ _('Add New Quote' ) }}</a>
-    {% if can_edit %}
-        <a href="{{ url_for('tradesmen.edit_tradesman', tradesman_id=tradesman.id) }}" class="btn btn-secondary">{{ _('Edit Tradesman' ) }}</a>
+                            <td>€{{ "{:,}".format(quote.total_quote) if quote.total_quote else _('N/A') }}</td>
+                            <td>
+                                <span class="badge bg-{% if quote.status == 'accepted' %}success{% elif quote.status == 'declined' %}danger{% else %}warning{% endif %}">
+                                    {{ quote.status|title }}
+                                </span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted text-center py-4">{{ _('No quotes entered yet for this tradesman.') }}</p>
     {% endif %}
+</div>
+
+
+{% if can_edit %}
+<div class="d-flex justify-content-center align-items-center mt-5 mb-4">
+    <a href="{{ url_for('tradesmen.edit_tradesman', tradesman_id=tradesman.id) }}" class="btn btn-secondary">{{ _('Edit Tradesman') }}</a>
+</div>
+{% endif %}
 </div>
 
 {% endblock %}

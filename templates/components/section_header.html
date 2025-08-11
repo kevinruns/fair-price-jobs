@@ -1,0 +1,19 @@
+{# Section Header Component - Reusable across all sections #}
+{% macro section_header(title, search_url, search_text, add_url, add_title, search_width="220px", add_icon="+") %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="section-title">{{ title }}</h2>
+    <div class="section-actions">
+        <a href="{{ search_url }}" 
+           class="btn btn-primary btn--primary-large me-2" 
+           title="{{ search_text }}">
+            <i class="fas fa-search"></i> {{ search_text }}
+        </a>
+        <a href="{{ add_url }}" 
+           class="btn btn-secondary btn--icon" 
+           title="{{ add_title }}"
+           aria-label="{{ add_title }}">
+            <span aria-hidden="true">{{ add_icon }}</span>
+        </a>
+    </div>
+</div>
+{% endmacro %}

@@ -2,19 +2,67 @@
 {% from "macros.html" import form_field, form_field_pair, rating_badge, display_name %}
 
 {% block main %}
-<div class="container-fluid p-4 bg-light rounded">
-    <form action="{{ url_for('jobs.add_quote', tradesman_id=tradesman_id) }}" method="post" enctype="multipart/form-data">
+<div class="container">
+    <div class="card section-card" style="background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="section-title">{{ _('Add Quote') }}</h2>
+            </div>
+            <div class="text-center">
+                <h3 class="text-muted mb-0">
+                    {% if tradesman %}{{ tradesman.first_name }} {{ tradesman.family_name }}{% if tradesman.company_name %}, {{ tradesman.company_name }}{% endif %}{% endif %}
+                </h3>
+            </div>
+            <div></div>
+        </div>
+        
+        <form action="{{ url_for('jobs.add_quote', tradesman_id=tradesman_id) }}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         {{ form_field(_("Quote Description"), "title", "title", "", "textarea", _("e.g. Replace boiler"), true, rows=1) }}
         {{ form_field(_("Details"), "description", "description", "", "textarea", _("Details about the quote"), true, rows=3) }}
         
-        {{ form_field_pair(
-            _("Date Received"), "date_received", "date_received",
-            _("Quote Amount €"), "total_quote", "total_quote",
-            "", "date", _("dd/mm/yyyy"), false, "", "", "",
-            "", "number", _("Total"), true, "0.01", "", ""
-        ) }}
+        <!-- Date Received -->
+        <div class="row align-items-center mb-4">
+            <label for="date_received" class="col-sm-2 col-form-label fw-bold">{{ _("Date Received") }}</label>
+            <div class="col-sm-4">
+                <input 
+                    type="date" 
+                    class="form-control" 
+                    id="date_received" 
+                    name="date_received" 
+                    value=""
+                    placeholder="{{ _('dd/mm/yyyy') }}"
+                >
+            </div>
+        </div>
+        
+        <!-- Currency and Amount -->
+        <div class="row align-items-center mb-4">
+            <label for="currency" class="col-sm-2 col-form-label fw-bold">{{ _("Currency") }}</label>
+            <div class="col-sm-4">
+                <select class="form-control" id="currency" name="currency" required>
+                    <option value="EUR" selected>EUR (€)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="GBP">GBP (£)</option>
+                </select>
+            </div>
+            <label for="total_quote" class="col-sm-2 col-form-label fw-bold">
+                <span id="quote_amount_label">{{ _("Quote Amount") }} €</span>
+            </label>
+            <div class="col-sm-4">
+                <input 
+                    type="number" 
+                    class="form-control" 
+                    id="total_quote" 
+                    name="total_quote" 
+                    value=""
+                    placeholder="{{ _('Total') }}"
+                    required
+                    step="0.01"
+                >
+            </div>
+        </div>
         
         {{ form_field(_("Rating (1-5)"), "rating", "rating", "", "number", _("Optional"), false, "", 1, 5) }}
         
@@ -39,10 +87,34 @@
     </div>
 </div>
 <script>
+// File upload handling
 document.getElementById('quote_file').addEventListener('change', function() {
     const fileName = this.files[0] ? this.files[0].name : '{{ _("No File Chosen") }}';
     document.getElementById('quote_file_name').textContent = fileName;
 });
+
+// Currency symbol update
+function updateCurrencySymbols() {
+    const currency = document.getElementById('currency').value;
+    let symbol = '€';
+    
+    if (currency === 'USD') {
+        symbol = '$';
+    } else if (currency === 'GBP') {
+        symbol = '£';
+    } else if (currency === 'EUR') {
+        symbol = '€';
+    }
+
+    // Update currency label
+    document.getElementById('quote_amount_label').innerHTML = '{{ _("Quote Amount") }} ' + symbol;
+}
+
+// Add event listener for currency change
+document.getElementById('currency').addEventListener('change', updateCurrencySymbols);
+
+// Initialize symbols on page load
+updateCurrencySymbols();
 </script>
 
         <div class="row">
@@ -53,6 +125,10 @@ document.getElementById('quote_file').addEventListener('change', function() {
                 </div>
             </div>
         </div>
-    </form>
+        
+        <!-- Extra spacing below buttons -->
+        <div style="height: 50px;"></div>
+        </form>
+    </div>
 </div>
 {% endblock %} 

@@ -10,7 +10,7 @@
                 <p class="text-muted mb-2">
                     <strong>{{ _('Tradesman' ) }}:</strong> 
                     <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=quote.tradesman_id) }}" class="text-decoration-none">
-                        {{ display_name(quote.first_name, quote.family_name, quote.company_name) }} - {{ quote.trade }}
+                        {{ quote.first_name }} {{ quote.family_name }}{% if quote.company_name %} - {{ quote.company_name }}{% endif %}
                     </a>
                 </p>
                 <p class="text-muted mb-0">
@@ -134,13 +134,13 @@
         <form action="{{ url_for('jobs.convert_quote_to_job', quote_id=quote.id) }}" method="post" class="d-inline">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit" class="btn" style="background-color: #475569; color: white; border-color: #475569;">
-                <i class="fas fa-check"></i> {{ _('Accept Quote') }}
+                <i class="fas fa-check"></i> {{ _('Quote Accepted') }}
             </button>
         </form>
         <form action="{{ url_for('jobs.reject_quote', quote_id=quote.id) }}" method="post" class="d-inline">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn btn-danger">
-                <i class="fas fa-times"></i> {{ _('Reject Quote') }}
+                <i class="fas fa-times"></i> {{ _('Quote Rejected') }}
             </button>
         </form>
         {% endif %}

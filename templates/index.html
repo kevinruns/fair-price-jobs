@@ -1,200 +1,215 @@
 {% extends "layout.html" %}
-{% from "macros.html" import rating_badge, section_header, display_name, empty_state, status_badge, job_type_badge, date_display %}
+{% from "macros.html" import rating_badge, display_name, empty_state, status_badge, date_display %}
+{% from "components/section_header.html" import section_header %}
+{# Note: Table body macros moved back into main template to avoid import issues #}
 
 {% block title %}
     Home
 {% endblock %}
 
 {% block extra_head %}
-    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 {% endblock %}
 
 {% block main %}
-    <div class="container">
-        <!-- Top Rated Tradesmen Section -->
-        <div class="card section-card" style="background: #f9fafb; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px;">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="section-title">{{ _("Top Rated Tradesmen") }}</h2>
-                <div>
-                                         <a href="{{ url_for('search.search_tradesmen') }}" class="btn btn-primary me-2" style="width: 220px; height: 36px; text-align: center; line-height: 20px; transition: all 0.2s ease; font-size: 16px;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.3)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
-                         <i class="fas fa-search"></i> {{ _("Search Tradesmen") }}
-                     </a>
-                     <a href="{{ url_for('tradesmen.add_tradesman') }}" class="btn btn-secondary" style="width: 36px; height: 36px; text-align: center; line-height: 28px; padding: 0; font-size: 20px; font-weight: bold; color: #1f2937;" title="{{ _('Add Tradesman') }}">
-                         +
-                     </a>
-                </div>
-            </div>{% if tradesmen %}
-                <div class="table-responsive">
-                    <table class="table table-striped" id="tradesmen-table">
-                        <thead>
-                            <tr>
-                                                                 <th class="sortable-header" data-column="avatar" data-type="text">{{ _("") }}</th>
-                                 <th class="sortable-header" data-column="name" data-type="text">{{ _("Name") }}</th>
-                                 <th class="sortable-header" data-column="company" data-type="text">{{ _("Company") }}</th>
-                                 <th class="sortable-header" data-column="trade" data-type="text">{{ _("Trade") }}</th>
-                                 <th class="sortable-header" data-column="rating" data-type="number">{{ _("Rating") }}</th>
-                                 <th class="sortable-header" data-column="jobs" data-type="number">{{ _("Jobs") }}</th>
-                                 <th class="sortable-header" data-column="quotes" data-type="number">{{ _("Quotes") }}</th>
-                                 <th class="sortable-header" data-column="added_by" data-type="text">{{ _("Added By") }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                                                         {% for tradesman in tradesmen %}
-                                                                  <tr class="clickable">
-                                     <td data-column="avatar" class="text-center">
-                                         <div class="avatar-circle">
-                                             <i class="fas fa-user-tie text-muted"></i>
-                                         </div>
-                                     </td>
-                                     <td data-column="name">
-                                         <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}" class="text-decoration-none">
-                                             <span class="fw-semibold text-primary">
-                                                 {{ tradesman.first_name }} {{ tradesman.family_name }}</span>
-                                         </a>
-                                     </td>
-                                    <td data-column="company">{{ tradesman.company_name or _("N/A") }}</td>
-                                    <td data-column="trade">{{ tradesman.trade }}</td>
-                                    <td data-column="rating">{{ rating_badge(tradesman.rating) }}</td>
-                                    <td data-column="jobs"><span class="badge bg-success">{{ tradesman.job_count }}</span></td>
-                                    <td data-column="quotes"><span class="badge bg-warning">{{ tradesman.quote_count }}</span></td>
-                                    <td data-column="added_by">
-                                        <a href="{{ url_for('profile.user_profile', user_id=tradesman.added_by_user_id) }}" class="text-decoration-none">
-                                            <span class="text-info">{{ tradesman.added_by_username }}</span>
-                                        </a>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% else %}
-                {{ empty_state(_("No rated tradesmen found. Top-rated tradesmen will appear here when you or your group members add tradesmen and complete jobs with ratings.")) }}{% endif %}
-        </div>
-
-        <hr class="section-divider" />
-
-        <!-- Recent Jobs and Quotes Section -->
-        <div class="card section-card" style="background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px;">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="section-title">{{ _("Recent Jobs and Quotes") }}</h2>
-                <div>
-                                         <a href="{{ url_for('search.search_jobs_quotes') }}" class="btn btn-primary me-2" style="width: 240px; height: 36px; text-align: center; line-height: 20px; transition: all 0.2s ease; font-size: 16px;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.3)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
-                         <i class="fas fa-search"></i> {{ _("Search Jobs and Quotes") }}
-                     </a>
-                     <a href="{{ url_for('search.search_tradesmen') }}" class="btn btn-secondary" style="width: 36px; height: 36px; text-align: center; line-height: 28px; padding: 0; font-size: 20px; font-weight: bold; color: #1f2937;" title="{{ _('Add Job/Quote') }}">
-                         +
-                     </a>
-                </div>
-            </div>{% if recent_jobs %}
-                <div class="table-responsive">
-                    <table class="table table-striped" id="jobs-table">
-                        <thead>
-                            <tr>
-                                                                 <th class="sortable-header" data-column="icon" data-type="text">{{ _("") }}</th>
-                                 <th class="sortable-header" data-column="title" data-type="text">{{ _("Title") }}</th>
-                                 <th class="sortable-header" data-column="tradesman" data-type="text">{{ _("Tradesman") }}</th>
-                                 <th class="sortable-header" data-column="trade" data-type="text">{{ _("Trade") }}</th>
-                                 <th class="sortable-header" data-column="date" data-type="date">{{ _("Date") }}</th>
-                                                                   <th class="sortable-header" data-column="cost" data-type="number">{{ _("Price") }}</th>
-                                 <th class="sortable-header" data-column="rating" data-type="number">{{ _("Rating") }}</th>
-                                 <th class="sortable-header" data-column="added_by" data-type="text">{{ _("Added By") }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                                                         {% for job in recent_jobs %}
-                                 {% set job_url = url_for('jobs.view_job', job_id=job.id) if job.type == 'job' else url_for('jobs.view_quote', quote_id=job.id) %}
-                                 {% set cost_field = job.total_cost if job.type == 'job' else job.total_quote %}
-                                 
-                                                                   <tr class="clickable">
-                                     <td data-column="icon" class="text-center">
-                                         <div class="icon-circle" title="{% if job.type == 'job' %}{{ _('Completed Job') }}{% else %}{{ _('Quote') }}{% endif %}">
-                                             <i class="fas fa-{% if job.type == 'job' %}hammer{% else %}file-invoice{% endif %} text-muted"></i>
-                                         </div>
-                                     </td>
-                                    <td data-column="title">
-                                        <a href="{{ job_url }}" class="text-decoration-none">
-                                            <span class="fw-semibold text-primary">{{ job.title }}</span>
-                                        </a>
-                                    </td>
-                                    <td data-column="tradesman">
-                                        <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=job.tradesman_id) }}" class="text-decoration-none">
-                                            {{ display_name(job.first_name, job.family_name, job.company_name) }}</a>
-                                    </td>
-                                    <td data-column="trade">{{ job.trade }}</td>
-                                                                         <td data-column="date">
-                                         {% if job.type == 'job' %}
-                                             {{ date_display(job.date_finished) }}
-                                         {% else %}
-                                             {{ date_display(job.date_received, label="Date received") }}
-                                         {% endif %}
-                                     </td>
-                                    <td data-column="cost" class="numeric">€{{ cost_field }}</td>
-                                    <td data-column="rating">{{ rating_badge(job.rating) }}</td>
-                                    <td data-column="added_by">
-                                        <a href="{{ url_for('profile.user_profile', user_id=job.added_by_user_id) }}" class="text-decoration-none">
-                                            <span class="text-info">{{ job.added_by_username }}</span>
-                                        </a>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% else %}
-                {{ empty_state(_("No recently completed jobs found. Jobs will appear here when you or members of your groups complete work with tradesmen.")) }}{% endif %}
-        </div>
-
-        <hr class="section-divider" />
-
-                 <!-- My Groups Section -->
-         <div class="card section-card" style="background: #f9fafb; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px;">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="section-title">{{ _("My Groups") }}</h2>
-                <div>
-                                         <a href="{{ url_for('groups.search_groups') }}" class="btn btn-primary me-2" style="width: 220px; height: 36px; text-align: center; line-height: 20px; transition: all 0.2s ease; font-size: 16px;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.3)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
-                         <i class="fas fa-search"></i> {{ _("Find Group") }}
-                     </a>
-                     <a href="{{ url_for('groups.create_group') }}" class="btn btn-secondary" style="width: 36px; height: 36px; text-align: center; line-height: 28px; padding: 0; font-size: 20px; font-weight: bold; color: #1f2937;" title="{{ _('Create Group') }}">
-                         +
-                     </a>
-                </div>
-            </div>{% if my_groups %}
-                <div class="table-responsive">
-                    <table class="table table-striped" id="groups-table">
-                        <thead>
-                            <tr>
-                                                                 <th class="sortable-header" data-column="icon" data-type="text">{{ _("") }}</th>
-                                 <th class="sortable-header" data-column="name" data-type="text">{{ _("Group Name") }}</th>
-                                 <th class="sortable-header" data-column="postcode" data-type="text">{{ _("Postcode") }}</th>
-                                 <th class="sortable-header" data-column="members" data-type="number">{{ _("Members") }}</th>
-                                 <th class="sortable-header" data-column="status" data-type="text">{{ _("Your Status") }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                                                         {% for group in my_groups %}
-                                                                  <tr class="clickable">
-                                     <td data-column="icon" class="text-center">
-                                         <div class="icon-circle" title="{{ _('Group') }}">
-                                             <i class="fas fa-users text-muted"></i>
-                                         </div>
-                                     </td>
-                                     <td data-column="name">
-                                         <a href="{{ url_for('groups.view_group', group_id=group.id) }}" class="text-decoration-none">
-                                             <span class="fw-semibold text-primary">{{ group.name }}</span>
-                                         </a>
-                                     </td>
-                                    <td data-column="postcode">{{ group.postcode }}</td>
-                                    <td data-column="members"><span class="badge bg-info">{{ group.member_count }}</span></td>
-                                    <td data-column="status">{{ status_badge(group.status) }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                                 </div>
-                         {% else %}
-                 {{ empty_state(_("You haven't joined any groups yet. Join or create groups to collaborate with others and share tradesmen recommendations.")) }}{% endif %}
-         </div>
-        </div>
+<div class="dashboard-container">
+    <!-- Top Rated Tradesmen Section -->
+    <div class="card section-card section-card--light">
+        {{ section_header(
+            _("Top Rated Tradesmen"),
+            url_for('search.search_tradesmen'),
+            _("Search Tradesmen"),
+            url_for('tradesmen.add_tradesman'),
+            _('Add Tradesman')
+        ) }}
+        
+        {% if tradesmen %}
+            <div class="table-responsive">
+                <table class="table table-striped" id="tradesmen-table">
+                    <thead>
+                        <tr>
+                            <th class="sortable-header" data-column="avatar" data-type="text">{{ _("") }}</th>
+                            <th class="sortable-header" data-column="name" data-type="text">{{ _("Name") }}</th>
+                            <th class="sortable-header" data-column="company" data-type="text">{{ _("Company") }}</th>
+                            <th class="sortable-header" data-column="trade" data-type="text">{{ _("Trade") }}</th>
+                            <th class="sortable-header" data-column="rating" data-type="number">{{ _("Rating") }}</th>
+                            <th class="sortable-header" data-column="jobs" data-type="number">{{ _("Jobs") }}</th>
+                            <th class="sortable-header" data-column="quotes" data-type="number">{{ _("Quotes") }}</th>
+                            <th class="sortable-header" data-column="added_by" data-type="text">{{ _("Added By") }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tradesman in tradesmen %}
+                        <tr class="clickable" data-tradesman-id="{{ tradesman.id }}">
+                            <td data-column="avatar" class="text-center">
+                                <div class="avatar-circle">
+                                    <i class="fas fa-user-tie text-muted"></i>
+                                </div>
+                            </td>
+                            <td data-column="name">
+                                <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}" 
+                                   class="text-decoration-none">
+                                    <span class="fw-semibold text-primary">
+                                        {{ tradesman.first_name }} {{ tradesman.family_name }}
+                                    </span>
+                                </a>
+                            </td>
+                            <td data-column="company">{{ tradesman.company_name or _("N/A") }}</td>
+                            <td data-column="trade">{{ tradesman.trade }}</td>
+                            <td data-column="rating">{{ rating_badge(tradesman.rating) }}</td>
+                            <td data-column="jobs" class="text-center">
+                                <span class="badge bg-success">{{ tradesman.job_count }}</span>
+                            </td>
+                            <td data-column="quotes" class="text-center">
+                                <span class="badge bg-warning">{{ tradesman.quote_count }}</span>
+                            </td>
+                            <td data-column="added_by">
+                                <a href="{{ url_for('profile.user_profile', user_id=tradesman.added_by_user_id) }}" 
+                                   class="text-decoration-none">
+                                    <span class="text-info">{{ tradesman.added_by_username }}</span>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            {{ empty_state(_("No rated tradesmen found. Top-rated tradesmen will appear here when you or your group members add tradesmen and complete jobs with ratings.")) }}
+        {% endif %}
     </div>
- {% endblock %}
+
+    <hr class="section-divider" />
+
+    <!-- Recent Jobs and Quotes Section -->
+    <div class="card section-card section-card--white">
+        {{ section_header(
+            _("Recent Jobs and Quotes"),
+            url_for('search.search_jobs_quotes'),
+            _("Search Jobs and Quotes"),
+            url_for('search.search_tradesmen'),
+            _('Add Job/Quote')
+        ) }}
+        
+        {% if recent_jobs %}
+            <div class="table-responsive">
+                <table class="table table-striped" id="jobs-table">
+                    <thead>
+                        <tr>
+                            <th class="sortable-header" data-column="icon" data-type="text">{{ _("") }}</th>
+                            <th class="sortable-header" data-column="title" data-type="text">{{ _("Title") }}</th>
+                            <th class="sortable-header" data-column="tradesman" data-type="text">{{ _("Tradesman") }}</th>
+                            <th class="sortable-header" data-column="trade" data-type="text">{{ _("Trade") }}</th>
+                            <th class="sortable-header" data-column="date" data-type="date">{{ _("Date") }}</th>
+                            <th class="sortable-header" data-column="cost" data-type="number">{{ _("Price") }}</th>
+                            <th class="sortable-header" data-column="rating" data-type="number">{{ _("Rating") }}</th>
+                            <th class="sortable-header" data-column="added_by" data-type="text">{{ _("Added By") }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for job in recent_jobs %}
+                        {% set job_url = url_for('jobs.view_job', job_id=job.id) if job.type == 'job' else url_for('jobs.view_quote', quote_id=job.id) %}
+                        {% set cost_field = job.total_cost if job.type == 'job' else job.total_quote %}
+                        <tr class="clickable" data-job-id="{{ job.id }}">
+                            <td data-column="icon" class="text-center">
+                                <div class="icon-circle" 
+                                     title="{% if job.type == 'job' %}{{ _('Completed Job') }}{% else %}{{ _('Quote') }}{% endif %}">
+                                    <i class="fas fa-{% if job.type == 'job' %}hammer{% else %}file-invoice{% endif %} text-muted"></i>
+                                </div>
+                            </td>
+                            <td data-column="title">
+                                <a href="{{ job_url }}" class="text-decoration-none">
+                                    <span class="fw-semibold text-primary">{{ job.title }}</span>
+                                </a>
+                            </td>
+                            <td data-column="tradesman">
+                                <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=job.tradesman_id) }}" 
+                                   class="text-decoration-none">
+                                    {{ display_name(job.first_name, job.family_name, job.company_name) }}
+                                </a>
+                            </td>
+                            <td data-column="trade">{{ job.trade }}</td>
+                            <td data-column="date">
+                                {% if job.type == 'job' %}
+                                    {{ date_display(job.date_finished) }}
+                                {% else %}
+                                    {{ date_display(job.date_received, label="Date received") }}
+                                {% endif %}
+                            </td>
+                            <td data-column="cost" class="numeric">€{{ cost_field }}</td>
+                            <td data-column="rating">{{ rating_badge(job.rating) }}</td>
+                            <td data-column="added_by">
+                                <a href="{{ url_for('profile.user_profile', user_id=job.added_by_user_id) }}" 
+                                   class="text-decoration-none">
+                                    <span class="text-info">{{ job.added_by_username }}</span>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            {{ empty_state(_("No recently completed jobs found. Jobs will appear here when you or members of your groups complete work with tradesmen.")) }}
+        {% endif %}
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- My Groups Section -->
+    <div class="card section-card section-card--light">
+        {{ section_header(
+            _("My Groups"),
+            url_for('groups.search_groups'),
+            _("Find Group"),
+            url_for('groups.create_group'),
+            _('Create Group')
+        ) }}
+        
+        {% if my_groups %}
+            <div class="table-responsive">
+                <table class="table table-striped" id="groups-table">
+                    <thead>
+                        <tr>
+                            <th class="sortable-header" data-column="icon" data-type="text">{{ _("") }}</th>
+                            <th class="sortable-header" data-column="name" data-type="text">{{ _("Group Name") }}</th>
+                            <th class="sortable-header" data-column="postcode" data-type="text">{{ _("Postcode") }}</th>
+                            <th class="sortable-header" data-column="members" data-type="number">{{ _("Members") }}</th>
+                            <th class="sortable-header" data-column="status" data-type="text">{{ _("Your Status") }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for group in my_groups %}
+                        <tr class="clickable" data-group-id="{{ group.id }}">
+                            <td data-column="icon" class="text-center">
+                                <div class="icon-circle" title="{{ _('Group') }}">
+                                    <i class="fas fa-users text-muted"></i>
+                                </div>
+                            </td>
+                            <td data-column="name">
+                                <a href="{{ url_for('groups.view_group', group_id=group.id) }}" 
+                                   class="text-decoration-none">
+                                    <span class="fw-semibold text-primary">{{ group.name }}</span>
+                                </a>
+                            </td>
+                            <td data-column="postcode">{{ group.postcode }}</td>
+                            <td data-column="members" class="text-center">
+                                <span class="badge bg-info">{{ group.member_count }}</span>
+                            </td>
+                            <td data-column="status">{{ status_badge(group.status) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            {{ empty_state(_("You haven't joined any groups yet. Join or create groups to collaborate with others and share tradesmen recommendations.")) }}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
 

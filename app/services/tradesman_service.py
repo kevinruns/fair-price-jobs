@@ -174,10 +174,15 @@ class TradesmanService:
     def get_tradesmen_by_group(self, group_id: int) -> List[Dict[str, Any]]:
         """Get all tradesmen in a specific group."""
         query = """
-            SELECT t.*
+            SELECT t.*,
+                   COUNT(CASE WHEN j.type = 'job' THEN j.id END) as job_count,
+                   COUNT(CASE WHEN j.type = 'quote' THEN j.id END) as quote_count,
+                   AVG(CASE WHEN j.type = 'job' THEN j.rating END) as avg_rating
             FROM tradesmen t
             JOIN group_tradesmen gt ON t.id = gt.tradesman_id
+            LEFT JOIN jobs j ON t.id = j.tradesman_id
             WHERE gt.group_id = ?
+            GROUP BY t.id
             ORDER BY t.trade, t.family_name, t.first_name, t.company_name
         """
         return self.db.execute_query(query, (group_id,))

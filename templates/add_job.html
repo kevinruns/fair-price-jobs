@@ -2,15 +2,21 @@
 {% from "macros.html" import form_field, form_field_pair, display_name %}
 
 {% block main %}
-<div class="container-fluid p-4 bg-light rounded">
-    <div class="row mb-4">
-        <div class="col">
-            <h4 class="mb-0">
-                {% if tradesman %}{{ display_name(tradesman.first_name, tradesman.family_name, tradesman.company_name) }}- {{ tradesman.trade }}{% endif %}
-            </h4>
+<div class="container">
+    <div class="card section-card" style="background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="section-title">{{ _('Add Job') }}</h2>
+            </div>
+            <div class="text-center">
+                <h3 class="text-muted mb-0">
+                    {% if tradesman %}{{ tradesman.first_name }} {{ tradesman.family_name }}{% if tradesman.company_name %}, {{ tradesman.company_name }}{% endif %}{% endif %}
+                </h3>
+            </div>
+            <div></div>
         </div>
-    </div>
-    <form action="{{ url_for('jobs.add_job', tradesman_id=tradesman_id) }}" method="post" enctype="multipart/form-data">
+        
+        <form action="{{ url_for('jobs.add_job', tradesman_id=tradesman_id) }}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         {{ form_field(_("Job Description"), "title", "title", "", "textarea", _("e.g. Tile bathroom"), true, rows=1) }}
@@ -24,29 +30,67 @@
             "", "date", _("dd/mm/yyyy"), true, "", "", ""
         ) }}
 
+        <!-- Currency Selection -->
+        <div class="row align-items-center mb-4">
+            <label for="currency" class="col-sm-2 col-form-label fw-bold">{{ _("Currency") }}</label>
+            <div class="col-sm-4">
+                <select class="form-control" id="currency" name="currency" required>
+                    <option value="EUR" selected>EUR (€)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="GBP">GBP (£)</option>
+                </select>
+            </div>
+        </div>
+
         <!-- Fee fields -->
-        {{ form_field_pair(
-            _("Call Out Fee €"), "call_out_fee", "call_out_fee",
-            _("Materials Fee €"), "materials_fee", "materials_fee",
-            "", "number", _("Optional"), false, "0.01", "", "",
-            "", "number", _("Optional"), false, "0.01", "", ""
-        ) }}
+        <div class="row align-items-center mb-4">
+            <label for="call_out_fee" class="col-sm-2 col-form-label fw-bold">
+                <span id="call_out_fee_label">{{ _("Call Out Fee") }} €</span>
+            </label>
+            <div class="col-sm-4">
+                <input type="number" class="form-control" id="call_out_fee" name="call_out_fee" 
+                       placeholder="{{ _('Optional') }}" step="0.01">
+            </div>
+            <label for="materials_fee" class="col-sm-2 col-form-label fw-bold">
+                <span id="materials_fee_label">{{ _("Materials Fee") }} €</span>
+            </label>
+            <div class="col-sm-4">
+                <input type="number" class="form-control" id="materials_fee" name="materials_fee" 
+                       placeholder="{{ _('Optional') }}" step="0.01">
+            </div>
+        </div>
 
         <!-- Rate fields -->
-        {{ form_field_pair(
-            _("Hourly Rate €"), "hourly_rate", "hourly_rate",
-            _("Hours Worked"), "hours_worked", "hours_worked",
-            "", "number", _("Optional"), false, "0.01", "", "",
-            "", "number", _("Optional"), false, "0.5", "", ""
-        ) }}
+        <div class="row align-items-center mb-4">
+            <label for="hourly_rate" class="col-sm-2 col-form-label fw-bold">
+                <span id="hourly_rate_label">{{ _("Hourly Rate") }} €</span>
+            </label>
+            <div class="col-sm-4">
+                <input type="number" class="form-control" id="hourly_rate" name="hourly_rate" 
+                       placeholder="{{ _('Optional') }}" step="0.01">
+            </div>
+            <label for="hours_worked" class="col-sm-2 col-form-label fw-bold">{{ _("Hours Worked") }}</label>
+            <div class="col-sm-4">
+                <input type="number" class="form-control" id="hours_worked" name="hours_worked" 
+                       placeholder="{{ _('Optional') }}" step="0.5">
+            </div>
+        </div>
 
         <!-- Daily rate fields -->
-        {{ form_field_pair(
-            _("Daily Rate €"), "daily_rate", "daily_rate",
-            _("Days Worked"), "days_worked", "days_worked",
-            "", "number", _("Optional"), false, "0.01", "", "",
-            "", "number", _("Optional"), false, "0.5", "", ""
-        ) }}
+        <div class="row align-items-center mb-4">
+            <label for="daily_rate" class="col-sm-2 col-form-label fw-bold">
+                <span id="daily_rate_label">{{ _("Daily Rate") }} €</span>
+            </label>
+            <div class="col-sm-4">
+                <input type="number" class="form-control" id="daily_rate" name="daily_rate" 
+                       placeholder="{{ _('Optional') }}" step="0.01">
+            </div>
+            <label for="days_worked" class="col-sm-2 col-form-label fw-bold">{{ _("Days Worked") }}</label>
+            <div class="col-sm-4">
+                <input type="number" class="form-control" id="days_worked" name="days_worked" 
+                       placeholder="{{ _('Optional') }}" step="0.5">
+            </div>
+        </div>
 
         {{ form_field(_("Rating (1-5)"), "rating", "rating", "", "number", _("Optional"), false, "", 1, 5) }}
         <!-- File Upload Section -->
@@ -86,6 +130,7 @@
         </div>
 
         <script>
+            // File upload handling
             document.getElementById('quote_file').addEventListener('change', function() {
                 const fileName = this.files[0] ? this.files[0].name : '{{ _("No File Chosen") }}';
                 document.getElementById('quote_file_name').textContent = fileName;
@@ -95,6 +140,32 @@
                 const fileName = this.files[0] ? this.files[0].name : '{{ _("No File Chosen") }}';
                 document.getElementById('job_file_name').textContent = fileName;
             });
+
+            // Currency symbol update
+            function updateCurrencySymbols() {
+                const currency = document.getElementById('currency').value;
+                let symbol = '€';
+                
+                if (currency === 'USD') {
+                    symbol = '$';
+                } else if (currency === 'GBP') {
+                    symbol = '£';
+                } else if (currency === 'EUR') {
+                    symbol = '€';
+                }
+
+                // Update all currency labels
+                document.getElementById('call_out_fee_label').innerHTML = '{{ _("Call Out Fee") }} ' + symbol;
+                document.getElementById('materials_fee_label').innerHTML = '{{ _("Materials Fee") }} ' + symbol;
+                document.getElementById('hourly_rate_label').innerHTML = '{{ _("Hourly Rate") }} ' + symbol;
+                document.getElementById('daily_rate_label').innerHTML = '{{ _("Daily Rate") }} ' + symbol;
+            }
+
+            // Add event listener for currency change
+            document.getElementById('currency').addEventListener('change', updateCurrencySymbols);
+            
+            // Initialize symbols on page load
+            updateCurrencySymbols();
         </script>
 
         <!-- Buttons Row -->
@@ -106,6 +177,10 @@
                 </div>
             </div>
         </div>
-    </form>
+        
+        <!-- Extra spacing below buttons -->
+        <div style="height: 50px;"></div>
+        </form>
+    </div>
 </div>
 {% endblock %} 

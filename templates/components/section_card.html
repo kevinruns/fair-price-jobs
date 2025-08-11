@@ -1,0 +1,41 @@
+{# Section Card Component - Reusable card wrapper for dashboard sections #}
+{% macro section_card(title, search_url, search_text, add_url, add_title, variant="light", content_block="") %}
+<div class="card section-card section-card--{{ variant }}">
+    {{ section_header(title, search_url, search_text, add_url, add_title) }}
+    
+    {% if content_block %}
+        {{ content_block }}
+    {% endif %}
+</div>
+{% endmacro %}
+
+{# Section Card with Table Content #}
+{% macro section_card_with_table(title, search_url, search_text, add_url, add_title, table_headers, table_data, empty_message, variant="light") %}
+<div class="card section-card section-card--{{ variant }}">
+    {{ section_header(title, search_url, search_text, add_url, add_title) }}
+    
+    {% if table_data %}
+        <div class="table-responsive">
+            <table class="table table-striped" id="{{ title.lower().replace(' ', '-') }}-table">
+                <thead>
+                    <tr>
+                        {% for header in table_headers %}
+                        <th class="sortable-header" 
+                            data-column="{{ header.column }}" 
+                            data-type="{{ header.type }}"
+                            {% if header.numeric %}class="numeric"{% endif %}>
+                            {{ header.label }}
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% block table_content %}{% endblock %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        {{ empty_state(empty_message) }}
+    {% endif %}
+</div>
+{% endmacro %}

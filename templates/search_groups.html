@@ -21,7 +21,6 @@
             <form action="{{ url_for('groups.search_groups' ) }}" method="post" class="row g-3">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="col-md-6">
-                    <label for="postcode" class="form-label fw-bold">{{ _('Postcode' ) }}</label>
                     <div class="d-flex gap-2">
                         <input type="text" class="form-control" id="postcode" name="postcode" 
                                placeholder="{{ _('Enter Postcode') }}" value="{{ postcode }}">

@@ -1,213 +1,275 @@
 {% extends "layout.html" %}
 {% from "macros.html" import status_badge, job_type_badge, rating_badge, display_name, date_display %}
 
+{% block title %}{{ group['name'] if group else _('Group Not Found') }}{% endblock %}
+
 {% block main %}
 {% if group %}
     <div class="container">
-        <div class="row mt-4 mb-4">
-            <!-- Group Info (no card, compact layout) -->
-            <div class="col-12 mb-3">
-                <h2 class="mb-3">{{ group['name'] }}</h2>
-                {% if group['description'] %}
-                    <p class="text-muted mb-3">{{ group['description'] }}</p>
-                {% endif %}
-                <div class="row">
-                    <div class="col-md-6">
-                        <table class="table table-borderless mb-0">
-                            <tbody>
-                                <tr>
-                                    <th scope="row" class="w-25">{{ _('Creator:') }}</th>
-                                    <td>
-                                        {% if creator %}
-                                            <a href="{{ url_for('profile.user_profile', user_id=creator.id) }}" class="text-decoration-none">
-                                                <span class="text-primary">{{ creator.username }}</span>
-                                            </a>
-                                        {% else %}
-                                            Unknown
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">{{ _('Created on:') }}</th>
-                                    <td>{{ group['created_at'] }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <table class="table table-borderless mb-0">
-                            <tbody>
-                                <tr>
-                                    <th scope="row" class="w-25">{{ _('Members:') }}</th>
-                                    <td>{{ members|length }}</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">{{ _('Tradesmen:') }}</th>
-                                    <td>{{ tradesmen|length }}</td>
-                                </tr>
-                                {% if is_admin_or_creator and pending_requests_count > 0 %}
-                                <tr>
-                                    <th scope="row">{{ _('Pending Requests') }}</th>
-                                    <td>
-                                        <a href="{{ url_for('groups.view_all_pending_requests') }}" class="btn btn-warning btn-sm">
-                                            <i class="fas fa-clock"></i> {{ _('Pending Requests') }} ({{ pending_requests_count }})
+        <!-- Group Info Card -->
+        <div class="card section-card" style="background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 16px; margin-bottom: 2rem;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h2 class="section-title mb-1">{{ group['name'] }}</h2>
+                    {% if group['description'] %}
+                        <p class="text-muted mb-0 small">{{ group['description'] }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    {% if is_admin_or_creator %}
+                        <a href="{{ url_for('groups.edit_group', group_id=group.id) }}" class="btn btn-secondary" style="width: 36px; height: 36px; text-align: center; line-height: 28px; padding: 0; font-size: 20px; font-weight: bold; color: #1f2937;" title="{{ _('Edit Group') }}">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-borderless mb-0">
+                        <tbody>
+                            <tr>
+                                <th scope="row" class="fw-bold py-1">{{ _('Creator:') }}</th>
+                                <td class="py-1">
+                                    {% if creator %}
+                                        <a href="{{ url_for('profile.user_profile', user_id=creator.id) }}" class="text-decoration-none">
+                                            <span class="text-primary">{{ creator.username }}</span>
                                         </a>
-                                    </td>
-                                </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
-                    </div>
+                                    {% else %}
+                                        <span class="text-muted">{{ _('Unknown') }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="fw-bold py-1">{{ _('Created on:') }}</th>
+                                <td class="py-1">{{ date_display(group['created_at']) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table class="table table-borderless mb-0">
+                        <tbody>
+                            <tr>
+                                <th scope="row" class="fw-bold py-1">{{ _('Members:') }}</th>
+                                <td class="py-1"><span class="badge bg-info">{{ members|length }}</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="fw-bold py-1">{{ _('Tradesmen:') }}</th>
+                                <td class="py-1"><span class="badge bg-success">{{ tradesmen|length }}</span></td>
+                            </tr>
+                            {% if is_admin_or_creator and pending_requests_count > 0 %}
+                            <tr>
+                                <th scope="row" class="fw-bold py-1">{{ _('Pending Requests') }}</th>
+                                <td class="py-1">
+                                    <a href="{{ url_for('groups.view_all_pending_requests') }}" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-clock"></i> {{ _('Pending Requests') }} ({{ pending_requests_count }})
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
         {% if is_member %}
-
             {% if tradesmen %}
-                <div class="card mb-5" style="margin-bottom: 3rem !important;">
-                    <div class="card-header" style="background-color: #635bff; color: white;">
-                        <h5 class="mb-0 fw-bold">{{ _('Tradesmen in this group') }}</h5>
+                <!-- Tradesmen Card -->
+                <div class="card section-card" style="background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px; margin-bottom: 2rem;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h3 class="section-title">{{ _('Tradesmen in this group') }}</h3>
+                        </div>
+                        <div>
+                            <a href="{{ url_for('tradesmen.add_my_tradesman_to_group', group_id=group.id) }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> {{ _('Add My Tradesman') }}
+                            </a>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <table class="table table-striped mb-0">
+                    
+                    <div class="table-responsive">
+                        <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th>{{ _('Trade') }}</th>
-                                    <th>{{ _('Name') }}</th>
-                                    <th>{{ _('Phone Number') }}</th>
-                                    <th>{{ _('Postcode') }}</th>
-                                    <th>{{ _('Email') }}</th>
+                                    <th class="sortable-header" data-column="avatar" data-type="text">{{ _("") }}</th>
+                                    <th class="sortable-header" data-column="name" data-type="text">{{ _("Name") }}</th>
+                                    <th class="sortable-header" data-column="company" data-type="text">{{ _("Company") }}</th>
+                                    <th class="sortable-header" data-column="trade" data-type="text">{{ _("Trade") }}</th>
+                                    <th class="sortable-header" data-column="rating" data-type="number">{{ _("Rating") }}</th>
+                                    <th class="sortable-header" data-column="jobs" data-type="number">{{ _("Jobs") }}</th>
+                                    <th class="sortable-header" data-column="quotes" data-type="number">{{ _("Quotes") }}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for trade, trade_group in tradesmen|groupby('trade') %}
                                     {% for tradesman in trade_group %}
-                                        <tr>
-                                            <td><strong>{{ trade }}</strong></td>
-                                            <td><a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}">{{ tradesman.first_name }} {{ tradesman.family_name }}</a></td>
-                                            <td>{{ tradesman.phone_number }}</td>
-                                            <td>{{ tradesman.postcode }}</td>
-                                            <td>{{ tradesman.email }}</td>
+                                        <tr class="clickable">
+                                            <td data-column="avatar" class="text-center">
+                                                <div class="avatar-circle">
+                                                    <i class="fas fa-user-tie text-muted"></i>
+                                                </div>
+                                            </td>
+                                            <td data-column="name">
+                                                <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=tradesman.id) }}" class="text-decoration-none">
+                                                    <span class="fw-semibold text-primary">
+                                                        {{ tradesman.first_name }} {{ tradesman.family_name }}</span>
+                                                </a>
+                                            </td>
+                                            <td data-column="company">{{ tradesman.company_name or _("N/A") }}</td>
+                                            <td data-column="trade">{{ tradesman.trade }}</td>
+                                            <td data-column="rating">{{ rating_badge(tradesman.avg_rating) }}</td>
+                                            <td data-column="jobs"><span class="badge bg-success">{{ tradesman.job_count }}</span></td>
+                                            <td data-column="quotes"><span class="badge bg-warning">{{ tradesman.quote_count }}</span></td>
                                         </tr>
                                     {% endfor %}
                                 {% endfor %}
                             </tbody>
                         </table>
-                        
-                        <div class="d-flex justify-content-center mt-3">
-                            <a href="{{ url_for('tradesmen.add_my_tradesman_to_group', group_id=group.id) }}" class="btn" style="background-color: #635bff; color: white; border-color: #635bff;">{{ _('Add My Tradesman') }}</a>
-                        </div>
                     </div>
                 </div>
             {% else %}
-                <div class="card mb-5" style="margin-bottom: 3rem !important;">
-                    <div class="card-header" style="background-color: #635bff; color: white;">
-                        <h5 class="mb-0 fw-bold">{{ _('Tradesmen in this group') }}</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-0">{{ _('No tradesmen in this group yet.') }}</p>
-                        
-                        <div class="d-flex justify-content-center mt-3">
-                            <a href="{{ url_for('tradesmen.add_my_tradesman_to_group', group_id=group.id) }}" class="btn" style="background-color: #635bff; color: white; border-color: #635bff;">{{ _('Add My Tradesman') }}</a>
+                <!-- Empty Tradesmen Card -->
+                <div class="card section-card" style="background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px; margin-bottom: 2rem;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h3 class="section-title">{{ _('Tradesmen in this group') }}</h3>
                         </div>
+                        <div>
+                            <a href="{{ url_for('tradesmen.add_my_tradesman_to_group', group_id=group.id) }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> {{ _('Add My Tradesman') }}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="text-center py-4">
+                        <p class="text-muted">{{ _('No tradesmen in this group yet.') }}</p>
                     </div>
                 </div>
             {% endif %}
 
             <!-- Jobs & Quotes Section -->
             {% if group_jobs_quotes %}
-                <div class="card mb-5" style="margin-bottom: 3rem !important;">
-                    <div class="card-header" style="background-color: #0a2540; color: white;">
-                        <h5 class="mb-0 fw-bold">{{ _('Recent Jobs & Quotes') }}</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>{{ _('Type') }}</th>
-                                        <th>{{ _('Title') }}</th>
-                                        <th>{{ _('Tradesman') }}</th>
-                                        <th>{{ _('Trade') }}</th>
-                                        <th>{{ _('Date') }}</th>
-                                        <th>{{ _('Cost/Quote') }}</th>
-                                        <th>{{ _('Rating') }}</th>
-                                        <th>{{ _('Added By') }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for job in group_jobs_quotes %}
-                                        {% set job_url = url_for('jobs.view_job', job_id=job.id) if job.type == 'job' else url_for('jobs.view_quote', quote_id=job.id) %}
-                                        {% set cost_field = job.total_cost if job.type == 'job' else job.total_quote %}
-                                        {% set date_field = job.date_finished if job.type == 'job' else (job.date_received or job.date_requested) %}
-                                        
-                                        <tr>
-                                            <td>{{ job_type_badge(job.type) }}</td>
-                                            <td>
-                                                <a href="{{ job_url }}" class="text-decoration-none">
-                                                    <span class="fw-semibold text-primary">{{ job.title }}</span>
-                                                </a>
-                                            </td>
-                                            <td>
-                                                <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=job.tradesman_id) }}" class="text-decoration-none">
-                                                    {{ display_name(job.first_name, job.family_name, job.company_name) }}
-                                                </a>
-                                            </td>
-                                            <td>{{ job.trade }}</td>
-                                            <td>{{ date_display(date_field) }}</td>
-                                            <td>€{{ cost_field }}</td>
-                                            <td>{{ rating_badge(job.rating, show_none=true, none_text=_('No rating')) }}</td>
-                                            <td>
-                                                <a href="{{ url_for('profile.user_profile', user_id=job.added_by_user_id) }}" class="text-decoration-none">
-                                                    <span class="text-info">{{ job.added_by_username }}</span>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                <div class="card section-card" style="background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px; margin-bottom: 2rem;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h3 class="section-title">{{ _('Recent Jobs & Quotes') }}</h3>
                         </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th class="sortable-header" data-column="icon" data-type="text">{{ _("") }}</th>
+                                    <th class="sortable-header" data-column="type" data-type="text">{{ _('Type') }}</th>
+                                    <th class="sortable-header" data-column="title" data-type="text">{{ _('Title') }}</th>
+                                    <th class="sortable-header" data-column="tradesman" data-type="text">{{ _('Tradesman') }}</th>
+                                    <th class="sortable-header" data-column="trade" data-type="text">{{ _('Trade') }}</th>
+                                    <th class="sortable-header" data-column="date" data-type="date">{{ _('Date') }}</th>
+                                    <th class="sortable-header numeric" data-column="cost" data-type="number">{{ _('Price') }}</th>
+                                    <th class="sortable-header" data-column="rating" data-type="number">{{ _('Rating') }}</th>
+                                    <th class="sortable-header" data-column="added_by" data-type="text">{{ _('Added By') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for job in group_jobs_quotes %}
+                                    {% set job_url = url_for('jobs.view_job', job_id=job.id) if job.type == 'job' else url_for('jobs.view_quote', quote_id=job.id) %}
+                                    {% set cost_field = job.total_cost if job.type == 'job' else job.total_quote %}
+                                    {% set date_field = job.date_finished if job.type == 'job' else (job.date_received or job.date_requested) %}
+                                    
+                                    <tr class="clickable">
+                                        <td data-column="icon" class="text-center">
+                                            <div class="icon-circle" title="{{ _('Job') if job.type == 'job' else _('Quote') }}">
+                                                <i class="fas fa-{% if job.type == 'job' %}hammer{% else %}file-invoice{% endif %} text-muted"></i>
+                                            </div>
+                                        </td>
+                                        <td data-column="type">{{ job_type_badge(job.type) }}</td>
+                                        <td data-column="title">
+                                            <a href="{{ job_url }}" class="text-decoration-none">
+                                                <span class="fw-semibold text-primary">{{ job.title }}</span>
+                                            </a>
+                                        </td>
+                                        <td data-column="tradesman">
+                                            <a href="{{ url_for('tradesmen.view_tradesman', tradesman_id=job.tradesman_id) }}" class="text-decoration-none">
+                                                {{ display_name(job.first_name, job.family_name, job.company_name) }}
+                                            </a>
+                                        </td>
+                                        <td data-column="trade">{{ job.trade }}</td>
+                                        <td data-column="date" data-date="{{ date_field }}">{{ date_display(date_field) }}</td>
+                                        <td data-column="cost" class="numeric">€{{ cost_field }}</td>
+                                        <td data-column="rating">{{ rating_badge(job.rating, show_none=true, none_text=_('No rating')) }}</td>
+                                        <td data-column="added_by">
+                                            <a href="{{ url_for('profile.user_profile', user_id=job.added_by_user_id) }}" class="text-decoration-none">
+                                                <span class="text-info">{{ job.added_by_username }}</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             {% else %}
-                <div class="card mb-5" style="margin-bottom: 3rem !important;">
-                    <div class="card-header" style="background-color: #0a2540; color: white;">
-                        <h5 class="mb-0 fw-bold">{{ _('Recent Jobs & Quotes') }}</h5>
+                <!-- Empty Jobs & Quotes Card -->
+                <div class="card section-card" style="background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px; margin-bottom: 2rem;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h3 class="section-title">{{ _('Recent Jobs & Quotes') }}</h3>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <p class="mb-0">{{ _('No jobs or quotes found for tradesmen in this group yet.') }}</p>
+                    <div class="text-center py-4">
+                        <p class="text-muted">{{ _('No jobs or quotes found for tradesmen in this group yet.') }}</p>
                     </div>
                 </div>
             {% endif %}
 
             <!-- Group Members Section -->
             {% if members %}
-                <div class="card mb-5" style="margin-bottom: 3rem !important;">
-                    <div class="card-header" style="background-color: #f6f9fc; color: #0a2540;">
-                        <h5 class="mb-0 fw-bold">{{ _('Group Members') }}</h5>
+                <div class="card section-card" style="background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px; margin-bottom: 2rem;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h3 class="section-title">{{ _('Group Members') }}</h3>
+                        </div>
+                        {% if is_admin_or_creator %}
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('groups.send_invitation', group_id=group['id']) }}" class="btn btn-secondary">
+                                <i class="fas fa-envelope"></i> {{ _('Send Invitation') }}
+                            </a>
+                            <a href="{{ url_for('groups.view_invitations', group_id=group['id']) }}" class="btn btn-secondary">
+                                <i class="fas fa-list"></i> {{ _('View Invitations') }}
+                            </a>
+                        </div>
+                        {% endif %}
                     </div>
-                    <div class="card-body">
-                        <table class="table table-striped mb-0">
+                    
+                    <div class="table-responsive">
+                        <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th>{{ _('Username') }}</th>
-                                    <th>{{ _('Name') }}</th>
-                                    <th>{{ _('Email') }}</th>
-                                    <th>{{ _('Status') }}</th>
+                                    <th class="sortable-header" data-column="icon" data-type="text">{{ _("") }}</th>
+                                    <th class="sortable-header" data-column="username" data-type="text">{{ _('Username') }}</th>
+                                    <th class="sortable-header" data-column="name" data-type="text">{{ _('Name') }}</th>
+                                    <th class="sortable-header" data-column="email" data-type="text">{{ _('Email') }}</th>
+                                    <th class="sortable-header" data-column="status" data-type="text">{{ _('Status') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for member in members %}
-                                    <tr>
-                                        <td>
+                                    <tr class="clickable">
+                                        <td data-column="icon" class="text-center">
+                                            <div class="avatar-circle" title="{{ _('Member') }}">
+                                                <i class="fas fa-user text-muted"></i>
+                                            </div>
+                                        </td>
+                                        <td data-column="username">
                                             <a href="{{ url_for('profile.user_profile', user_id=member.id) }}" class="text-decoration-none">
                                                 <span class="text-primary">{{ member.username }}</span>
                                             </a>
                                         </td>
-                                        <td>{{ member.firstname }} {{ member.lastname }}</td>
-                                        <td>{{ member.email }}</td>
-                                        <td>
+                                        <td data-column="name">{{ member.firstname }} {{ member.lastname }}</td>
+                                        <td data-column="email">{{ member.email }}</td>
+                                        <td data-column="status">
                                             <span class="badge bg-{% if member.status == 'creator' %}primary{% elif member.status == 'admin' %}warning{% else %}success{% endif %}">
                                                 {{ member.status|title }}
                                             </span>
@@ -216,95 +278,115 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                        
+                    </div>
+                </div>
+            {% else %}
+                <!-- Empty Members Card -->
+                <div class="card section-card" style="background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px; margin-bottom: 2rem;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h3 class="section-title">{{ _('Group Members') }}</h3>
+                        </div>
                         {% if is_admin_or_creator %}
-                        <div class="d-flex justify-content-center gap-2 mt-3">
-                            <a href="{{ url_for('groups.send_invitation', group_id=group['id']) }}" class="btn" style="background-color: #f6f9fc; color: #0a2540; border-color: #0a2540;">
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('groups.send_invitation', group_id=group['id']) }}" class="btn btn-secondary">
                                 <i class="fas fa-envelope"></i> {{ _('Send Invitation') }}
                             </a>
-                            <a href="{{ url_for('groups.view_invitations', group_id=group['id']) }}" class="btn" style="background-color: #f6f9fc; color: #0a2540; border-color: #0a2540;">
+                            <a href="{{ url_for('groups.view_invitations', group_id=group['id']) }}" class="btn btn-secondary">
                                 <i class="fas fa-list"></i> {{ _('View Invitations') }}
                             </a>
                         </div>
                         {% endif %}
                     </div>
-                </div>
-            {% else %}
-                <div class="card mb-5" style="margin-bottom: 3rem !important;">
-                    <div class="card-header" style="background-color: #f6f9fc; color: #0a2540;">
-                        <h5 class="mb-0 fw-bold">{{ _('Group Members') }}</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-0">{{ _('No members in this group yet.') }}</p>
+                    <div class="text-center py-4">
+                        <p class="text-muted">{{ _('No members in this group yet.') }}</p>
                     </div>
                 </div>
             {% endif %}
 
-            {% if is_admin_or_creator %}
-            <div class="d-flex justify-content-center mt-4">
-                <a href="{{ url_for('groups.edit_group', group_id=group.id) }}" class="btn" style="background-color: #f6f9fc; color: #0a2540; border-color: #0a2540;">
-                    <i class="fas fa-edit"></i> {{ _('Edit Group') }}
-                </a>
-            </div>
-            {% endif %}
         {% else %}
-
-            <p>{{ _('You are not a member of this group.') }}</p>
-            {% if pending_request %}
-                <span class="badge bg-warning text-dark">{{ _('Request Pending') }}</span>
-            {% else %}
-                <form action="{{ url_for('groups.view_group', group_id=group.id) }}" method="post">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <input type="submit" value="{{ _('Join Group') }}" class="btn" style="background-color: #635bff; color: white; border-color: #635bff;">
-                </form>
-            {% endif %}
-
+            <!-- Non-Member Card -->
+            <div class="card section-card" style="background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px; margin-bottom: 2rem;">
+                <div class="text-center py-4">
+                    <p class="text-muted mb-3">{{ _('You are not a member of this group.') }}</p>
+                    {% if pending_request %}
+                        <span class="badge bg-warning text-dark">{{ _('Request Pending') }}</span>
+                    {% else %}
+                        <form action="{{ url_for('groups.view_group', group_id=group.id) }}" method="post" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt"></i> {{ _('Join Group') }}
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
         {% endif %}
 
         {% if is_admin_or_creator and pending_requests %}
-            <h5 class="mt-5 mb-4">{{ _('Pending Join Requests:') }}</h5>
-            <table class="table table-striped mb-4">
-                <thead>
-                    <tr>
-                        <th>{{ _('Username') }}</th>
-                        <th>{{ _('Email') }}</th>
-                        <th>{{ _('Actions') }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for request in pending_requests %}
-                    <tr>
-                        <td>
-                            <a href="{{ url_for('profile.user_profile', user_id=request.user_id) }}" class="text-decoration-none">
-                                <span class="text-primary">{{ request.username }}</span>
-                            </a>
-                        </td>
-                        <td>{{ request.email if request.email else '' }}</td>
-                        <td>
-                            <div class="btn-group" role="group">
-                                <form action="{{ url_for('groups.handle_request', request_id=request.id, action='accept') }}" method="post" class="d-inline">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                    <button type="submit" class="btn btn-sm" style="background-color: #0a2540; color: white; border-color: #0a2540;">
-                                        <i class="fas fa-check"></i> {{ _('Accept') }}
-                                    </button>
-                                </form>
-                                <form action="{{ url_for('groups.handle_request', request_id=request.id, action='reject') }}" method="post" class="d-inline ms-1">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                    <button type="submit" class="btn btn-sm" style="background-color: #f6f9fc; color: #0a2540; border-color: #0a2540;">
-                                        <i class="fas fa-times"></i> {{ _('Reject') }}
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <!-- Pending Requests Card -->
+            <div class="card section-card" style="background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px; margin-bottom: 2rem;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h3 class="section-title">{{ _('Pending Join Requests') }}</h3>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th class="sortable-header" data-column="icon" data-type="text">{{ _("") }}</th>
+                                <th class="sortable-header" data-column="username" data-type="text">{{ _('Username') }}</th>
+                                <th class="sortable-header" data-column="email" data-type="text">{{ _('Email') }}</th>
+                                <th class="sortable-header" data-column="actions" data-type="text">{{ _('Actions') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in pending_requests %}
+                            <tr>
+                                <td data-column="icon" class="text-center">
+                                    <div class="avatar-circle" title="{{ _('Pending Request') }}">
+                                        <i class="fas fa-user-clock text-muted"></i>
+                                    </div>
+                                </td>
+                                <td data-column="username">
+                                    <a href="{{ url_for('profile.user_profile', user_id=request.user_id) }}" class="text-decoration-none">
+                                        <span class="text-primary">{{ request.username }}</span>
+                                    </a>
+                                </td>
+                                <td data-column="email">{{ request.email if request.email else '' }}</td>
+                                <td data-column="actions">
+                                    <div class="d-flex gap-2">
+                                        <form action="{{ url_for('groups.handle_request', request_id=request.id, action='accept') }}" method="post" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="btn btn-success btn-sm">
+                                                <i class="fas fa-check"></i> {{ _('Accept') }}
+                                            </button>
+                                        </form>
+                                        <form action="{{ url_for('groups.handle_request', request_id=request.id, action='reject') }}" method="post" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-times"></i> {{ _('Reject') }}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         {% endif %}
     </div>
 {% else %}
     <div class="container">
-        <p>Error: Group information not available.</p>
+        <div class="card section-card" style="background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-radius: 12px; padding: 24px; margin-bottom: 2rem;">
+            <div class="text-center py-4">
+                <p class="text-muted">{{ _('Error: Group information not available.') }}</p>
+            </div>
+        </div>
     </div>
 {% endif %}
 {% endblock %}
